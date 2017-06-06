@@ -1,0 +1,8 @@
+﻿生成启动时间为 2017/5/15 20:21:17。
+     1>项目“F:\四路同步测试\git版本控制\vs\四路同步测试\四路同步测试.vcxproj”在节点 2 上(Build 个目标)。
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.MakeFile.Targets(37,5): warning MSB8005: The property 'NMakeBuildCommandLine' doesn't exist.  Skipping...
+     1>已完成生成项目“F:\四路同步测试\git版本控制\vs\四路同步测试\四路同步测试.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:02.96
