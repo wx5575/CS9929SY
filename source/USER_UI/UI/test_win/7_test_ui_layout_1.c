@@ -126,7 +126,7 @@ static void _7_test_ui_init_file_inf(uint16_t base_x, uint16_t base_y, FILE_T *p
     inf.base_x = base_x;//x基坐标 
     inf.base_y = base_y;//y基坐标
     
-    inf.font = TF_FONT;//字体
+    inf.font[CHINESE] = TF_FONT;//字体
     inf.max_len = 100;//最大长度
     inf.font_color = GUI_BLACK;//字体颜色
     inf.back_color = GUI_INVALID_COLOR;//背景颜色
@@ -207,7 +207,7 @@ static void init_one_road_pos_size_inf(uint16_t base_x, uint16_t base_y, ROAD_T 
     inf.max_len = 20;//最大长度
     inf.align = GUI_TA_CENTER | GUI_TA_TOP;
     inf.back_color = GUI_INVALID_COLOR;
-    inf.font = ROAD_FONTS;
+    inf.font[CHINESE] = ROAD_FONTS;
     inf.font_color = GUI_WHITE;
     inf.pos_size.height = RB_H;
     inf.pos_size.width = RN_W;

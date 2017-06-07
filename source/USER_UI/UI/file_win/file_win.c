@@ -40,7 +40,7 @@ void into_save_file_dialog(int hWin);
 static void _cbInsertCard(WM_MESSAGE* pMsg);
 static void update_menu_key_inf(WM_HMEM hWin);
 
-static WIDGET_POS_SIZE_T* file_win_pos_size_pool[4]=
+static WIDGET_POS_SIZE_T* file_win_pos_size_pool[SCREEN_NUM]=
 {
     &_7_file_windows,/*4.3寸屏*/
     &_7_file_windows,/*5.6寸屏*/
@@ -79,11 +79,11 @@ static MENU_KEY_INFO_T 	file_no_exist_menu_key_info[] =
 static void pop_warning_dialog_for_save_file(int hWin)
 {
     const uint16_t WAR_WIN_TX = 10;//警告文本的X坐标
-    const uint16_t WAR_WIN_TY = 50;//警告文本的Y坐标
-    const uint16_t WAR_WIN_W = 300;//警告对话框的宽度
+    const uint16_t WAR_WIN_TY = 20;//警告文本的Y坐标
+    const uint16_t WAR_WIN_W = 400;//警告对话框的宽度
     const uint16_t WAR_WIN_H = 200;//警告对话框的高度
     const uint16_t WAR_WIN_X = 150;//警告对话框在父窗口中的X坐标
-    const uint16_t WAR_WIN_Y = 150;//警告对话框在父窗口中的Y坐标
+    const uint16_t WAR_WIN_Y = 50;//警告对话框在父窗口中的Y坐标
     
     WARNING_INF w_inf =
     {
@@ -91,13 +91,13 @@ static void pop_warning_dialog_for_save_file(int hWin)
         {{"警告","Warning"}, 0 },
         /* 内容 */
         {
-            {"该操作会覆盖文件数据.\n确定要继续吗?",
-            "This will overwrite the file data.\n"
-            "Are you sure you want to continue?"}, 2,
+            {"该操作会覆盖文件数据.\n\n确定要继续吗?\n",
+            "This will overwrite the file data.\n\n"
+            "Do you want to continue?"}, 2,
             0/*base_x*/,0/*base_y*/,
-            {WAR_WIN_TX,WAR_WIN_TY,WAR_WIN_W - 20,WAR_WIN_H - (50 + 30 +10)},/*pos_size*/
+            {WAR_WIN_TX,WAR_WIN_TY,WAR_WIN_W - 20,WAR_WIN_H - (WAR_WIN_TY + 10)},/*pos_size*/
             100/*max_len*/,
-            &GUI_Fonthz_20, GUI_BLACK, GUI_INVALID_COLOR, GUI_TA_CENTER | GUI_TA_VCENTER
+            {&GUI_Fonthz_20}, GUI_BLACK, GUI_INVALID_COLOR, GUI_TA_CENTER | GUI_TA_VCENTER
         },
         {WAR_WIN_X, WAR_WIN_Y, WAR_WIN_W, WAR_WIN_H},/*win_pos_size*/
         0,/*dly_auto_close xx ms后自动关闭 0表示不自动关闭*/

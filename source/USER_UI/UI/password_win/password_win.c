@@ -42,7 +42,7 @@ static void init_create_pwd_com_ele(MYUSER_WINDOW_T* win);
 static void init_create_pwd_text_ele(MYUSER_WINDOW_T* win);
 static void init_create_pwd_edit_ele(MYUSER_WINDOW_T* win);
 
-static WIDGET_POS_SIZE_T* password_win_pos_size_pool[4]=
+static WIDGET_POS_SIZE_T* password_win_pos_size_pool[SCREEN_NUM]=
 {
     &_7_password_windows,/*4.3寸屏*/
     &_7_password_windows,/*5.6寸屏*/
@@ -448,7 +448,7 @@ static void init_com_text_ele_dis_inf(WM_HWIN hWin)
     dis_info.pos_size.width = 70;
     dis_info.pos_size.height = 45;
     dis_info.max_len = 100;
-    dis_info.font = &GUI_Fonthz_20;
+    dis_info.font[CHINESE] = &GUI_Fonthz_20;
     dis_info.font_color = GUI_BLACK;
     dis_info.back_color = GUI_INVALID_COLOR;
     dis_info.align = GUI_TA_LEFT;

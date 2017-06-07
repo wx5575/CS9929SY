@@ -223,7 +223,6 @@ static void WarningUIcb(WM_MESSAGE * pMsg)
 void create_warning_dialog(int hWin)
 {
     init_warning_content();
-//    init_window_size(&warning_windows, warning_windows_win_pos_size_pool[sys_par.screem_size]);
     create_user_dialog(&warning_windows, &windows_list, hWin);//创建主界面
 }
 

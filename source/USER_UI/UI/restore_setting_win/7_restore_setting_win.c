@@ -31,7 +31,7 @@ WIDGET_POS_SIZE_T _7_restore_setting_windows=
 	80/*x*/, 50/*y*/, RES_SET_WIN_W/*width*/, RES_SET_WIN_H/*height*/,
 };
 
-#define FONT    &GUI_Fonthz_24
+#define FONT    &GUI_Fonthz_20
 
 #define RES_SET_BASE_T_X      10
 #define RES_SET_BASE_T_Y      50
@@ -44,7 +44,7 @@ TEXT_ELE_AUTO_LAYOUT_T _7_restore_setting_text_ele_auto_layout_inf=
    RES_SET_BASE_T_X/*base_x*/,RES_SET_BASE_T_Y/*base_y*/,
     RES_SET_ELE_T_W/*width*/,RES_SET_ELE_T_H/*height*/,
     3/*rows*/,1/*column*/,50/*row_spacing*/,0/*column_spacing*/,
-    &GUI_Fonthz_20, GUI_BLACK, GUI_INVALID_COLOR,
+    {FONT}, GUI_BLACK, GUI_INVALID_COLOR,
     GUI_TA_CENTER | GUI_TA_VCENTER,100
 };
 

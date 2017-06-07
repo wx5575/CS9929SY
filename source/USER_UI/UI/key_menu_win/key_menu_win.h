@@ -71,6 +71,10 @@ typedef enum{
     F_KEY_TIME,
     F_KEY_MODE,
     F_KEY_CLEAR,
+    F_KEY_DETAIL,///<详细
+    F_KEY_INSTER,///<插入
+    F_KEY_FORWARD,///<前移
+    F_KEY_BACKWARD,///<后移
 }MENU_KEY_INDEX_ENUM;
 
 /** 系统标准菜单键初始化信息结构 */

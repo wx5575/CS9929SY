@@ -23,10 +23,10 @@ static void init_speciality(void);
 //#include	"calibration.h"
 #include "UI_COM/com_ui_info.h"
 
-#define __TEST			0
-#define __TEST_TYPE		CS9929AX_CC//CS9929AX_CC //CS9927LB//TSK7630//CS9933ET_1//CS9922BX//CS9922BX_DZ//CS9917A_8//CS9950CX //CS9917CX_20//
+#define __TEST			1
+#define __TEST_TYPE		CS9929SY
 
-#define VERSION_NUMBER__    "2.20.70"	/* 版本号 */
+#define VERSION_NUMBER__    "1.0.0"	/* 版本号 */
 
 
 
@@ -200,6 +200,7 @@ const static TYPE_STR type_pool[] = {
 	{"CS9924"     ,	VERSION_NUMBER, CS9924      , config_CS9924         },/* ACW 测电池用 双触点变压器 */
 	{"CS9924-200" ,	VERSION_NUMBER, CS9924_200  , config_CS9924_200     },/* ACW 测电池用 双触点变压器 */
 	
+	{"CS9929SY"   ,	VERSION_NUMBER, CS9929SY    , config_CS9929A        },
 	{"CS9929A"    ,	VERSION_NUMBER, CS9929A     , config_CS9929A        },
 	{"CS9929A-4"  ,	VERSION_NUMBER, CS9929A_4   , config_CS9929A_4      },/* 特点 ACW DCW IR 4路 */
 	{"CS9929A-8"  ,	VERSION_NUMBER, CS9929A_8   , config_CS9929A_8      },/* ACW DCW IR 8路 */
@@ -248,9 +249,9 @@ const static TYPE_STR type_pool[] = {
  * 输出  ：无
  * 返回  ：型号值
  */
-uint16_t read_type_pin(void)
+uint16_t read_type(void)
 {
-    return CS9929AX;
+    return sys_par.instrument_type;
 }
 
 /*
@@ -566,12 +567,9 @@ int32_t check_type(void)
 #if CUSTOM_TYPE_EN
     g_cur_type = &custom_type;
 #else
-    type_num = read_type_pin();
+    type_num = read_type();
     
-    if(size >= 2 && type_num >= CS99XX_T_END)
-    {
-        type_num = CS9919AX;
-    }
+    type_num = CS9929SY;
     
     for(i = 0; i < size; i++)
 	{

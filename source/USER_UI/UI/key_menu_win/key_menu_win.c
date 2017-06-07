@@ -45,7 +45,7 @@
 /**
 * @brief  窗口的位置尺寸信息数组，根据不同的屏幕进行设置
   */
-static WIDGET_POS_SIZE_T* key_menu_win_pos_size[4]=
+static WIDGET_POS_SIZE_T* key_menu_win_pos_size[SCREEN_NUM]=
 {
     &_7_key_menu_windows,/*4.3寸屏*/
     &_7_key_menu_windows,/*5.6寸屏*/
@@ -97,6 +97,10 @@ static const STAND_MENU_KEY_INFO_T all_menu_key_info_[]=
 	{{"时间", "Time"	}, F_KEY_TIME   	},
 	{{"模式", "Mode"	}, F_KEY_MODE   	},
 	{{"清空", "Clear"	}, F_KEY_CLEAR   	},
+	{{"详细", "Detail"	}, F_KEY_DETAIL   	},
+	{{"插入", "Inster"	}, F_KEY_INSTER   	},
+	{{"前移", "Forward"	}, F_KEY_FORWARD   	},
+	{{"后移", "Backward"}, F_KEY_BACKWARD   },
 };
 /**
   * @brief  菜单键信息信息结构 是一个内部数据类型
@@ -158,19 +162,33 @@ TEXT_ELE_T key_ui_ele_pool[]=
 	{{"F5","F5"}, KEY_MENU_F5   },
 	{{"F6","F6"}, KEY_MENU_F6   },
 };
+static void init_create_key_menu_text_ele(MYUSER_WINDOW_T* win);
 /**
   * @brief  菜单键窗口定义
   */
 static MYUSER_WINDOW_T key_menu_windows=
 {
-    {0},
+    {"菜单键窗口","KeyMenuWindow"},
     key_menu_cb,NULL,
 	{
         key_ui_ele_pool,COUNT_ARRAY_SIZE(key_ui_ele_pool),
-        (CS_INDEX*)key_ui_ele_table, ARRAY_SIZE(key_ui_ele_table)
+        (CS_INDEX*)key_ui_ele_table, ARRAY_SIZE(key_ui_ele_table),
+        init_create_key_menu_text_ele
     },
 };
 
+TEXT_ELE_AUTO_LAYOUT_T  *key_menu_text_ele_auto_layout[]=
+{
+    &_7_key_menu_auto_layout_inf,//4.3寸屏
+    &_7_key_menu_auto_layout_inf,//5.6寸屏
+    &_7_key_menu_auto_layout_inf,//7寸屏
+};
+static void init_create_key_menu_text_ele(MYUSER_WINDOW_T* win)
+{
+    init_window_text_ele_list(win);
+    init_window_text_ele_dis_inf(win, key_menu_text_ele_auto_layout[sys_par.screem_size]);
+    init_window_text_ele(win);
+}
 /**
   * @brief  设置菜单键窗口句柄
   * @param  [in] hWin 窗口句柄
@@ -389,25 +407,6 @@ void init_menu_key_info(MENU_KEY_INFO_T * info, uint32_t n, int data)
 	display_menu_key();//刷新菜单键显示
 }
 /**
-  * @brief  根据屏幕尺寸初始化主界面的文本对象位置尺寸信息
-  * @param  无
-  * @retval 无
-  */
-static void init_key_menu_ui_text_ele_pos_inf(void)
-{
-    switch(sys_par.screem_size)
-    {
-    case SCREEN_4_3INCH:
-        break;
-    case SCREEN_6_5INCH:
-        break;
-    default:
-    case SCREEN_7INCH:
-        _7_init_key_menu_win_text_ele_pos(key_ui_ele_pool);
-        break;
-    }
-}
-/**
   * @brief  重绘界面背景
   * @param  无
   * @retval 无
@@ -437,12 +436,13 @@ static void key_menu_cb(WM_MESSAGE* pMsg)
             WM_SetStayOnTop(hWin, 1);//窗口保持在顶部
 			win = get_user_window_info(hWin);
 			
-			if(win != NULL)
-			{
-                init_key_menu_ui_text_ele_pos_inf();//初始化文本对象的位置信息
-                init_window_text_ele_list(win);//初始化窗口文本对象链表
-				init_window_text_ele(win);
-			}
+            init_create_win_all_ele(win);
+//			if(win != NULL)
+//			{
+//                init_key_menu_ui_text_ele_pos_inf();//初始化文本对象的位置信息
+//                init_window_text_ele_list(win);//初始化窗口文本对象链表
+//				init_window_text_ele(win);
+//			}
             
             set_global_fun_key_dispose(scan_menu_key_dispose);
 			break;

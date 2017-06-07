@@ -28,6 +28,7 @@
 #include "FILE_SYS.H"
 #include "cs99xx_usb_manager.h"
 #include "step_par_win/step_win.h"
+#include "result_win/result_win.h"
 
 static	WM_HWIN progbar_handle;///<进度条
 static	WM_HWIN timer_handle;///<定时器句柄
@@ -54,7 +55,7 @@ static FUNCTION_KEY_INFO_T sys_key_pool[]=
 /**
   * @brief  根据不同屏幕尺寸填入位置尺寸信息
   */
-static WIDGET_POS_SIZE_T* main_win_pos_size_pool[4]=
+static WIDGET_POS_SIZE_T* main_win_pos_size_pool[SCREEN_NUM]=
 {
     &_7_main_windows,/*4.3寸屏*/
     &_7_main_windows,/*5.6寸屏*/
@@ -68,7 +69,7 @@ static MENU_KEY_INFO_T 	main_ui_menu_key_inf[] =
     {"", F_KEY_FILE		, KEY_F1 & _KEY_UP, createFileManagerUI  , MENU_KEY_EN },//f1
     {"", F_KEY_STEP		, KEY_F2 & _KEY_UP, create_step_par_ui   , MENU_KEY_EN},//f2
     {"", F_KEY_SYS		, KEY_F3 & _KEY_UP, create_sys_manager_ui, MENU_KEY_EN },//f3
-    {"", F_KEY_RESULT   , KEY_F4 & _KEY_UP, 0                    , MENU_KEY_DIS},//f4
+    {"", F_KEY_RESULT   , KEY_F4 & _KEY_UP, create_result_win    , MENU_KEY_EN},//f4
     {"", F_KEY_TEST		, KEY_F5 & _KEY_UP, create_test_win      , MENU_KEY_EN},//f5
     {"", F_KEY_HELP		, KEY_F6 & _KEY_UP, 0                    , MENU_KEY_DIS },//f6
 };

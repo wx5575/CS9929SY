@@ -32,13 +32,13 @@
 #include "env_par_win/env_par_edit_win.h"
 #include "sys_time_win/sys_time_edit_win.h"
 #include "password_win/password_win.h"
+#include "restore_setting_win/restore_setting_win.h"
 
 static void cb_sys_windows(WM_MESSAGE* pMsg);
 static void update_key_inf(WM_HMEM hWin);
 static FUNCTION_KEY_INFO_T 	sys_key_pool[];
 
-extern WIDGET_POS_SIZE_T _7_sys_windows;
-static WIDGET_POS_SIZE_T* sys_win_pos_size_pool[4]=
+static WIDGET_POS_SIZE_T* sys_win_pos_size_pool[SCREEN_NUM]=
 {
     &_7_sys_windows,/*4.3寸屏*/
     &_7_sys_windows,/*5.6寸屏*/

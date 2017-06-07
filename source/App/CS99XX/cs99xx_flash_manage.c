@@ -252,5 +252,38 @@ void save_one_step_flash(NODE_STEP *node, const FILE_NUM file_num, const STEP_NU
                   F_GROUP_BASE + F_GROUP_OFFSET * file_num + F_STEP_OFFSET * offset_addr,
                   F_UN_SIZE, SPI_FLASH_CHIP1);
 }
+/**
+  * @brief  保存一步测试参数到FLASH
+  * @param  [in] node 步骤参数
+  * @param  [in] file_num 文件编号
+  * @param  [in] step 步骤编号
+  * @retval 无
+  */
+void read_one_step_flash(NODE_STEP *node, const FILE_NUM file_num, const STEP_NUM step)
+{
+    uint16_t offset_addr = TABLE_VALUE_NULL;
+    
+    if(file_num > MAX_FILES)
+    {
+        return;
+    }
+    
+    if(step > MAX_STEPS)
+    {
+        return;
+    }
+    
+    offset_addr = cur_group_table[step - 1];
+    
+    /* 判断映射地址是无效 */
+    if(offset_addr == TABLE_VALUE_NULL)
+    {
+        return;
+    }
+    
+    readbuffer_spi_flash((uint8_t*)&node->one_step,
+                  F_GROUP_BASE + F_GROUP_OFFSET * file_num + F_STEP_OFFSET * offset_addr,
+                  F_UN_SIZE, SPI_FLASH_CHIP1);
+}
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

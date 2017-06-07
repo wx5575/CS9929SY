@@ -26,7 +26,8 @@
 
 #define SYS_LANGUAGE		sys_par.language //CHINESE //ENGLISH //
 
-
+/* 选择字体 如果当前系统字体为空就使用系统字体 不为空就正常使用 */
+#define SEL_FONT(font)      font[SYS_LANGUAGE]==NULL?font[CHINESE]:font[SYS_LANGUAGE]
 #define SELE_STR(S1, S2)	(SYS_LANGUAGE==CHINESE?S1:S2) ///< 根据系统语言选择不同的字符串
 
 #define WINDOWS_BAK_COLOR	GUI_BLUE	//GUI_GRAY ///< 窗口背景色
@@ -57,7 +58,7 @@ typedef struct UI_ELE_DISPLAY_INFO{
 	uint16_t base_y;///<y基坐标
     WIDGET_POS_SIZE_T pos_size;///<窗口的位置尺寸
 	uint8_t max_len;///< 最大长度
-	const GUI_FONT * font;///<字体
+    const GUI_FONT * font[LANGUAGE_NUM];//不同语言可以使用不同的字体
 	GUI_COLOR	font_color;///<字体颜色
 	GUI_COLOR	back_color;///<背景颜色
 	int align;///< 对齐方式
@@ -234,7 +235,7 @@ typedef struct{
     uint8_t columns;///<最大列数
     uint8_t row_spacing;///<行距
     uint8_t column_spacing;///<列距
-    const GUI_FONT *font;///<字体
+    const GUI_FONT * font[LANGUAGE_NUM];//不同语言可以使用不同的字体
     GUI_COLOR font_color;///<字体颜色
     GUI_COLOR back_color;///<背景颜色
     int align;///对齐方式

@@ -144,12 +144,24 @@ void save_group_table(const FILE_NUM file_num)
 /**
   * @brief  保存一步的参数
   * @param  [in] node 步骤数据
+  * @param  [in] file_num 文件编号
   * @param  [in] step 步骤编号
   * @retval 无
   */
-void save_one_step(NODE_STEP *node, const STEP_NUM step)
+void save_one_step(NODE_STEP *node, const FILE_NUM file_num, const STEP_NUM step)
 {
-    save_one_step_flash(node, g_cur_file->num, step);
+    save_one_step_flash(node, file_num, step);
+}
+/**
+  * @brief  读一步的参数
+  * @param  [in] node 步骤数据
+  * @param  [in] file_num 文件编号
+  * @param  [in] step 步骤编号
+  * @retval 无
+  */
+void read_one_step(NODE_STEP *node, const FILE_NUM file_num, const STEP_NUM step)
+{
+    read_one_step_flash(node, file_num, step);
 }
 /**
   * @brief  保存记忆组信息
@@ -161,6 +173,17 @@ void save_group_info(const FILE_NUM file_num)
     save_file(file_num);//保存文件
     save_group_table(file_num);//保存记忆组映射表
     save_step_used_flag(file_num);//保存步骤已使用标记
+}
+/**
+  * @brief  读记忆组信息
+  * @param  [in] file_num 文件编号
+  * @retval 无
+  */
+void read_group_info(const FILE_NUM file_num)
+{
+    read_file(file_num);//保存文件
+    read_group_table(file_num);//保存记忆组映射表
+    read_step_used_flag(file_num);//保存步骤已使用标记
 }
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

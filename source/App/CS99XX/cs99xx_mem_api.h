@@ -37,8 +37,10 @@ extern void save_step_used_flag(const FILE_NUM file_num);
 extern void read_step_used_flag(const FILE_NUM file_num);
 extern void read_group_table(const FILE_NUM file_num);
 extern void save_group_table(const FILE_NUM file_num);
-extern void save_one_step(NODE_STEP *node, const STEP_NUM step);
+extern void save_one_step(NODE_STEP *node, const FILE_NUM file_num, const STEP_NUM step);
+extern void read_one_step(NODE_STEP *node, const FILE_NUM file_num, const STEP_NUM step);
 extern void save_group_info(const FILE_NUM file_num);
+extern void read_group_info(const FILE_NUM file_num);
 
 #endif //__CS99XX_MEM_API_H__
 

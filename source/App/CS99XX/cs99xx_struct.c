@@ -125,7 +125,7 @@ CS_BOOL is_file_exist(FILE_NUM file_num)
   * @param  [in] step 步骤信息
   * @retval 正常CS_ERR_NONE
   */
-CS_ERR check_step_data(UN_STRUCT *step)
+CS_ERR check_step_data(NODE_STEP *step)
 {
     CS_ERR err = CS_ERR_NONE;
     
@@ -192,7 +192,7 @@ CS_ERR check_file_data(TEST_FILE*file)
   */
 void init_file_data(TEST_FILE *file, FILE_NUM file_num)
 {
-    TEST_FILE f={0,"DEFAULT", N_MODE, 1, 0,0,"2017-5-10 17:59:59"};
+    TEST_FILE f={0,"DEFAULT", N_MODE, 0, 0,0,"2017-5-10 17:59:59"};
     
     f.num = file_num;
     
@@ -265,7 +265,7 @@ void check_sys_par(CS_ERR *err)
 {
     *err = CS_ERR_NONE;
     
-    if(sys_par.screem_size > SCREEN_END)
+    if(sys_par.screem_size > SCREEN_NUM)
     {
         *err = CS_ERR_DATA_OUT_OF_RANGE;
     }
@@ -758,8 +758,9 @@ void insert_step(uint16_t pos, uint8_t mode)
 	node.one_step.com.mode = mode;
     
     init_mode(&node);
-    save_one_step(&node, node.one_step.com.step);
+    save_one_step(&node, g_cur_file->num, node.one_step.com.step);
 }
+
 
 /**
   * @brief  设置最近使用的记忆组文件编号
@@ -768,8 +769,15 @@ void insert_step(uint16_t pos, uint8_t mode)
   */
 void set_cur_file(FILE_NUM file_num)
 {
-    sys_flag.last_file_num = file_num;
-    save_sys_flag();
+    CS_ERR err;
+    TEST_FILE* file;
+    
+    file = get_file_inf(file_num, &err);
+    
+    if(err == CS_ERR_NONE)
+    {
+        g_cur_file = file;
+    }
 }
 /**
   * @brief  初始化仪器数据
@@ -778,8 +786,15 @@ void set_cur_file(FILE_NUM file_num)
   */
 void init_instrument_data(void)
 {
+    uint8_t mode;
+    
     init_all_file();//初始化所有文件
-    set_cur_file(0);//将默认文件设为当前文件
+    sys_flag.last_file_num = 0;//默认文件编号
+    save_sys_flag();
+    set_cur_file(sys_flag.last_file_num);//将默认文件设为当前文件
+    mode = get_first_mode();
+    insert_step(0, mode);
+    save_group_info(sys_flag.last_file_num);
     init_sys_par();//初始化系统参数
 }
 /************************ (C) COPYRIGHT Nanjing Changsheng 2017 *****END OF FILE****/

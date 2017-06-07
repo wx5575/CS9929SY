@@ -26,7 +26,7 @@ static void TestUIcb(WM_MESSAGE * pMsg);
 
 extern WIDGET_POS_SIZE_T _7_test_windows;
 
-static WIDGET_POS_SIZE_T* test_win_pos_size_pool[4]=
+static WIDGET_POS_SIZE_T* test_win_pos_size_pool[SCREEN_NUM]=
 {
     &_7_test_windows,/*4.3寸屏*/
     &_7_test_windows,/*5.6寸屏*/

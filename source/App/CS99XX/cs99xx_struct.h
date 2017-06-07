@@ -440,7 +440,7 @@ typedef enum{
 	SCREEN_4_3INCH,///<4.3寸屏
 	SCREEN_6_5INCH,///<5.6寸屏
 	SCREEN_7INCH,///<7寸屏
-    SCREEN_END,
+    SCREEN_NUM,///<支持的屏幕个数
 }SCREEM_SIZE_T;
 /**
   * @brief  显示布局枚举定义
@@ -462,10 +462,11 @@ typedef enum{
   * @brief  系统参数结构定义
   */
 typedef struct{
-	SCREEM_SIZE_T 		screem_size;///< 屏幕尺寸 7inch 5.6inch 4.3inch
-	UI_LAYOUT_T         ui_composition;///<界面布局
-    LANGUAGE_T          language;///<语言
-    uint8_t             password[PWD_MAX_LEN + 1];///<系统密码
+	SCREEM_SIZE_T   screem_size;///< 屏幕尺寸 7inch 5.6inch 4.3inch
+	UI_LAYOUT_T     ui_composition;///<界面布局
+    LANGUAGE_T      language;///<语言
+    uint8_t         password[PWD_MAX_LEN + 1];///<系统密码
+    uint32_t        instrument_type;///<仪器型号
 }SYS_PAR;
 /**
   * @brief  系统标志结构定义
@@ -511,7 +512,7 @@ extern GEAR_STR dc_gear[];
 extern GEAR_STR ir_gear[];
 
 
-extern CS_ERR check_step_data(UN_STRUCT*step);
+extern CS_ERR check_step_data(NODE_STEP*step);
 extern CS_BOOL is_file_exist(FILE_NUM file_num);
 extern CS_ERR check_file_data(TEST_FILE*file);
 extern void init_file_data(TEST_FILE *file, FILE_NUM file_num);

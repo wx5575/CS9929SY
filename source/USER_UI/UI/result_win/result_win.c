@@ -25,8 +25,8 @@
 #include "UI_COM/com_ui_info.h"
 #include "KEY_MENU_WIN/key_menu_win.h"
 #include "WARNING_WIN/warning_win.h"
-#include "7_step_ui.h"
-#include "step_win.h"
+#include "7_result_win.h"
+#include "result_win.h"
 
 
 static LISTVIEW_Handle list_h;
@@ -34,41 +34,45 @@ static void _cbInsertCard(WM_MESSAGE* pMsg);
 static void update_menu_key_inf(WM_HMEM hWin);
 static FUNCTION_KEY_INFO_T 	sys_key_pool[];
 
-static WIDGET_POS_SIZE_T* step_win_pos_size_pool[SCREEN_NUM]=
+static WIDGET_POS_SIZE_T* result_win_pos_size_pool[SCREEN_NUM]=
 {
-    &_7_step_windows,/*4.3寸屏*/
-    &_7_step_windows,/*5.6寸屏*/
-    &_7_step_windows,/*7寸屏*/
+    &_7_result_windows,/*4.3寸屏*/
+    &_7_result_windows,/*5.6寸屏*/
+    &_7_result_windows,/*7寸屏*/
 };
 
-MYUSER_WINDOW_T step_windows =
+MYUSER_WINDOW_T result_windows =
 {
-    {"步骤参数","Step Par."},
-    _cbInsertCard, update_menu_key_inf,
+    {"File_window"},
+    _cbInsertCard,update_menu_key_inf,
 	0,0, 0,
 };
 
+// enum{
+// ID_FILE_LIST_VIEW = (GUI_ID_USER + 0x00),
+// };
+
+#define WINDOWS_BAK_COLOR	GUI_BLUE	//窗口背景色
 void pop_warning_dialog(int hWin);
 void into_save_file_dialog(int hWin);
 
-/* 步骤存在 */
 static MENU_KEY_INFO_T 	step_exist_menu_key_info[] =
 {
-    {"", F_KEY_DETAIL   , KEY_F1 & _KEY_UP,	0},//f1
-    {"", F_KEY_INSTER   , KEY_F2 & _KEY_UP,	0},//f2
-    {"", F_KEY_DEL		, KEY_F3 & _KEY_UP,	0},//f3
-    {"", F_KEY_FORWARD  , KEY_F4 & _KEY_UP,	0},//f4
-    {"", F_KEY_BACKWARD , KEY_F5 & _KEY_UP,	0},//f5
+    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP,	0 },//f1
+    {"", F_KEY_READ		, KEY_F2 & _KEY_UP,	0},//f2
+    {"", F_KEY_EDIT		, KEY_F3 & _KEY_UP,	0	},//f3
+    {"", F_KEY_DEL		, KEY_F4 & _KEY_UP,	0},//f4
+    {"", F_KEY_NULL		, KEY_F5 & _KEY_UP,	0   },//f5
     {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win},//f6
 };
-/* 步骤不存在 */
+
 static MENU_KEY_INFO_T 	step_no_exist_menu_key_info[] =
 {
-    {"", F_KEY_NEW      , KEY_F1 & _KEY_UP,	0},//f1
-    {"", F_KEY_NULL		, KEY_F2 & _KEY_UP,	0},//f2
+    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP,	0 },//f1
+    {"", F_KEY_NEW		, KEY_F2 & _KEY_UP,	0},//f2
     {"", F_KEY_NULL		, KEY_F3 & _KEY_UP,	0},//f3
     {"", F_KEY_NULL		, KEY_F4 & _KEY_UP,	0},//f4
-    {"", F_KEY_NULL     , KEY_F5 & _KEY_UP, 0},//f5
+    {"", F_KEY_NULL     , KEY_F5 & _KEY_UP,	0},//f5
     {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win},//f6
 };
 
@@ -126,17 +130,17 @@ static void update_cur_row_menu_key_st(WM_HWIN hWin)
 	row = LISTVIEW_GetSel(list_h);
 	
 	/* 步骤存在 */
-    if(g_cur_file->total >= row + 1)
-    {
+	if(CS_TRUE == is_file_exist(row + 1))
+	{
         size = ARRAY_SIZE(step_exist_menu_key_info);
         info = step_exist_menu_key_info;
-    }
+	}
 	/* 步骤不存在 */
-    else
-    {
+	else
+	{
         size = ARRAY_SIZE(step_no_exist_menu_key_info);
         info = step_no_exist_menu_key_info;
-    }
+	}
     
 	init_menu_key_info(info, size, hWin);//刷新菜单键显示
 }
@@ -154,39 +158,9 @@ static void _PaintFrame(void)
 	GUI_ClearRectEx(&r);
 }
 
-//static void new_file_name(TEST_FILE *file)
-//{
-//	uint8_t list_buf[5][20] = {0};
-//	uint16_t total_row = 0;
-//	int32_t i = 0;
-//	
-//	total_row = LISTVIEW_GetNumRows(list_h);
-//	sprintf((char *)list_buf[0], "%02d", total_row+1/*file->num*/);
-//	sprintf((char *)list_buf[1], "%s", file->name);
-//	sprintf((char *)list_buf[2], "%s", work_mode_pool[file->work_mode%2]);
-//	sprintf((char *)list_buf[3], "%d", file->total_steps);
-//	sprintf((char *)list_buf[4], "%s", get_time_str(0));
-//	
-//	LISTVIEW_AddRow(list_h, 0);
-//	
-//	for(i = 0; i < 5; i++)
-//	{
-//		LISTVIEW_SetItemText(list_h, i, total_row, (const char*)list_buf[i]);
-//	}
-//}
 
-//static void update_file_dis(void)
-//{
-//	int32_t i = 0;
-//	
-//	for(i = 1; i < MAX_FILES; i++)
-//	{
-//		file_pool[i].num = i;
-//		dis_one_file_info(&file_pool[i]);
-//	}
-//}
 
-static WM_HWIN create_step_listview(WM_HWIN hWin)
+static WM_HWIN create_result_listview(WM_HWIN hWin)
 {
     WM_HWIN handle = 0;
     
@@ -198,76 +172,17 @@ static WM_HWIN create_step_listview(WM_HWIN hWin)
             break;
         default:
         case SCREEN_7INCH:
-            handle = _7_create_step_listview(hWin);
+            handle = _7_create_result_listview(hWin);
             break;
     }
     
     return handle;
 }
 
-void init_mode_listview_dis_inf(uint8_t buf[5][20], NODE_STEP *node)
+static void _create_dialog_(WM_HWIN hWin)
 {
-    uint8_t mode;
-    int32_t i = 0;
-	UN_STRUCT *un = (void*)node;
-    
-    mode = node->one_step.com.mode;
-    sprintf((char *)buf[i++], "%s", mode_pool[mode]);
-    
-    switch(mode)
-    {
-        case ACW:
-            mysprintf(buf[i++], unit_pool[VOL_U_kV], 53, un->acw.testing_voltage);
-            mysprintf(buf[i++], unit_pool[TIM_U_s], 51, un->acw.testing_time);
-            
-            break;
-    }
-}
-static void dis_one_step(NODE_STEP *node, int32_t row)
-{
-	uint8_t list_buf[5][20] = {0};
-	int32_t i = 0;
-    CS_ERR err;
-    
-    err = check_step_data(node);
-	
-    if(err != CS_ERR_NONE)
-    {
-		return;
-    }
-    
-//	sprintf((char *)list_buf[i++], "%02d", node->one_step.com.step);
-	
-    init_mode_listview_dis_inf(list_buf, node);
-    
-	for(i = 0; i < 3; i++)
-	{
-		LISTVIEW_SetItemText(list_h, i + 1, row, (const char*)list_buf[i]);
-	}
-}
-
-static void dis_all_steps(void)
-{
-    int16_t i = 0;
-    int16_t total = 0;
-    NODE_STEP node;
-    FILE_NUM file_num;
-    
-    file_num = g_cur_file->num;
-    total = g_cur_file->total;
-    
-    for(i = 0; i < total; i++)
-    {
-        read_one_step(&node, file_num, i + 1);
-        dis_one_step(&node, i);
-    }
-    
-}
-
-static void init_step_win_listview(WM_HWIN hWin)
-{
-    list_h = create_step_listview(hWin);
-    dis_all_steps();
+    list_h = create_result_listview(hWin);
+//	update_file_dis();
 }
 
 static void direct_key_up(int data)
@@ -402,7 +317,7 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
 		}
 		case WM_CREATE:
 			WM_SetFocus(hWin);/* 设置聚焦 */
-			init_step_win_listview(hWin);
+			_create_dialog_(hWin);
             update_key_inf(hWin);
             break;
 		case WM_TIMER:
@@ -411,6 +326,8 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
             break;
 		case WM_PAINT:
 			_PaintFrame();
+// 			GUI_SetColor(GUI_GRAY);
+// 			GUI_FillRectEx(&group_info_area);
 			break;
 		case WM_NOTIFY_PARENT:
 			break;
@@ -419,11 +336,11 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
 	}
 }
 
-void create_step_par_ui(int id)
+void create_result_win(int id)
 {
-    init_window_size(&step_windows, step_win_pos_size_pool[sys_par.screem_size]);
+    init_window_size(&result_windows, result_win_pos_size_pool[sys_par.screem_size]);
     
-    create_user_window(&step_windows, &windows_list);//创建文件管理界面
+    create_user_window(&result_windows, &windows_list);//创建文件管理界面
 }
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

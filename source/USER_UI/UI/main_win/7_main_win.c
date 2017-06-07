@@ -54,9 +54,10 @@ const GUI_RECT _7_sys_st_info_area =
   */
 void _7_init_main_ui_text_ele_pos(TEXT_ELE_T *pool)
 {
+    uint8_t *str;
     UI_ELE_DISPLAY_INFO_T inf={	//主界面的通信状态
 		0/*base_x*/,0/*base_y*/,0/*x*/,0/*y*/,0/*width*/,25/*height*/,100,
-		&GUI_Fonthz_20, GUI_BLACK, GUI_INVALID_COLOR, GUI_TA_LEFT | GUI_TA_TOP
+		{&GUI_Fonthz_20}, GUI_BLACK, GUI_INVALID_COLOR, GUI_TA_LEFT | GUI_TA_TOP
     };
     
     //主界面的系统时间
@@ -66,6 +67,9 @@ void _7_init_main_ui_text_ele_pos(TEXT_ELE_T *pool)
     inf.pos_size.x = SIZE_7INCH_WIDTH - 115 - inf.pos_size.width;
     inf.pos_size.y = SIZE_7INCH_HEIGH - inf.pos_size.height;
     memcpy(&pool[MAIN_UI_SYS_TIME].dis_info, &inf, sizeof(UI_ELE_DISPLAY_INFO_T));
+    str = get_time_str(0);
+    pool[MAIN_UI_SYS_TIME].text[0] = str;
+    pool[MAIN_UI_SYS_TIME].text[1] = str;
     
     //主界面的通信状态
     inf.pos_size.width = 80;

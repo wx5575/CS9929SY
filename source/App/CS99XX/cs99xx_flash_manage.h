@@ -100,6 +100,7 @@ extern void read_sys_par_flash(void);
 
 
 extern void save_one_step_flash(NODE_STEP *node, const FILE_NUM file_num, const STEP_NUM step);
+extern void read_one_step_flash(NODE_STEP *node, const FILE_NUM file_num, const STEP_NUM step);
 extern void read_group_table_flash(const FILE_NUM file_num);
 extern void save_group_table_flash(const FILE_NUM file_num);
 extern void read_step_used_flag_flash(const FILE_NUM file_num);

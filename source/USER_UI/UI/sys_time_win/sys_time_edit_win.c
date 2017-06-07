@@ -47,8 +47,6 @@
 #define TRANS2    0xFF000000
 
 static void _cbCallback(WM_MESSAGE * pMsg);
-// static FUNCTION_KEY_INFO_T sys_key_pool[];
-// extern _WIDGET_ELEMENT_ save_file_ele_pool[];
 static void direct_key_up(int data);
 static void direct_key_down(int data);
 static void direct_key_left(int data);
@@ -57,14 +55,6 @@ static void menu_key_ok(int hWin);
 void init_day_wheel(uint16_t days);
 static void sel_cur_time_list_wheel(void);
 
-typedef struct{
-    uint32_t Color0;///<起始颜色
-    uint32_t Color1;///<终止颜色
-    uint16_t x0;///<起始x坐标
-    uint16_t y0;///<起始y坐标
-    uint16_t x1;///<起始x坐标
-    uint16_t y1;///<起始y坐标
-}GRADIENT_INF_T;
 
 typedef struct {
     WM_HWIN hWin;
@@ -75,7 +65,6 @@ typedef struct {
     GUI_COLOR font_color_sel;///<字体颜色选中的
     GUI_COLOR font_color_unsel;///<背景颜色未选中的
 }WHEEL;
-//WHEEL wheel[6];
 
 typedef uint32_t (*INIT_FUN)(int);
 typedef struct{
@@ -92,25 +81,6 @@ typedef struct{
 }SYS_TIME_T;
 SYS_TIME_T *g_cur_sys_time;
 
-//void set_cur_sys_time(void)
-//{
-//    uint16_t year;
-//    uint16_t month;
-//    uint16_t day;
-//    uint16_t hour;
-//    uint16_t minute;
-//    uint16_t second;
-//    uint8_t flag = 0;
-//    uint8_t days = 30;
-//    WM_HMEM hWin;
-//    
-//    year = get_rtc_year();
-//    month = get_rtc_month();
-//    day = get_rtc_day();
-//    hour = get_rtc_hour();
-//    minute = get_rtc_minute();
-//    second = get_rtc_second();
-//}
 #define START_YEAR      2014
 #define END_YEAR        2050
 uint32_t init_listwheel_year_string(int hWin)
@@ -199,14 +169,11 @@ uint16_t get_days_of_month(uint16_t year, uint16_t month)
 
 uint32_t init_listwheel_day_string(int hWin)
 {
-    uint32_t size[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
-                        /*1  2  3  4  5  6  7  8  9 10 11 12*/
     int32_t i = 0;
     uint8_t buf[5] = {0};
     uint16_t this_month;
     uint16_t this_year;
     uint16_t this_day;
-    uint16_t flag = 0;
     uint16_t n = 0;
     uint16_t days = 0;
     
@@ -214,20 +181,7 @@ uint32_t init_listwheel_day_string(int hWin)
     this_year = get_rtc_year();
     this_day = get_rtc_day();
     
-    /* 闰年 */
-    if(((this_year % 4 == 0) && (this_year % 100 != 0)) || (this_year % 400 == 0))
-    {
-        flag = 1;
-    }
-    
-    if(this_month == 2)
-    {
-        days = size[this_month] + flag;
-    }
-    else
-    {
-        days = size[this_month];
-    }
+    days =  get_days_of_month(this_year, this_month);
     
     n = days - this_day + 1;
     
@@ -345,7 +299,7 @@ enum{
     SYS_T_SECOND,
 };
 
-static WIDGET_POS_SIZE_T* sys_time_win_pos_size_pool[4]=
+static WIDGET_POS_SIZE_T* sys_time_win_pos_size_pool[SCREEN_NUM]=
 {
     &_7_sys_time_windows,/*4.3寸屏*/
     &_7_sys_time_windows,/*5.6寸屏*/
@@ -382,64 +336,6 @@ void env_langulag_sys_key(int data)
      register_system_key_fun(syst_time_key_pool, ARRAY_SIZE(syst_time_key_pool), data);
 }
 
-// static void env_langulag_menu_key()
-// {
-//     MENU_KEY_INFO_T * info = env_langulag_key_info;
-//     uint32_t size = ARRAY_SIZE(env_langulag_key_info);
-//     int32_t data = g_cur_edit_ele->dis->edit.handle;
-//     
-// 	init_menu_key_info(info, size, data);
-// }
-
-// typedef enum{
-//     ENV_PAR_LANGUAGE,
-// }ENV_PAR_UI_INDEX;
-
-_WIDGET_ELEMENT_ sys_time_ele_pool[5]={
-    0
-//     {
-//         {"语  言:","Language:"}, /* 名称 */
-//         ENV_PAR_LANGUAGE,/* 通过枚举索引 */
-//         {0},/* 默认值 */
-//         {NULL, 1/*数据字节数*/},/* 数据指针 */
-//         {language_pool, ARRAY_SIZE(language_pool)},/* 资源表 */
-//         {ELE_DROPDOWN, EDIT_TYPE, E_INT_T},/*类型*/
-//         {0/*decs*/,20/*lon*/,NULL_U_NULL/*unit*/,},/*format*/
-//         {0/*heigh*/,0/*low*/,{"Language","Language"}/*notice*/},/*range*/
-//         {env_langulag_sys_key,env_langulag_menu_key,keyboard_fun_num,},/*key_inf*/
-//         &env_par_ele_pos_pool[ENV_PAR_LANGUAGE],/*dis*/
-//     },
-//     {
-//         {"蜂鸣时间:","BeepTime:"}, /* 名称 */
-//         FSAVE_UI_BEEPT,/* 通过枚举索引 */
-//         {0},/* 默认值 */
-//         {NULL, 2/*数据字节数*/},/* 数据指针 */
-//         {work_mode_pool, ARRAY_SIZE(work_mode_pool)},/* 资源表 */
-//         {ELE_EDIT_NUM, EDIT_TYPE, E_INT_T},/*类型*/
-//         {1/*decs*/,5/*lon*/,TIM_U_s/*unit*/,},/*format*/
-//         {9999/*heigh*/,0/*low*/,{"BeepTime","BeepTime"}/*notice*/},/*range*/
-//         {fbeeptime_sys_key,fbeeptime_menu_key,keyboard_fun_num,},/*key_inf*/
-//         &save_file_ele_pos_pool[FSAVE_UI_BEEPT],/*dis*/
-//     },
-//     {
-//         {"PASS时间:","PassTime:"}, /* 名称 */
-//         FSAVE_UI_PASST,/* 通过枚举索引 */
-//         {0},/* 默认值 */
-//         {NULL, 2/*数据字节数*/},/* 数据指针 */
-//         {work_mode_pool, ARRAY_SIZE(work_mode_pool)},/* 资源表 */
-//         {ELE_EDIT_NUM, EDIT_TYPE, E_FLOAT_T},/*类型*/
-//         {1/*decs*/,5/*lon*/,TIM_U_s/*unit*/,},/*format*/
-//         {9999/*heigh*/,0/*low*/,{"PassTime","PassTime"}/*notice*/},/*range*/
-//         {fpasstime_sys_key,fpasstime_menu_key,keyboard_fun_num,},/*key_inf*/
-//         &save_file_ele_pos_pool[FSAVE_UI_PASST],/*dis*/
-//     },
-};
-
-// static COM_TEXT_INDEX com_ele_table[]=
-// {
-// 	ELE_RANGE_NAME,///<主界面的通信状态
-// 	ELE_RANGE_NOTICE,///<主界面的系统时间
-// };
 static void update_menu_key_inf(WM_HMEM hWin)
 {
     init_menu_key_info(sys_time_key_info, ARRAY_SIZE(sys_time_key_info), hWin);//刷新菜单键显示
@@ -511,18 +407,6 @@ static void menu_key_ok(int hWin)
 //    back_win(hWin);//关闭对话框
 }
 
-
-// static void menu_key_cancle(int hWin)
-// {
-//     back_win(hWin);//关闭对话框
-// }
-
-// static void menu_key_backspace(int p)
-// {
-// 	GUI_SendKeyMsg(GUI_KEY_BACKSPACE, 1);
-// }
-
-
 static void check_day_legality(void)
 {
     uint32_t year;
@@ -564,8 +448,9 @@ static void direct_key_up(int data)
     LISTWHEEL_MoveToPos(hWin, i);
     g_cur_sys_time->index = i;
     
-    /* 如果当前设置的是月就检查天的合法性 */
-    if(g_cur_sys_time == &sys_time_t[SYS_T_MONTH])
+    /* 如果当前设置的是年月就检查天的合法性 */
+    if(g_cur_sys_time == &sys_time_t[SYS_T_MONTH]
+        || g_cur_sys_time == &sys_time_t[SYS_T_YEAY])
     {
         check_day_legality();
     }
@@ -594,8 +479,9 @@ static void direct_key_down(int data)
     LISTWHEEL_MoveToPos(hWin, i);
     g_cur_sys_time->index = i;
     
-    /* 如果当前设置的是月就检查天的合法性 */
-    if(g_cur_sys_time == &sys_time_t[SYS_T_MONTH])
+    /* 如果当前设置的是年月就检查天的合法性 */
+    if(g_cur_sys_time == &sys_time_t[SYS_T_MONTH]
+        || g_cur_sys_time == &sys_time_t[SYS_T_YEAY])
     {
         check_day_legality();
     }
@@ -654,11 +540,6 @@ static void direct_key_right(int data)
     }
 }
 
-
-static void set_env_par_window_ele_data(SYS_PAR *par)
-{
-//     set_edit_ele_data(&env_par_ele_pool[ENV_PAR_LANGUAGE], &par->language);
-}
 
 #define TRANS0    0x11000000
 #define TRANS1    0xEE000000
@@ -909,87 +790,6 @@ void init_day_wheel(uint16_t days)
     }
 }
 
-//void set_cur_sys_time(void)
-//{
-//    uint16_t year;
-//    uint16_t month;
-//    uint16_t day;
-//    uint16_t hour;
-//    uint16_t minute;
-//    uint16_t second;
-//    uint8_t flag = 0;
-//    uint8_t days = 30;
-//    WM_HMEM hWin;
-//    
-//    year = get_rtc_year();
-//    month = get_rtc_month();
-//    day = get_rtc_day();
-//    hour = get_rtc_hour();
-//    minute = get_rtc_minute();
-//    second = get_rtc_second();
-//    
-//    
-//    /* 闰年 */
-//    if(((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
-//    {
-//        flag = 1;
-//    }
-//    
-//    if(month == 2)
-//    {
-//        days = 28 + flag;
-//    }
-//    else if(month == 4 || month == 6 || month == 9 || month == 11)
-//    {
-//        days = 30;
-//    }
-//    else
-//    {
-//        days = 31;
-//    }
-//    
-//    #define DLY_UPDATE()    GUI_Delay(100)
-//    
-//    hWin = sys_time_t[SYS_T_YEAY].wheel.hWin;
-//    if(year >= START_YEAR)
-//    {
-//        LISTWHEEL_SetVelocity(hWin, 1000);
-//        LISTWHEEL_MoveToPos(hWin, year - START_YEAR);
-//        LISTWHEEL_SetSel(hWin, year - START_YEAR);
-//        DLY_UPDATE();
-//    }
-//    
-//    hWin = sys_time_t[SYS_T_MONTH].wheel.hWin;
-//    LISTWHEEL_SetVelocity(hWin, 10000);
-//    LISTWHEEL_MoveToPos(hWin, month - 1);
-//    LISTWHEEL_SetSel(hWin, month - 1);
-//    DLY_UPDATE();
-//    
-//    init_day_wheel(days);
-//    hWin = sys_time_t[SYS_T_DAY].wheel.hWin;
-//    LISTWHEEL_SetVelocity(hWin, 2000);
-//    LISTWHEEL_MoveToPos(hWin, day - 1);
-//    LISTWHEEL_SetSel(hWin, day - 1);
-//    DLY_UPDATE();
-//    
-//    hWin = sys_time_t[SYS_T_HOUR].wheel.hWin;
-//    LISTWHEEL_SetVelocity(hWin, 2000);
-//    LISTWHEEL_MoveToPos(hWin, hour);
-//    LISTWHEEL_SetSel(hWin, hour);
-//    DLY_UPDATE();
-//    
-//    hWin = sys_time_t[SYS_T_MINUTE].wheel.hWin;
-//    LISTWHEEL_SetVelocity(hWin, 1000);
-//    LISTWHEEL_MoveToPos(hWin, minute);
-//    LISTWHEEL_SetSel(hWin, minute);
-//    DLY_UPDATE();
-//    
-//    hWin = sys_time_t[SYS_T_SECOND].wheel.hWin;
-//    LISTWHEEL_SetVelocity(hWin, 1000);
-//    LISTWHEEL_MoveToPos(hWin, second);
-//    LISTWHEEL_SetSel(hWin, second);
-//    DLY_UPDATE();
-//}
 static void create_listwheel(SYS_TIME_T *inf, WM_HWIN hWin, int32_t index)
 {
     _CreateListWheel(inf->x, inf->y, inf->w, inf->h, id_base++, NULL, 0,
@@ -1007,7 +807,7 @@ static void init_time_list_wheel_pos_size(void)
     uint16_t y = 60;
     uint16_t h = 150;
     uint32_t w_sum = 0;
-    uint32_t offset = 22;
+    uint32_t offset = 20;
     
     for(i = 0; i < n; i++)
     {
@@ -1039,7 +839,7 @@ static void _RoundUpCorners(GUI_MEMDEV_Handle hMem, int Side, int r, int vMask)
     int x1;
     int y1;
 
-    xSize    = GUI_MEMDEV_GetXSize(hMem)+1;
+    xSize    = GUI_MEMDEV_GetXSize(hMem);
     ySize    = GUI_MEMDEV_GetYSize(hMem);
     hMemPrev = GUI_MEMDEV_Select(hMem);
     x1       = xSize - 1;
@@ -1110,7 +910,7 @@ void init_time_listwheel(WM_HWIN hWin)
     _RoundUpCorners(sys_time_t[2].wheel.hMemOverlay, RIGHT, 4, TOP | BOTTOM);
     _RoundUpCorners(sys_time_t[2].wheel.hMemRBorder, RIGHT, 4, TOP | BOTTOM);
     
-    for(; i < n; i++)
+    for(i = 3; i < n; i++)
     {
         create_listwheel(&sys_time_t[i], hWin, i);
     }
@@ -1155,7 +955,7 @@ static void init_com_text_ele_dis_inf(WM_HWIN hWin)
     dis_info.pos_size.width = 70;
     dis_info.pos_size.height = 45;
     dis_info.max_len = 100;
-    dis_info.font = &GUI_Fonthz_20;
+    dis_info.font[CHINESE] = &GUI_Fonthz_20;
     dis_info.font_color = GUI_BLACK;
     dis_info.back_color = GUI_INVALID_COLOR;
     dis_info.align = GUI_TA_LEFT;
@@ -1196,7 +996,6 @@ static void _cbCallback(WM_MESSAGE * pMsg)
             
             init_time_listwheel(hWin);
             update_menu_key_inf(hWin);
-            set_env_par_window_ele_data(&sys_par);
             init_window_edit_ele(win);
             init_com_text_ele_dis_inf(hWin);//初始化公共文本对象的显示信息
             init_window_com_text_ele(win);//初始化创建窗口中的公共文本对象
@@ -1243,8 +1042,6 @@ void create_sys_time_dialog(int hWin)
     init_window_size(&sys_time_window, sys_time_win_pos_size_pool[sys_par.screem_size]);
     create_user_dialog(&sys_time_window, &windows_list, hWin);
 }
-
-
 
 
 

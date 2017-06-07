@@ -38,7 +38,7 @@ static void update_menu_key_inf(WM_HMEM hWin);
 static void menu_key_ok(int hWin);
 static void menu_key_cancle(int hWin);
 
-static WIDGET_POS_SIZE_T* restore_setting_win_pos_size_pool[4]=
+static WIDGET_POS_SIZE_T* restore_setting_win_pos_size_pool[SCREEN_NUM]=
 {
     &_7_restore_setting_windows,/*4.3寸屏*/
     &_7_restore_setting_windows,/*5.6寸屏*/
@@ -74,6 +74,9 @@ static void menu_key_cancle(int hWin)
 {
     back_win(hWin);//关闭对话框
 }
+/**
+  * @brief  界面要显示的文本对象索引枚举定义
+  */
 enum{
     RESTORE_SETTING_NOTICE,
 };

@@ -24,12 +24,12 @@
 #include "UI_COM/com_ui_info.h"
 
 
-WIDGET_POS_SIZE_T _7_step_windows=
+WIDGET_POS_SIZE_T _7_result_windows=
 {
 	0/*x*/,0/*y*/,690/*width*/,455/*height*/,
 };
 
-WM_HWIN _7_create_step_listview(WM_HWIN hWin)
+WM_HWIN _7_create_result_listview(WM_HWIN hWin)
 {
     LISTVIEW_Handle list_h;
 	HEADER_Handle hHeader;
@@ -47,8 +47,8 @@ WM_HWIN _7_create_step_listview(WM_HWIN hWin)
 	HEADER_SetHeight(hHeader,28);
 	LISTVIEW_AddColumn(list_h, 60	, SELE_STR("编号","NO.")			, GUI_TA_HCENTER | GUI_TA_VCENTER);
     LISTVIEW_AddColumn(list_h, 80	, SELE_STR("模式","Mode")			, GUI_TA_HCENTER | GUI_TA_VCENTER);
-    LISTVIEW_AddColumn(list_h, 120	, SELE_STR("输出","Output")			, GUI_TA_HCENTER | GUI_TA_VCENTER);
-    LISTVIEW_AddColumn(list_h, 120	, SELE_STR("测试时间","Test time")  , GUI_TA_HCENTER | GUI_TA_VCENTER);
+    LISTVIEW_AddColumn(list_h, 80	, SELE_STR("电压","Vol.")			, GUI_TA_HCENTER | GUI_TA_VCENTER);
+    LISTVIEW_AddColumn(list_h, 80	, SELE_STR("电流","Cur.")			, GUI_TA_HCENTER | GUI_TA_VCENTER);
 //    LISTVIEW_AddColumn(list_h, 190	, SELE_STR("文件名","FileName")		, GUI_TA_HCENTER | GUI_TA_VCENTER);
 //    LISTVIEW_AddColumn(list_h, 80	, SELE_STR("总步数","Total")		, GUI_TA_HCENTER | GUI_TA_VCENTER);
 //    LISTVIEW_AddColumn(list_h, 262	, SELE_STR("建立时间","CreateDate")	, GUI_TA_HCENTER | GUI_TA_VCENTER);
@@ -59,7 +59,7 @@ WM_HWIN _7_create_step_listview(WM_HWIN hWin)
 	SCROLLBAR_SetColor(hScrollbar, SCROLLBAR_CI_ARROW, GUI_GRAY);  //箭头
 	WIDGET_SetEffect(hScrollbar, &WIDGET_Effect_None);
 	
-	for(i = 0; i < 99; i++)
+	for(i = 0; i < 14; i++)
 	{
 		LISTVIEW_AddRow(list_h, 0);
 		sprintf((char *)buf, "%02d", i + 1);

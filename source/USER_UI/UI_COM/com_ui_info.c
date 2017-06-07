@@ -114,7 +114,7 @@ void init_window_text_ele_dis_inf(MYUSER_WINDOW_T *win, TEXT_ELE_AUTO_LAYOUT_T* 
         pos->width = inf->width;
         pos->height = inf->height;
         
-        dis->font = inf->font;
+        memcpy(dis->font, inf->font, sizeof(inf->font));
         dis->font_color = inf->font_color;
         dis->back_color = inf->back_color;
         dis->align = inf->align;
@@ -318,7 +318,7 @@ static void create_text_widget(WM_HWIN hwin, TEXT_ELE_T *node)
 	Id = id_base++;
 	pText = (const char *)node->text[SYS_LANGUAGE];
 	align = node->dis_info.align;
-	pFont = node->dis_info.font;
+	pFont = SEL_FONT(node->dis_info.font);
 	
 	_hTitle = TEXT_CreateEx(x0, y0, xSize, ySize, hParent, WinFlags, ExFlags, Id, pText);
 	TEXT_SetTextAlign(_hTitle, align);
@@ -374,7 +374,7 @@ static void _show_text_ele(TEXT_ELE_T*node, const uint8_t*str)
 	
 	handle = node->handle;
 	align = dis_info->align;
-	font = dis_info->font;
+	font = SEL_FONT(dis_info->font);
 	back_color = dis_info->back_color;
 	font_color = dis_info->font_color;
 	

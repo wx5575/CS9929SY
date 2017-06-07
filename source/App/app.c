@@ -40,6 +40,7 @@
 #include "WM.h"
 #include "DIALOG.h"
 #include "password_win/password_win.h"
+#include "type/cs99xx_type.h"
 
 uint8_t g_key_char;
 extern WM_HWIN hDlg;
@@ -87,7 +88,7 @@ void soft_init(void)
     TEST_FILE *f;
     
 	File_Init();
-    
+    check_type();
     read_sys_flag();
     
     if(sys_flag.mem_init)
@@ -113,6 +114,9 @@ void soft_init(void)
     }
     
     read_all_file();
+    
+    set_cur_file(sys_flag.last_file_num);//将最近使用的文件设为当前文件
+    read_group_info(sys_flag.last_file_num);
     
     if(CS_ERR_NONE != check_file_data(&file_pool[0]))
     {

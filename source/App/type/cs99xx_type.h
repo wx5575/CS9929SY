@@ -152,6 +152,8 @@ CS9923CG,
 CS9929AX_CC,
 CS9930A_T,
 
+CS9929SY,
+
 CS99XX_T_END,
 };
 
@@ -552,6 +554,7 @@ extern uint8_t get_acw_max_gear(void);
 extern uint8_t get_cc_max_gear(void);
 extern uint8_t get_dcw_max_gear(void);
 extern int32_t check_gr_mode(void);
+extern uint8_t get_first_mode(void);
 
 #endif //__TYPE_SELECT__
 
