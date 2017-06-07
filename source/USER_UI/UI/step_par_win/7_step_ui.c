@@ -52,7 +52,7 @@ WM_HWIN _7_create_step_listview(WM_HWIN hWin)
 //    LISTVIEW_AddColumn(list_h, 190	, SELE_STR("文件名","FileName")		, GUI_TA_HCENTER | GUI_TA_VCENTER);
 //    LISTVIEW_AddColumn(list_h, 80	, SELE_STR("总步数","Total")		, GUI_TA_HCENTER | GUI_TA_VCENTER);
 //    LISTVIEW_AddColumn(list_h, 262	, SELE_STR("建立时间","CreateDate")	, GUI_TA_HCENTER | GUI_TA_VCENTER);
-	
+	 
     SCROLLBAR_SetWidth(hScrollbar,18);
 	SCROLLBAR_SetColor(hScrollbar, SCROLLBAR_CI_THUMB, GUI_BLACK);//缩略图0x00A0A0A0
 	SCROLLBAR_SetColor(hScrollbar, SCROLLBAR_CI_SHAFT, GUI_WHITE);  //轴
