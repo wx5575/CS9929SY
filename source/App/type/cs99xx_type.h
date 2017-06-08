@@ -555,6 +555,8 @@ extern uint8_t get_cc_max_gear(void);
 extern uint8_t get_dcw_max_gear(void);
 extern int32_t check_gr_mode(void);
 extern uint8_t get_first_mode(void);
+extern void *get_defined_mode_table(void);
+extern uint16_t get_defined_mode_num(void);
 
 #endif //__TYPE_SELECT__
 

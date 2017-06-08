@@ -63,12 +63,14 @@ EDIT_ELE_AUTO_LAYOUT_T      *pwd_edit_ele_auto_layout[]=
 };
 static void clear_pwd_edit_ele(int hWin)
 {
+    WM_HMEM handle = 0;
     uint8_t *str;
     
     str = g_cur_edit_ele->data.data;
     str[0] = 0;
     
-    clear_edit_ele(hWin);
+    handle = g_cur_edit_ele->dis.edit.handle;
+    clear_edit_ele(handle);
 }
 static void backspace_pwd_edit_ele(int hWin)
 {

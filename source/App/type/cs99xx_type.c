@@ -547,61 +547,6 @@ void init_custom_type(void)
 {
     
 }
-/*
- * 函数名：check_type
- * 描述  ：检查仪器的型号
- * 输入  ：无
- * 输出  ：无
- * 返回  ：-1 未找到匹配的机型 0 机型成功匹配
- */
-int32_t check_type(void)
-{
-#if CUSTOM_TYPE_EN==0
-	uint16_t type_num = 0;
-	uint16_t size = sizeof(type_pool)/sizeof(type_pool[0]);
-	int32_t i = 0;
-#endif
-	
-    g_cur_type = NULL;
-    
-#if CUSTOM_TYPE_EN
-    g_cur_type = &custom_type;
-#else
-    type_num = read_type();
-    
-    type_num = CS9929SY;
-    
-    for(i = 0; i < size; i++)
-	{
-		if(type_pool[i].num == type_num)
-		{
-			g_cur_type = &type_pool[i];
-            break;
-        }
-    }
-#endif
-    
-	config_all_init();
-    
-    if(g_cur_type == NULL)
-    {
-        return -1;
-    }
-    
-    if(g_cur_type->config_fun)
-    {
-        g_cur_type->config_fun();
-    }
-    else
-    {
-        config_default();
-    }
-    
-    init_other_speciality();//调用config后的其余初始化
-    init_custom_type();//仅仅改变名称的定制机初始化
-    
-    return 0;
-}
 
 int32_t judge_valid_type(const uint16_t type_num, const int8_t n)
 {
@@ -961,39 +906,39 @@ int32_t check_this_mode(uint8_t mode)
     return 0;
 }
 
-uint16_t define_modes(const uint8_t **mode_buf, uint8_t *flag, int16_t *kinds)
+uint16_t define_modes(const uint8_t **mode_buf, uint8_t *flag, uint16_t *kinds)
 {
 	int32_t k = 0;
 	
 	if(MODEL_EN & __ACW)
 	{
-		mode_buf[++k] = mode_pool[ACW];
-		flag[k] = ACW;
+		mode_buf[k] = mode_pool[ACW];
+		flag[k++] = ACW;
 	}
 	if(MODEL_EN & __DCW)
 	{
-		mode_buf[++k] = mode_pool[DCW];
-		flag[k] = DCW;
+		mode_buf[k] = mode_pool[DCW];
+		flag[k++] = DCW;
 	}
 	if(MODEL_EN & __IR)
 	{
-		mode_buf[++k] = mode_pool[IR];
-		flag[k] = IR;
+		mode_buf[k] = mode_pool[IR];
+		flag[k++] = IR;
 	}
 	if(MODEL_EN & __GR)
 	{
-		mode_buf[++k] = mode_pool[GR];
-		flag[k] = GR;
+		mode_buf[k] = mode_pool[GR];
+		flag[k++] = GR;
 	}
 	if(MODEL_EN & __CC)
 	{
-		mode_buf[++k] = mode_pool[CC];
-		flag[k] = CC;
+		mode_buf[k] = mode_pool[CC];
+		flag[k++] = CC;
 	}
 	if(MODEL_EN & __BBD)
 	{
-		mode_buf[++k] = mode_pool[BBD];
-		flag[k] = BBD;
+		mode_buf[k] = mode_pool[BBD];
+		flag[k++] = BBD;
 	}
     
 	if(kinds != NULL)
@@ -1001,32 +946,48 @@ uint16_t define_modes(const uint8_t **mode_buf, uint8_t *flag, int16_t *kinds)
 		*kinds = k;
 	}
 	
-	mode_buf[0]=mode_buf[1];
-	flag[0] = flag[1];
-    
 	return k;
+}
+typedef struct{
+    const uint8_t *mode_buf[MODE_END];///<模式对应的字符串
+    uint8_t flag[MODE_END];///<模式对应的宏索引
+    uint16_t kinds;///<模式的各类
+}DEFINED_MODE_INF;
+static DEFINED_MODE_INF defined_mode_inf;
+
+static void init_defined_mode_inf(DEFINED_MODE_INF *inf)
+{
+    define_modes(inf->mode_buf, inf->flag, &inf->kinds);
+}
+void *get_defined_mode_table(void)
+{
+    return defined_mode_inf.mode_buf;
+}
+uint16_t get_defined_mode_num(void)
+{
+    return defined_mode_inf.kinds;
 }
 int32_t check_test_mode(NODE_STEP * p)
 {
-	const uint8_t *mode_buf[MODEL_KINDS_MAX] = {0};
-	uint8_t flag[MODEL_KINDS_MAX] = {0};
-	int16_t kinds = 0;
-	int16_t i = 0;
-    
-    if(NULL == p)
-    {
-        return -1;
-    }
-	
-	define_modes(mode_buf, flag, &kinds);/* 获取当前机型的模式信息 */
-	
-    for(i = 1; i <= kinds; i++)
-    {
-        if(p->one_step.com.mode == flag[i])
-        {
-            return 0;
-        }
-    }
+//	const uint8_t *mode_buf[MODEL_KINDS_MAX] = {0};
+//	uint8_t flag[MODEL_KINDS_MAX] = {0};
+//	uint16_t kinds = 0;
+//	int16_t i = 0;
+//    
+//    if(NULL == p)
+//    {
+//        return -1;
+//    }
+//	
+//	define_modes(mode_buf, flag, &kinds);/* 获取当前机型的模式信息 */
+//	
+//    for(i = 1; i <= kinds; i++)
+//    {
+//        if(p->one_step.com.mode == flag[i])
+//        {
+//            return 0;
+//        }
+//    }
     
     return -1;
 }
@@ -1191,4 +1152,60 @@ void set_custom_type_info(void)
 {
 }
 
+/*
+ * 函数名：check_type
+ * 描述  ：检查仪器的型号
+ * 输入  ：无
+ * 输出  ：无
+ * 返回  ：-1 未找到匹配的机型 0 机型成功匹配
+ */
+int32_t check_type(void)
+{
+#if CUSTOM_TYPE_EN==0
+	uint16_t type_num = 0;
+	uint16_t size = sizeof(type_pool)/sizeof(type_pool[0]);
+	int32_t i = 0;
+#endif
+	
+    g_cur_type = NULL;
+    
+#if CUSTOM_TYPE_EN
+    g_cur_type = &custom_type;
+#else
+    type_num = read_type();
+    
+    type_num = CS9929SY;
+    
+    for(i = 0; i < size; i++)
+	{
+		if(type_pool[i].num == type_num)
+		{
+			g_cur_type = &type_pool[i];
+            break;
+        }
+    }
+#endif
+    
+	config_all_init();
+    
+    if(g_cur_type == NULL)
+    {
+        return -1;
+    }
+    
+    if(g_cur_type->config_fun)
+    {
+        g_cur_type->config_fun();
+    }
+    else
+    {
+        config_default();
+    }
+    
+    init_other_speciality();//调用config后的其余初始化
+    init_custom_type();//仅仅改变名称的定制机初始化
+    init_defined_mode_inf(&defined_mode_inf);
+    
+    return 0;
+}
 /******************* (C) COPYRIGHT 2014 长盛仪器 *****END OF FILE****/

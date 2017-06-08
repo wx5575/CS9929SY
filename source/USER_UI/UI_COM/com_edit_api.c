@@ -120,6 +120,43 @@ void set_edit_ele_data(_WIDGET_ELEMENT_ *ele, void *data)
     ele->data.data = data;
 }
 
+uint32_t get_edit_num_value(_WIDGET_ELEMENT_* ele)
+{
+    WM_HMEM handle = ele->dis.edit.handle;
+    uint32_t max_len = ele->dis.edit.max_len + 1;
+    uint8_t buf[20] = {0};
+    uint32_t value = 0;
+    uint8_t decs = ele->format.decs;
+    
+    EDIT_GetText(handle, (char*)buf, max_len);
+    
+    value = atof((const char*)buf) * ten_power(decs);
+    
+    return value;
+}
+
+void set_edit_num_value(_WIDGET_ELEMENT_* ele, uint32_t value)
+{
+    WM_HMEM handle = ele->dis.edit.handle;
+    uint8_t buf[20] = {0};
+    uint8_t decs = ele->format.decs;
+    uint8_t lon = ele->format.lon;
+    
+    mysprintf(buf, NULL, decs + lon * 10 + 1 * 100, value);
+    EDIT_SetText(handle, (const void*)buf);
+}
+
+void default_check_value_validity(_WIDGET_ELEMENT_* ele, uint32_t *value)
+{
+    if(*value > ele->range.high)
+    {
+        *value = ele->range.high;
+    }
+    else if(*value < ele->range.low)
+    {
+        *value = ele->range.low;
+    }
+}
 /**
   * @brief  从控件中上载参数到内存空间,在设置完成时会通过这个函数来得到设置值
   *         这个函数会对得到的数据进行合法性判断，并进行修正
@@ -134,7 +171,6 @@ void upload_par_to_ram(_WIDGET_ELEMENT_* ele)
     uint32_t max_len = ele->dis.edit.max_len + 1;
     uint8_t buf[20] = {0};
     uint32_t value = 0;
-    uint8_t decs = ele->format.decs;
     
     if(ele == NULL)
     {
@@ -151,19 +187,20 @@ void upload_par_to_ram(_WIDGET_ELEMENT_* ele)
         }
         case ELE_EDIT_NUM:
         {
-			EDIT_GetText(handle, (char*)buf, max_len);
-			
-			value = atof((const char*)buf) * ten_power(decs);
-			
-			if(value > ele->range.high)
-			{
-				value = ele->range.high;
-			}
+            value = get_edit_num_value(ele);
+            
+            if(ele->range.check_value_validity != NULL)
+            {
+                ele->range.check_value_validity(ele, &value);
+            }
+            else
+            {
+                default_check_value_validity(ele, &value);
+            }
 			
             memcpy(data, (const void*)&value, size);
-            mysprintf(buf, NULL, ele->format.decs + ele->format.lon * 10 + 1 * 100, value);
 			
-			EDIT_SetText(handle, (const void*)buf);
+            set_edit_num_value(ele, value);
             break;
         }
         case ELE_EDIT_STR:
@@ -182,6 +219,7 @@ void upload_par_to_ram(_WIDGET_ELEMENT_* ele)
         case ELE_DROPDOWN:
         {
 			value = DROPDOWN_GetSel(handle);
+            DROPDOWN_GetUserData(handle, &value, size);
             memcpy(data, (const void*)&value, size);
             break;
         }
@@ -283,12 +321,14 @@ void create_one_edit_ele(_WIDGET_ELEMENT_ *ele, WM_HWIN hParent)
 		}
 		case ELE_DROPDOWN:/* 下拉选择框 */
 		{
-			hwidget = DROPDOWN_CreateEx(ele->dis.x + ele->dis.name.width, ele->dis.y,
+            uint32_t size = ele->data.bytes;
+            
+			hwidget = DROPDOWN_CreateUser(ele->dis.x + ele->dis.name.width, ele->dis.y,
 									ele->dis.edit.width, ele->dis.edit.height,
 									hParent, WM_CF_SHOW,
 									ele->dis.edit.align,
-									id_base++);
-			
+									id_base++, size);//使用用户数据来传递设置的数据
+            
 			ele->dis.edit.handle = hwidget;
 			
             for(i = 0; i < ele->resource.size; i++)
@@ -507,11 +547,11 @@ void select_edit_ele(_WIDGET_ELEMENT_ *ele)
     
     if(ele->key_inf.fun_sys_key != NULL)
     {
-        ele->key_inf.fun_sys_key();
+        ele->key_inf.fun_sys_key(ele->dis.edit.handle);
     }
     if(ele->key_inf.fun_menu_key != NULL)
     {
-        ele->key_inf.fun_menu_key();
+        ele->key_inf.fun_menu_key(ele->dis.edit.handle);
     }
     
     set_scan_key_custom_fun(ele->key_inf.fun_key);
@@ -577,12 +617,7 @@ WM_HMEM get_cur_edit_handle(void)
   */
 void clear_edit_ele(int hWin)
 {
-    if(g_cur_edit_ele->dis.edit.handle == NULL)
-    {
-        return;
-    }
-    
-    EDIT_SetText(g_cur_edit_ele->dis.edit.handle, "");
+    EDIT_SetText(hWin, "");
 }
 /**
   * @brief  向当前窗口控件发送一个九九退格键消息

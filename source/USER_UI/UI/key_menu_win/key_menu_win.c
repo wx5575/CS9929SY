@@ -379,6 +379,7 @@ void init_menu_key_info(MENU_KEY_INFO_T * info, uint32_t n, int data)
         info[i].fun_key.user_data = data;
         fun.fun = info[i].fun_key.key_up_dispose_fun;
         fun.user_data = info[i].fun_key.user_data;
+        fun.custom_data = info[i].fun_key.custom_data;
         fun.en = info[i].fun_key.en;
         
         set_menu_function_status(info[i].fun_key.key_value, info[i].fun_key.en);
@@ -568,7 +569,7 @@ void create_key_menu_window(void)
     
     init_window_size(&key_menu_windows, key_menu_win_pos_size[sys_par.screem_size]);
     
-    create_user_window(&key_menu_windows, list);//创建菜单界面
+    create_user_window(&key_menu_windows, list, 0);//创建菜单界面
 }
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

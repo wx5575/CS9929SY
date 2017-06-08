@@ -201,6 +201,7 @@ struct WIDGET_ELEMENT_{
         uint32_t high;///< 上限
         uint32_t low;///< 下限 
         uint8_t *notice[LANGUAGE_NUM];///< 提示信息包含中英文
+        void (*check_value_validity)(_WIDGET_ELEMENT_*,uint32_t*);///<检查数据的正确性
     }range;
     
     /* 按键信息 包含系统键 菜单键 键盘服务函数 */
@@ -261,6 +262,14 @@ typedef struct{
     int align;///<对齐方式
     uint32_t max_len;///<最大长度
 }EDIT_ELE_AUTO_LAYOUT_T;
+/** 
+  * @brief 定制菜单键信息结构
+  */
+typedef struct{
+    uint8_t *name;///<模式的名称
+    int data;///<自定义菜单键的数据
+    void (*fun)(int);///<自定义菜单键的功能函数
+}CUSTOM_MENU_KEY_INF;
 /*********************************************************************/
 /** 
   * @brief 范围信息是很多界面者会用到的公共文本控件
@@ -341,7 +350,7 @@ COM_UI_EXT uint32_t             id_base;///<全局控件ID变量
 extern void init_window_text_ele(MYUSER_WINDOW_T* win);
 extern void update_text_ele(CS_INDEX index, MYUSER_WINDOW_T* win, const uint8_t *str);
 extern void set_text_ele_font_color(CS_INDEX index, MYUSER_WINDOW_T* win, GUI_COLOR color);
-extern void create_user_window(MYUSER_WINDOW_T* win_info, CS_LIST *list_head);
+extern void create_user_window(MYUSER_WINDOW_T* win_info, CS_LIST *list_head, WM_HWIN h_parent);
 extern void init_window_size(MYUSER_WINDOW_T* win_inf, WIDGET_POS_SIZE_T *pos_size_inf);
 extern void init_create_win_all_ele(MYUSER_WINDOW_T* win);
 extern void create_user_dialog(MYUSER_WINDOW_T* win_info, CS_LIST *list_head, WM_HWIN hWin);
@@ -369,6 +378,7 @@ extern void update_all_windows_text(void);
 extern void (*global_fun_key_dispose)(uint32_t key_value);
 extern void set_global_fun_key_dispose(void (*fun)(uint32_t));
 extern void set_com_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str[]);
+extern void set_group_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str);
 extern void draw_group_inf_area(void);
 
 #endif //__COM_UI_INFO_H__

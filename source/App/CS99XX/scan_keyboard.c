@@ -158,15 +158,11 @@ void register_key_dispose_fun(uint32_t key, KEY_DISPOSE_FUN *fun)
 	{
 		if(NULL != fun)
 		{
-            temp->fun = fun->fun;
-            temp->user_data = fun->user_data;
-            temp->en = fun->en;
+            memcpy(temp, fun, sizeof(KEY_DISPOSE_FUN));
 		}
 		else
 		{
-            temp->fun = NULL;
-            temp->user_data = 0;
-            temp->en = 0;
+            memset(temp, 0, sizeof(KEY_DISPOSE_FUN));
 		}
 	}
 }
@@ -175,9 +171,7 @@ static void exe_key_dispose_fun(KEY_DISPOSE_FUN *fun)
 {
 	if(NULL != fun)
 	{
-		golbal_key_info.fun = fun->fun;
-		golbal_key_info.user_data = fun->user_data;
-		golbal_key_info.en = fun->en;
+        memcpy(&golbal_key_info, fun, sizeof(KEY_DISPOSE_FUN));
 	}
 }
 

@@ -29,7 +29,8 @@ const uint8_t *language_pool[2]={"中文","English"};
 /**
   * @brief  测试模式
   */
-const uint8_t *mode_pool[10]={"", "ACW", "DCW", "IR ", "GR ", "BBD", "CC "};
+const uint8_t * mode_pool[10]=
+{"", ACW_STR, DCW_STR, IR_STR, GR_STR, BBD_STR, CC_STR};
 
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

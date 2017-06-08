@@ -409,8 +409,6 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
             break;
 		case WM_PAINT:
 			_PaintFrame();
-// 			GUI_SetColor(GUI_GRAY);
-// 			GUI_FillRectEx(&group_info_area);
 			break;
 		case WM_NOTIFY_PARENT:
 			break;
@@ -419,11 +417,11 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
 	}
 }
 
-void createFileManagerUI(int id)
+void create_file_win(int hWin)
 {
     init_window_size(&FileWindows, file_win_pos_size_pool[sys_par.screem_size]);
     
-    create_user_window(&FileWindows, &windows_list);//创建文件管理界面
+    create_user_window(&FileWindows, &windows_list, hWin);//创建文件管理界面
 }
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

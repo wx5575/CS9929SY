@@ -428,7 +428,7 @@ static void TestUIcb(WM_MESSAGE* pMsg)
 void create_test_win(int hWin)
 {    
     init_window_size(&test_windows, test_win_pos_size_pool[sys_par.screem_size]);
-	create_user_window(&test_windows, &windows_list);//创建测试界面
+	create_user_window(&test_windows, &windows_list, hWin);//创建测试界面
 }
 
 

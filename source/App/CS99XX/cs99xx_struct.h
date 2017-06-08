@@ -12,6 +12,7 @@
 #define __CS99XX_STRUCT_H__
 
 #include "stm32f4xx.h"
+#include "cs_list.h"
 
 #define MAX_STEPS           (99)            ///<单个文件容纳最大步数
 #define TEST_PORTS_MAX      (8 * 2)         ///<测试端口的最大数目 必须是8的倍数 
@@ -250,14 +251,20 @@ typedef union{
   */
 typedef struct Node_Step{
 	UN_STRUCT 	one_step;///<步骤结构数据
-	struct Node_Step *prev;///<结点前指针
-	struct Node_Step *next;///<结点后指针
+	CS_LIST     list;///<链表
 }NODE_STEP;
+/**
+  * @brief  测试步骤缓冲区
+  */
+#define STEP_LIST_SIZE      ((uint16_t)5) /* 存放最近连续步的个数 */
+typedef struct TestGroup{
+	NODE_STEP test_steps[STEP_LIST_SIZE];
+}TESTGROUP;
 
 /**
   * @brief  测试模式的枚举定义
   */
-enum{
+typedef enum{
     NUL     = 0,///<空
     ACW     = 1,///<ACW 模式
     DCW     = 2,///<DCW 模式
@@ -266,7 +273,7 @@ enum{
     BBD     = 5,///<BBD 模式
     CC      = 6,///<CC 模式
     MODE_END,
-};
+}MODE_ENUM;
 
 /**
   * @brief  工件模式的枚举定义
@@ -506,6 +513,9 @@ STRUCT_EXT TEST_FILE file_pool[MAX_FILES];///< 文件池
 STRUCT_EXT TEST_FILE global_file;///< 全局文件实体用于界面通信
 STRUCT_EXT SYS_PAR sys_par;///<系统参数
 STRUCT_EXT SYS_FLAG sys_flag;///<系统参数
+STRUCT_EXT NODE_STEP * g_cur_step;///<当前步指针
+STRUCT_EXT TESTGROUP test_step_buf;///<测试步缓冲区
+STRUCT_EXT CS_LIST list_head_99xx;///<测试步链表头
 
 extern GEAR_STR ac_gear[];
 extern GEAR_STR dc_gear[];
@@ -526,6 +536,8 @@ extern void set_cur_file(FILE_NUM file_num);
 extern void init_instrument_data(void);
 extern void swap_step(const STEP_NUM one, const STEP_NUM two);
 extern void insert_step(uint16_t pos, uint8_t mode);
+extern void load_steps_to_list(const int16_t step, uint8_t step_num);
+extern NODE_STEP *get_g_cur_step(void);
 
 #endif //__CS99XX_STRUCT_H__
 

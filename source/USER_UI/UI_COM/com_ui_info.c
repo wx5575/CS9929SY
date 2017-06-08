@@ -480,7 +480,7 @@ void init_window_com_text_ele(MYUSER_WINDOW_T* win)
   * @param  [in] list_head 窗口链表头，所有创建的窗口都放入这个链表
   * @retval 无
   */
-void create_user_window(MYUSER_WINDOW_T* win_info, CS_LIST *list_head)
+void create_user_window(MYUSER_WINDOW_T* win_info, CS_LIST *list_head, WM_HWIN h_parent)
 {
 	uint16_t x = win_info->pos_size.x;
 	uint16_t y = win_info->pos_size.y;
@@ -488,13 +488,18 @@ void create_user_window(MYUSER_WINDOW_T* win_info, CS_LIST *list_head)
 	uint16_t height = win_info->pos_size.height;
 	USER_CALLBACK cb_fun = win_info->call_back_fun;
     
+    if(h_parent == 0)
+    {
+        h_parent = WM_HBKWIN;
+    }
+    
 	list_add_tail(&win_info->w_list, list_head);//将创建的新窗口加入窗口链表中
     list_init(&win_info->text.list_head);//初始化文本对象链表
     list_init(&win_info->edit.list_head);//初始化编辑对象链表
     list_init(&win_info->com.list_head);//初始化公共文本对象链表
     
     set_cur_window(win_info);//将新建窗口设为当前窗口
-    win_info->handle = WM_CreateWindowAsChild(x, y, width, height, WM_HBKWIN, WM_CF_MEMDEV_ON_REDRAW | WM_CF_SHOW, cb_fun, 0);//WM_CF_SHOW
+    win_info->handle = WM_CreateWindowAsChild(x, y, width, height, h_parent, WM_CF_MEMDEV_ON_REDRAW | WM_CF_SHOW, cb_fun, 0);//WM_CF_SHOW
 }
 /**
   * @brief  设置当前用户窗口尺寸
@@ -875,6 +880,60 @@ void set_com_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str[])
     
     node->text[CHINESE] = buf[CHINESE];
     node->text[ENGLISH] = buf[ENGLISH];
+}
+/**
+  * @brief  设置记忆组文本对象的显示文本内容
+  * @param  [in] index 对象索引
+  * @param  [in] win 窗口指针
+  * @param  [in] str[] 文本数组
+  * @retval 无
+  */
+void set_group_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str)
+{
+	TEXT_ELE_T *node = NULL;
+    CS_ERR err;
+    typedef struct{
+        uint8_t name[20];
+        uint8_t step[10];
+        uint8_t workmode[3];
+    }GROUP_INF;
+    static GROUP_INF inf;
+    uint8_t *p_buf = NULL;
+    uint32_t size = 0;
+    
+	node = get_text_ele_node(index, &win->com.list_head, &err);//获取文本对象指针
+	
+	if(node == NULL || err != CS_ERR_NONE)
+	{
+		return;
+	}
+    
+    if(index == COM_UI_CUR_FILE_NAME)
+    {
+        p_buf = inf.name;
+        size = sizeof(inf.name);
+    }
+    else if(index == COM_UI_CUR_STEP)
+    {
+        p_buf = inf.step;
+        size = sizeof(inf.step);
+    }
+    else if(index == COM_UI_CUR_WORK_MODE)
+    {
+        p_buf = inf.workmode;
+        size = sizeof(inf.workmode);
+    }
+    else
+    {
+        return;
+    }
+    
+    /* 使用安全的字符串拷贝 */
+    strncpy((char*)p_buf, (void*)str, size - 1);
+    strncpy((char*)p_buf, (void*)str, size - 1);
+    
+    node->text[CHINESE] = p_buf;
+    node->text[ENGLISH] = p_buf;
 }
 
 void init_com_text_ele_dis_inf(MYUSER_WINDOW_T* win)

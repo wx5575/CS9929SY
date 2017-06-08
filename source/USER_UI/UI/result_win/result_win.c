@@ -336,11 +336,11 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
 	}
 }
 
-void create_result_win(int id)
+void create_result_win(int hWin)
 {
     init_window_size(&result_windows, result_win_pos_size_pool[sys_par.screem_size]);
     
-    create_user_window(&result_windows, &windows_list);//创建文件管理界面
+    create_user_window(&result_windows, &windows_list, hWin);//创建文件管理界面
 }
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

@@ -217,11 +217,11 @@ static void cb_sys_windows(WM_MESSAGE* pMsg)
 	}
 }
 
-void create_sys_manager_ui(int id)
+void create_sys_manager_win(int hWin)
 {
     init_window_size(&sys_windows, sys_win_pos_size_pool[sys_par.screem_size]);
     
-    create_user_window(&sys_windows, &windows_list);//创建文件管理界面
+    create_user_window(&sys_windows, &windows_list, hWin);//创建文件管理界面
 }
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

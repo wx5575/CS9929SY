@@ -163,6 +163,25 @@ static void update_cur_row_menu_key_st(WM_HWIN hWin)
 	init_menu_key_info(info, size, hWin);//刷新菜单键显示
 }
 
+static void update_g_cur_step(void)
+{
+    int row = 0;
+    NODE_STEP *node;
+    
+	row = LISTVIEW_GetSel(list_h);
+	
+	/* 步骤存在 */
+    if(g_cur_file->total >= row + 1)
+    {
+        load_steps_to_list(row + 1, 1);
+        node = get_g_cur_step();
+        
+        if(NULL != node)
+        {
+            g_cur_step = node;
+        }
+    }
+}
 static void update_menu_key_inf(WM_HMEM hWin)
 {
     update_cur_row_menu_key_st(hWin);
@@ -239,8 +258,18 @@ static uint32_t init_mode_listview_dis_inf(uint8_t buf[5][20], NODE_STEP *node)
     switch(mode)
     {
         case ACW:
-            mysprintf(buf[i++], unit_pool[VOL_U_kV], 53, un->acw.testing_voltage);
-            mysprintf(buf[i++], unit_pool[TIM_U_s], 51, un->acw.testing_time);
+            mysprintf(buf[i++], unit_pool[VOL_U_kV] , 53, un->acw.testing_voltage);
+            mysprintf(buf[i++], unit_pool[TIM_U_s]  , 51, un->acw.testing_time);
+            
+            break;
+        case DCW:
+            mysprintf(buf[i++], unit_pool[VOL_U_kV] , 53, un->dcw.testing_voltage);
+            mysprintf(buf[i++], unit_pool[TIM_U_s]  , 51, un->dcw.testing_time);
+            
+            break;
+        case IR:
+            mysprintf(buf[i++], unit_pool[VOL_U_kV] , 53, un->ir.testing_voltage);
+            mysprintf(buf[i++], unit_pool[TIM_U_s]  , 51, un->ir.testing_time);
             
             break;
     }
@@ -263,7 +292,7 @@ static void dis_one_step(NODE_STEP *node, int32_t row)
     
     n = init_mode_listview_dis_inf(list_buf, node);
     
-	for(i = 0; i < n; i++)
+  	for(i = 0; i < n; i++)
 	{
 		LISTVIEW_SetItemText(list_h, i + 1, row, (const char*)list_buf[i]);
 	}
@@ -295,12 +324,14 @@ static void direct_key_up(int data)
 {
 	LISTVIEW_DecSel(list_h);
     update_cur_row_menu_key_st(data);
+    update_g_cur_step();
 }
 
 static void direct_key_down(int data)
 {
 	LISTVIEW_IncSel(list_h);
     update_cur_row_menu_key_st(data);
+    update_g_cur_step();
 }
 
 static FUNCTION_KEY_INFO_T 	sys_key_pool[]={
@@ -415,6 +446,9 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
 		/*自定义消息 当子窗口被关闭后 收到由子窗口发给父窗口的消息 */
 		case CM_CHILD_W_MSG:
 		{
+            update_key_inf(hWin);
+            update_g_cur_step();
+            dis_all_steps();
 //			msg = *(CUSTOM_MSG_T*)pMsg->Data.v;//拷贝消息
 //             WM_SendMessageNoPara(hWin, CM_W_DIS_MSG);
             
@@ -425,6 +459,7 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
 			WM_SetFocus(hWin);/* 设置聚焦 */
 			init_step_win_listview(hWin);
             update_key_inf(hWin);
+            update_g_cur_step();
             break;
 		case WM_TIMER:
 			break;
@@ -440,11 +475,11 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
 	}
 }
 
-void create_step_par_ui(int id)
+void create_step_par_win(int hWin)
 {
     init_window_size(&step_windows, step_win_pos_size_pool[sys_par.screem_size]);
     
-    create_user_window(&step_windows, &windows_list);//创建文件管理界面
+    create_user_window(&step_windows, &windows_list, hWin);//创建文件管理界面
 }
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

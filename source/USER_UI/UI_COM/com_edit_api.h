@@ -30,6 +30,7 @@ extern void clear_edit_ele(int hWin);
 extern void menu_key_backspace(int hWin);
 extern void del_a_char_from_edit_str(uint8_t cur);
 extern void add_a_char_into_edit_str(uint8_t ch, uint8_t cur, uint8_t max_len);
-
+extern void set_edit_num_value(_WIDGET_ELEMENT_* ele, uint32_t value);
+extern uint32_t get_edit_num_value(_WIDGET_ELEMENT_* ele);
 #endif //__COM_EDIT_API_H__
 

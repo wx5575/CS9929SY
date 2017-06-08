@@ -65,17 +65,14 @@ static WIDGET_POS_SIZE_T* main_win_pos_size_pool[SCREEN_NUM]=
 /** 主界面使用的菜单键信息的配置 */
 static MENU_KEY_INFO_T 	main_ui_menu_key_inf[] = 
 {
-    {"", F_KEY_DISPLAY  , KEY_F0 & _KEY_UP, 0                    , MENU_KEY_DIS},//f0
-    {"", F_KEY_FILE		, KEY_F1 & _KEY_UP, createFileManagerUI  , MENU_KEY_EN },//f1
-    {"", F_KEY_STEP		, KEY_F2 & _KEY_UP, create_step_par_ui   , MENU_KEY_EN},//f2
-    {"", F_KEY_SYS		, KEY_F3 & _KEY_UP, create_sys_manager_ui, MENU_KEY_EN },//f3
-    {"", F_KEY_RESULT   , KEY_F4 & _KEY_UP, create_result_win    , MENU_KEY_EN},//f4
-    {"", F_KEY_TEST		, KEY_F5 & _KEY_UP, create_test_win      , MENU_KEY_EN},//f5
-    {"", F_KEY_HELP		, KEY_F6 & _KEY_UP, 0                    , MENU_KEY_DIS },//f6
+    {"", F_KEY_DISPLAY  , KEY_F0 & _KEY_UP, 0                     , MENU_KEY_DIS},//f0
+    {"", F_KEY_FILE		, KEY_F1 & _KEY_UP, create_file_win       , MENU_KEY_EN },//f1
+    {"", F_KEY_STEP		, KEY_F2 & _KEY_UP, create_step_par_win   , MENU_KEY_EN},//f2
+    {"", F_KEY_SYS		, KEY_F3 & _KEY_UP, create_sys_manager_win, MENU_KEY_EN },//f3
+    {"", F_KEY_RESULT   , KEY_F4 & _KEY_UP, create_result_win     , MENU_KEY_EN},//f4
+    {"", F_KEY_TEST		, KEY_F5 & _KEY_UP, create_test_win       , MENU_KEY_EN},//f5
+    {"", F_KEY_HELP		, KEY_F6 & _KEY_UP, 0                     , MENU_KEY_DIS },//f6
 };
-
-///** 主界面文本对象使用的位置尺寸配置信息 */
-//static UI_ELE_DISPLAY_INFO_T    ui_text_dis_inf_pool[MAIN_UI_ELE_NUM];
 
 /**
   * @brief  主界面的文本对象池
@@ -375,7 +372,7 @@ void create_main_windows(void)
 {
     init_window_size(&main_windows, main_win_pos_size_pool[sys_par.screem_size]);
     
-    create_user_window(&main_windows, &windows_list);
+    create_user_window(&main_windows, &windows_list, 0);
 }
 /**
   * @brief  初始化用户窗口环境

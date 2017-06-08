@@ -844,4 +844,87 @@ void init_instrument_data(void)
     save_group_info(sys_flag.last_file_num);
     init_sys_par();//初始化系统参数
 }
+
+void init_99xx_list(void)
+{
+    memset(test_step_buf.test_steps,0,sizeof(NODE_STEP)*STEP_LIST_SIZE);
+	
+    list_init(&list_head_99xx);
+}
+
+void insert_node(uint8_t n)
+{
+    CS_LIST *new_node = NULL;
+    
+    new_node = &test_step_buf.test_steps[n].list;
+    
+    list_add_tail(new_node, &list_head_99xx);
+}
+
+NODE_STEP *get_g_cur_step(void)
+{
+    if(list_empty(&list_head_99xx))
+    {
+        return NULL;
+    }
+    
+    return list_entry(list_head_99xx.next, NODE_STEP, list);
+}
+int32_t check_test_step_data(NODE_STEP *p, uint16_t size)
+{
+    return 0;
+}
+void load_steps_to_list(const int16_t step, uint8_t step_num)
+{
+    int32_t num = 0;
+    uint16_t offset_addr = 0;
+    int32_t i = 0;
+    
+    init_99xx_list();/* 初始化测试步链表 */
+    
+    if(step_num > STEP_LIST_SIZE)
+    {
+        step_num = STEP_LIST_SIZE;
+    }
+    
+    if(g_cur_file->total == step)
+    {
+        num = 1;
+    }
+    else if(g_cur_file->total > step)
+    {
+        num = (g_cur_file->total - step + 1)>=step_num? step_num:((g_cur_file->total - step + 1)%step_num);
+    }
+    else
+    {
+        return;
+    }
+    
+	for(i = 0; i < num && i < step_num; i++)
+	{
+		insert_node(i);//在当前步后面插入新步
+	}
+    
+    for(i = 0; i < step_num && i < num; i++)
+    {
+        offset_addr = cur_group_table[step - 1 + i];
+        
+        if(offset_addr == TABLE_VALUE_NULL)
+        {
+            return;
+        }
+        
+        if(offset_addr != TABLE_VALUE_NULL && offset_addr < MAX_STEPS)
+        {
+            do
+            {
+                read_one_step(&test_step_buf.test_steps[i], g_cur_file->num, step + i);
+            }while(0 > check_test_step_data(&test_step_buf.test_steps[i], 1));
+            
+            /* 计算出读出的步是第几步 并对错误进行修正 */
+            test_step_buf.test_steps[i].one_step.com.step = step + i;
+        }
+    }
+}
+
 /************************ (C) COPYRIGHT Nanjing Changsheng 2017 *****END OF FILE****/

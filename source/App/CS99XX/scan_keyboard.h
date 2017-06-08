@@ -21,8 +21,9 @@ typedef enum{
 
 typedef struct
 {
-	void (*fun)(int);//按键处理函数
-	int user_data;//用户数据
+	void (*fun)(int);///<按键处理函数
+	int user_data;///<用户数据
+    int custom_data;///<用户定制数据
 	int en;///<使能按键
 }KEY_DISPOSE_FUN;
 

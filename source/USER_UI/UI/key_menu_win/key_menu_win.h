@@ -93,7 +93,8 @@ typedef struct{
 	uint32_t key_value;///<键值
 	KEY_CB_FUN key_up_dispose_fun;///<处理函数
 	MENU_KEY_ST_ENUM en;///<按键使能
-	int user_data;//传递给键盘处理函数的用户数据
+	int user_data;///<传递给键盘处理函数的用户数据
+    int custom_data;///<用户定制数据，用于在定制菜单信息时使用
 }FUNCTION_KEY_INFO_T;
 
 /** 菜单键的配置信息 */
