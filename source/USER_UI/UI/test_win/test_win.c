@@ -77,7 +77,7 @@ void change_key_menu(int id)
 //     {F_KEY_DISPLAY,F_KEY_MODE,F_KEY_NULL,F_KEY_NULL,F_KEY_NULL,F_KEY_MORE,F_KEY_BACK,},
 // };
 
-// static MENU_KEY_INFO_T *test_ui_menu_key_inf[7];
+
 MENU_KEY_INFO_T* get_menu_key_opt_addr(uint32_t opt);
 
 // void register_acw_page1_menu_key_inf(void)
@@ -105,6 +105,7 @@ int32_t get_menu_key_inf_index(uint32_t opt)
     
     return -1;
 }
+
 MENU_KEY_INFO_T* get_menu_key_opt_addr(uint32_t opt)
 {
     int32_t i = 0;
@@ -120,6 +121,7 @@ MENU_KEY_INFO_T* get_menu_key_opt_addr(uint32_t opt)
     
     return NULL;
 }
+
 // void init_test_ui_menu_key_array(void)
 // {
 //     uint32_t i = 0;
@@ -134,13 +136,6 @@ MENU_KEY_INFO_T* get_menu_key_opt_addr(uint32_t opt)
 //     
 //     test_ui_menu_key_inf[i++] = get_menu_key_opt_addr(F_KEY_DISPLAY);
 // }
-#define SIZE_7INCH_WIDTH	800
-#define SIZE_7INCH_HEIGH	480
-/** 记忆组信息 */
-static const GUI_RECT group_info_area =
-{
-    0, 0, SIZE_7INCH_WIDTH - 115, 30
-};
 
 
 /** 测试界面显示的文本索引表 */
@@ -415,8 +410,7 @@ static void TestUIcb(WM_MESSAGE* pMsg)
             break;
 		case WM_PAINT:
 			_PaintFrame();
-			GUI_SetColor(GUI_LIGHTGRAY);
-			GUI_FillRectEx(&group_info_area);
+            draw_group_inf_area();
 			draw_composition_7_1();
 			break;
 		case WM_NOTIFY_PARENT:

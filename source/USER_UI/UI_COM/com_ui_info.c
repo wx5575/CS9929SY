@@ -179,17 +179,6 @@ void init_window_edit_ele_dis_inf(MYUSER_WINDOW_T *win, EDIT_ELE_AUTO_LAYOUT_T* 
         dis->name.align = inf->align;
         dis->edit.align = inf->align;
         dis->unit.align = inf->align;
-//        dis->base_y = inf->base_y;
-//        pos->x = inf->column_spacing * column;
-//        pos->y = inf->row_spacing * row;
-//        pos->width = inf->width;
-//        pos->height = inf->height;
-//        
-//        dis->font = inf->font;
-//        dis->font_color = inf->font_color;
-//        dis->back_color = inf->back_color;
-//        dis->align = inf->align;
-//        dis->max_len = inf->max_len;
         
         ++row;
         
@@ -205,7 +194,7 @@ void init_window_edit_ele_dis_inf(MYUSER_WINDOW_T *win, EDIT_ELE_AUTO_LAYOUT_T* 
   * @param  [in] win 用户窗口指针
   * @retval 无
   */
-static void init_window_com_ele_list(MYUSER_WINDOW_T *win)
+void init_window_com_ele_list(MYUSER_WINDOW_T *win)
 {
 	int32_t i = 0;
 	uint32_t n = win->com.index_size;
@@ -478,8 +467,6 @@ void init_window_com_text_ele(MYUSER_WINDOW_T* win)
     {
         return;
     }
-    
-    init_window_com_ele_list(win);//初始化窗口文本对象链表
 	
 	list_for_each(index, t_list)
 	{
@@ -787,15 +774,64 @@ void init_dialog(MYUSER_WINDOW_T * win)
     FRAMEWIN_SetActive(hWin, 1);
 }
 
+static void _7_draw_group_inf_area(void)
+{
+    /** 记忆组信息 */
+    static const GUI_RECT group_info_area =
+    {
+        0, 0, 800 - 110, 30
+    };
+    
+    GUI_SetColor(GUI_GRAY);//GUI_LIGHTGRAY
+    GUI_FillRectEx(&group_info_area);
+}
+void draw_group_inf_area(void)
+{
+    switch(sys_par.screem_size)
+    {
+        case SCREEN_4_3INCH:
+            break;
+        case SCREEN_6_5INCH:
+            break;
+        default:
+        case SCREEN_7INCH:
+            _7_draw_group_inf_area();
+            break;
+    }
+}
 /*******范围信息是很多界面者会用到的公共文本控件**********************/
 
+CS_INDEX range_com_ele_table[COM_RANGE_ELE_NUM]=
+{
+	COM_RANGE_NAME,///<主界面的通信状态
+	COM_RANGE_NOTICE,///<主界面的系统时间
+};
+
+CS_INDEX range_group_com_ele_table[COM_ELE_NUM]=
+{
+	COM_RANGE_NAME,///<主界面的通信状态
+	COM_RANGE_NOTICE,///<主界面的系统时间
+    COM_UI_FILE_NAME    ,///< 记忆组文件名
+    COM_UI_CUR_FILE_NAME,///< 记忆组文件名内容
+    COM_UI_STEP         ,///< 记忆组步骤信息
+    COM_UI_CUR_STEP     ,///< 记忆组步骤信息内容
+    COM_UI_WORK_MODE    ,///< 记忆组工作模式
+    COM_UI_CUR_WORK_MODE,///< 记忆组工作模式内容
+};
 /**
   * @brief  公共文本对象池
   */
 TEXT_ELE_T com_text_ele_pool[COM_ELE_NUM]=
 {
-	{{"范 围:","Range:"}, ELE_RANGE_NAME   },
-	{{"提示"  ,"Notice"}, ELE_RANGE_NOTICE },
+	{{"范 围:","Range:"}, COM_RANGE_NAME   },
+	{{"提示"  ,"Notice"}, COM_RANGE_NOTICE },
+    
+	{{"文件名:", "FileName:" }, COM_UI_FILE_NAME    },
+	{{"DEFAULT", "DEFAULT"   }, COM_UI_CUR_FILE_NAME},
+	{{"步骤:"  , "Step:"     }, COM_UI_STEP         },
+	{{"01/01"  , "01/01"     }, COM_UI_CUR_STEP     },
+	{{"工作模式:","WorkMode:"}, COM_UI_WORK_MODE    },
+	{{"N"      , "N"         }, COM_UI_CUR_WORK_MODE},
 };
 
 /**
@@ -839,6 +875,119 @@ void set_com_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str[])
     
     node->text[CHINESE] = buf[CHINESE];
     node->text[ENGLISH] = buf[ENGLISH];
+}
+
+void init_com_text_ele_dis_inf(MYUSER_WINDOW_T* win)
+{
+    UI_ELE_DISPLAY_INFO_T dis_info=
+    {
+        0/*base_x*/,0/*base_y*/,0/*x*/,200/*y*/,10/*width*/,30/*height*/,10,
+        {&GUI_Fonthz_20}, GUI_BLACK, GUI_INVALID_COLOR,GUI_TA_LEFT | GUI_TA_TOP
+    };
+    
+    dis_info.pos_size.x = 10;
+    dis_info.pos_size.y = win->pos_size.height - 45;
+    dis_info.pos_size.width = 70;
+    dis_info.pos_size.height = 45;
+    dis_info.max_len = 100;
+    dis_info.font[CHINESE] = &GUI_Fonthz_20;
+    dis_info.font_color = GUI_BLACK;
+    dis_info.back_color = GUI_INVALID_COLOR;
+    dis_info.align = GUI_TA_LEFT;
+    
+    set_com_text_ele_dis_inf(&dis_info, COM_RANGE_NAME);//范围
+    dis_info.pos_size.x += dis_info.pos_size.width;
+    dis_info.pos_size.width = win->pos_size.width - 15 -  dis_info.pos_size.width;
+    set_com_text_ele_dis_inf(&dis_info, COM_RANGE_NOTICE);//提示信息
+}
+
+void init_group_com_text_ele_dis_inf(MYUSER_WINDOW_T* win)
+{
+    UI_ELE_DISPLAY_INFO_T inf;
+    
+    typedef struct{
+        TEXT_ELE_T * name;///<多路编号
+        TEXT_ELE_T * cur_name;///<多路测试模式
+        TEXT_ELE_T * step;///<多路测试状态
+        TEXT_ELE_T * cur_step;///<多路电压
+        TEXT_ELE_T * work_mode;///<多路电流
+        TEXT_ELE_T * cur_work_mode;///<多路真实电流
+    }FILE_T;
+    
+    FILE_T file_t = {
+        &com_text_ele_pool[COM_UI_FILE_NAME],
+        &com_text_ele_pool[COM_UI_CUR_FILE_NAME],
+        &com_text_ele_pool[COM_UI_STEP],
+        &com_text_ele_pool[COM_UI_CUR_STEP],
+        &com_text_ele_pool[COM_UI_WORK_MODE],
+        &com_text_ele_pool[COM_UI_CUR_WORK_MODE],
+    };
+    FILE_T *pool = &file_t;
+    
+    #define GB_X		0 ///<记忆组
+    #define GB_Y		0
+    #define GB_H		30
+    #define FN_W		120 ///<文件名
+    #define FN_X		0
+    #define C_FN_X		FN_X+FN_W ///<当前文件名
+    #define C_FN_W		140
+    #define STEP_X  	C_FN_X+C_FN_W+1 ///< 步骤
+    #define STEP_W  	65
+    #define CS_X  		STEP_X+STEP_W//当前步骤
+    #define CS_W  		80
+    #define WM_X  		CS_X+CS_W+1 ///<工作模式
+    #define WM_W		120
+    #define CWM_X		WM_X+WM_W
+    #define CWM_W  		20
+    #define TF_FONT     &GUI_Fonthz_24
+    
+    /* "文件名" */
+    inf.base_x = GB_X;//x基坐标 
+    inf.base_y = GB_Y;//y基坐标
+    
+    inf.font[CHINESE] = TF_FONT;//字体
+    inf.max_len = 100;//最大长度
+    inf.font_color = GUI_BLACK;//字体颜色
+    inf.back_color = GUI_INVALID_COLOR;//背景颜色
+    inf.align = GUI_TA_RIGHT | GUI_TA_VCENTER;//对齐方式
+    inf.pos_size.height = GB_H;//高
+    
+    inf.pos_size.width = FN_W;//宽
+    inf.pos_size.x = FN_X;//x相对坐标
+    inf.pos_size.y = 0;//y相对坐标
+    
+    memcpy(&pool->name->dis_info, &inf, sizeof(UI_ELE_DISPLAY_INFO_T));
+    
+    /* 文件名 */
+    inf.align = GUI_TA_LEFT | GUI_TA_VCENTER;//对齐方式
+    inf.pos_size.width = C_FN_W;//宽
+    inf.pos_size.x = C_FN_X;//x相对坐标
+    
+    memcpy(&pool->cur_name->dis_info, &inf, sizeof(UI_ELE_DISPLAY_INFO_T));
+    
+    /* "步骤" */
+    inf.pos_size.x = STEP_X;//x相对坐标
+    inf.pos_size.width = STEP_W;//宽
+    
+    memcpy(&pool->step->dis_info, &inf, sizeof(UI_ELE_DISPLAY_INFO_T));
+    
+    /* 步骤 */
+    inf.pos_size.x = CS_X;//x相对坐标
+    inf.pos_size.width = CS_W;//宽
+    
+    memcpy(&pool->cur_step->dis_info, &inf, sizeof(UI_ELE_DISPLAY_INFO_T));
+    
+    /* "工作模式" */
+    inf.pos_size.x = WM_X;//x相对坐标
+    inf.pos_size.width = WM_W;//宽
+    
+    memcpy(&pool->work_mode->dis_info, &inf, sizeof(UI_ELE_DISPLAY_INFO_T));
+    
+    /* 工作模式 */
+    inf.pos_size.x = CWM_X;//x相对坐标
+    inf.pos_size.width = CWM_W;//宽
+    
+    memcpy(&pool->cur_work_mode->dis_info, &inf, sizeof(UI_ELE_DISPLAY_INFO_T));
 }
 /**
   * @brief  设置全局自定义消息的ID

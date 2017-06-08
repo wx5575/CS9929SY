@@ -266,12 +266,27 @@ typedef struct{
   * @brief 范围信息是很多界面者会用到的公共文本控件
   */
 typedef enum {
-	ELE_RANGE_NAME,///<主界面的通信状态
-	ELE_RANGE_NOTICE,///<主界面的系统时间
+	COM_RANGE_NAME,///<主界面的通信状态
+	COM_RANGE_NOTICE,///<主界面的系统时间
+    
+    COM_UI_FILE_NAME    ,///< 记忆组文件名
+    COM_UI_CUR_FILE_NAME,///< 记忆组文件名内容
+    COM_UI_STEP         ,///< 记忆组步骤信息
+    COM_UI_CUR_STEP     ,///< 记忆组步骤信息内容
+    COM_UI_WORK_MODE    ,///< 记忆组工作模式
+    COM_UI_CUR_WORK_MODE,///< 记忆组工作模式内容
     
     COM_ELE_NUM,///<公共控件的个数
 }COM_TEXT_INDEX;
+
+#define COM_RANGE_ELE_NUM   2   ///< 范围公共文本对象个数
+#define COM_GRUOP_ELE_NUM   6   ///< 记忆组公共文本对象个数
+
 extern TEXT_ELE_T com_text_ele_pool[COM_ELE_NUM];
+extern CS_INDEX range_com_ele_table[COM_RANGE_ELE_NUM];
+extern CS_INDEX range_group_com_ele_table[COM_ELE_NUM];
+extern void init_com_text_ele_dis_inf(MYUSER_WINDOW_T* win);
+extern void init_group_com_text_ele_dis_inf(MYUSER_WINDOW_T* win);
 /*********************************************************************/
 /** 
   * @brief 用户自定义消息
@@ -342,6 +357,7 @@ extern void update_com_text_ele(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *s
 extern void init_window_com_text_ele(MYUSER_WINDOW_T* win);
 extern void init_window_text_ele_list(MYUSER_WINDOW_T *win);
 extern void init_window_edit_ele_list(MYUSER_WINDOW_T *win);
+extern void init_window_com_ele_list(MYUSER_WINDOW_T *win);
 extern void init_window_text_ele_dis_inf(MYUSER_WINDOW_T *win, TEXT_ELE_AUTO_LAYOUT_T *inf);
 extern void init_window_edit_ele_dis_inf(MYUSER_WINDOW_T *win, EDIT_ELE_AUTO_LAYOUT_T* inf);
 extern void set_custom_msg_id(CUSTOM_MSG_ID id);
@@ -353,6 +369,7 @@ extern void update_all_windows_text(void);
 extern void (*global_fun_key_dispose)(uint32_t key_value);
 extern void set_global_fun_key_dispose(void (*fun)(uint32_t));
 extern void set_com_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str[]);
+extern void draw_group_inf_area(void);
 
 #endif //__COM_UI_INFO_H__
 

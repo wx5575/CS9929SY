@@ -124,25 +124,25 @@ static void into_save_file_dialog(int hWin)
         create_save_file_dialog(hWin);
     }
 }
-static void pop_warning_dialog(int hWin)
-{
-    int row = 0;
-    
-	row = LISTVIEW_GetSel(list_h);
-	
-	/* 文件存在 */
-	if(CS_TRUE == is_file_exist(row + 1))
-	{
-        
-    }
-	/* 文件不存在 */
-	else
-	{
-        
-    }
-    
-    create_warning_dialog(hWin);
-}
+//static void pop_warning_dialog(int hWin)
+//{
+//    int row = 0;
+//    
+//	row = LISTVIEW_GetSel(list_h);
+//	
+//	/* 文件存在 */
+//	if(CS_TRUE == is_file_exist(row + 1))
+//	{
+//        
+//    }
+//	/* 文件不存在 */
+//	else
+//	{
+//        
+//    }
+//    
+//    create_warning_dialog(hWin);
+//}
 
 static void update_cur_row_menu_key_st(WM_HWIN hWin)
 {
@@ -212,26 +212,26 @@ static void dis_one_file_info(TEST_FILE *file)
 	}
 }
 
-static void new_file_name(TEST_FILE *file)
-{
-	uint8_t list_buf[5][20] = {0};
-	uint16_t total_row = 0;
-	int32_t i = 0;
-	
-	total_row = LISTVIEW_GetNumRows(list_h);
-	sprintf((char *)list_buf[0], "%02d", total_row+1/*file->num*/);
-	sprintf((char *)list_buf[1], "%s", file->name);
-	sprintf((char *)list_buf[2], "%s", work_mode_pool[file->work_mode%2]);
-	sprintf((char *)list_buf[3], "%d", file->total);
-	sprintf((char *)list_buf[4], "%s", get_time_str(0));
-	
-	LISTVIEW_AddRow(list_h, 0);
-	
-	for(i = 0; i < 5; i++)
-	{
-		LISTVIEW_SetItemText(list_h, i, total_row, (const char*)list_buf[i]);
-	}
-}
+//static void new_file_name(TEST_FILE *file)
+//{
+//	uint8_t list_buf[5][20] = {0};
+//	uint16_t total_row = 0;
+//	int32_t i = 0;
+//	
+//	total_row = LISTVIEW_GetNumRows(list_h);
+//	sprintf((char *)list_buf[0], "%02d", total_row+1/*file->num*/);
+//	sprintf((char *)list_buf[1], "%s", file->name);
+//	sprintf((char *)list_buf[2], "%s", work_mode_pool[file->work_mode%2]);
+//	sprintf((char *)list_buf[3], "%d", file->total);
+//	sprintf((char *)list_buf[4], "%s", get_time_str(0));
+//	
+//	LISTVIEW_AddRow(list_h, 0);
+//	
+//	for(i = 0; i < 5; i++)
+//	{
+//		LISTVIEW_SetItemText(list_h, i, total_row, (const char*)list_buf[i]);
+//	}
+//}
 
 static void update_file_dis(void)
 {

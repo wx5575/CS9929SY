@@ -27,11 +27,17 @@
 #include "WARNING_WIN/warning_win.h"
 #include "7_step_ui.h"
 #include "step_win.h"
+#include "type/cs99xx_type.h"
+#include "step_edit_win.h"
 
 
 static LISTVIEW_Handle list_h;
 static void _cbInsertCard(WM_MESSAGE* pMsg);
 static void update_menu_key_inf(WM_HMEM hWin);
+static void dis_all_steps(void);
+static void update_cur_row_menu_key_st(WM_HWIN hWin);
+static void new_one_step(int hwin);
+
 static FUNCTION_KEY_INFO_T 	sys_key_pool[];
 
 static WIDGET_POS_SIZE_T* step_win_pos_size_pool[SCREEN_NUM]=
@@ -41,21 +47,18 @@ static WIDGET_POS_SIZE_T* step_win_pos_size_pool[SCREEN_NUM]=
     &_7_step_windows,/*7寸屏*/
 };
 
-MYUSER_WINDOW_T step_windows =
+static MYUSER_WINDOW_T step_windows =
 {
     {"步骤参数","Step Par."},
     _cbInsertCard, update_menu_key_inf,
 	0,0, 0,
 };
 
-void pop_warning_dialog(int hWin);
-void into_save_file_dialog(int hWin);
-
 /* 步骤存在 */
 static MENU_KEY_INFO_T 	step_exist_menu_key_info[] =
 {
-    {"", F_KEY_DETAIL   , KEY_F1 & _KEY_UP,	0},//f1
-    {"", F_KEY_INSTER   , KEY_F2 & _KEY_UP,	0},//f2
+    {"", F_KEY_NEW      , KEY_F1 & _KEY_UP,	new_one_step},//f1
+    {"", F_KEY_DETAIL   , KEY_F2 & _KEY_UP,	create_step_edit_ui},//f2
     {"", F_KEY_DEL		, KEY_F3 & _KEY_UP,	0},//f3
     {"", F_KEY_FORWARD  , KEY_F4 & _KEY_UP,	0},//f4
     {"", F_KEY_BACKWARD , KEY_F5 & _KEY_UP,	0},//f5
@@ -64,13 +67,32 @@ static MENU_KEY_INFO_T 	step_exist_menu_key_info[] =
 /* 步骤不存在 */
 static MENU_KEY_INFO_T 	step_no_exist_menu_key_info[] =
 {
-    {"", F_KEY_NEW      , KEY_F1 & _KEY_UP,	0},//f1
+    {"", F_KEY_NEW      , KEY_F1 & _KEY_UP,	new_one_step},//f1
     {"", F_KEY_NULL		, KEY_F2 & _KEY_UP,	0},//f2
     {"", F_KEY_NULL		, KEY_F3 & _KEY_UP,	0},//f3
     {"", F_KEY_NULL		, KEY_F4 & _KEY_UP,	0},//f4
     {"", F_KEY_NULL     , KEY_F5 & _KEY_UP, 0},//f5
     {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win},//f6
 };
+static void new_one_step(int hwin)
+{
+    uint8_t mode;
+    STEP_NUM step;
+    
+    step = g_cur_file->total;
+    
+    if(step >= MAX_STEPS)
+    {
+        return;
+    }
+    
+    mode = get_first_mode();
+    insert_step(step, mode);
+    save_group_info(g_cur_file->num);
+    dis_all_steps();
+    LISTVIEW_SetSel(list_h, step);
+    update_cur_row_menu_key_st(hwin);
+}
 
 //static void into_save_file_dialog(int hWin)
 //{
@@ -150,7 +172,7 @@ static void _PaintFrame(void)
 {
 	GUI_RECT r;
 	WM_GetClientRect(&r);
-	GUI_SetBkColor(WINDOWS_BAK_COLOR);
+	GUI_SetBkColor(GUI_LIGHTGRAY);
 	GUI_ClearRectEx(&r);
 }
 
@@ -205,7 +227,7 @@ static WM_HWIN create_step_listview(WM_HWIN hWin)
     return handle;
 }
 
-void init_mode_listview_dis_inf(uint8_t buf[5][20], NODE_STEP *node)
+static uint32_t init_mode_listview_dis_inf(uint8_t buf[5][20], NODE_STEP *node)
 {
     uint8_t mode;
     int32_t i = 0;
@@ -222,12 +244,15 @@ void init_mode_listview_dis_inf(uint8_t buf[5][20], NODE_STEP *node)
             
             break;
     }
+    
+    return i;
 }
 static void dis_one_step(NODE_STEP *node, int32_t row)
 {
 	uint8_t list_buf[5][20] = {0};
 	int32_t i = 0;
     CS_ERR err;
+    uint32_t n = 0;
     
     err = check_step_data(node);
 	
@@ -236,11 +261,9 @@ static void dis_one_step(NODE_STEP *node, int32_t row)
 		return;
     }
     
-//	sprintf((char *)list_buf[i++], "%02d", node->one_step.com.step);
-	
-    init_mode_listview_dis_inf(list_buf, node);
+    n = init_mode_listview_dis_inf(list_buf, node);
     
-	for(i = 0; i < 3; i++)
+	for(i = 0; i < n; i++)
 	{
 		LISTVIEW_SetItemText(list_h, i + 1, row, (const char*)list_buf[i]);
 	}
@@ -261,7 +284,6 @@ static void dis_all_steps(void)
         read_one_step(&node, file_num, i + 1);
         dis_one_step(&node, i);
     }
-    
 }
 
 static void init_step_win_listview(WM_HWIN hWin)
@@ -269,7 +291,6 @@ static void init_step_win_listview(WM_HWIN hWin)
     list_h = create_step_listview(hWin);
     dis_all_steps();
 }
-
 static void direct_key_up(int data)
 {
 	LISTVIEW_DecSel(list_h);

@@ -1395,6 +1395,21 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>RESULT_WIN</GroupName>
+          <Files>
+            <File>
+              <FileName>7_result_win.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\USER_UI\UI\result_win\7_result_win.c</FilePath>
+            </File>
+            <File>
+              <FileName>result_win.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\USER_UI\UI\result_win\result_win.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>

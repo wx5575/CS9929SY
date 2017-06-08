@@ -702,7 +702,8 @@ void init_mode(NODE_STEP *p)
 }
 /**
   * @brief  插入一步到指定的位置
-  * @param  [in/out] p 步骤参数 
+  * @param  [in] pos 插入步的位置 从0开始
+  * @param  [in] mode 要插入步的模式
   * @retval 无
   */
 void insert_step(uint16_t pos, uint8_t mode)
@@ -761,6 +762,52 @@ void insert_step(uint16_t pos, uint8_t mode)
     save_one_step(&node, g_cur_file->num, node.one_step.com.step);
 }
 
+/**
+  * @brief  插入一步到指定的位置
+  * @param  [in] one 要交换步的第一个步号
+  * @param  [in] two 要交换步的第二个步号
+  * @retval 无
+  */
+void swap_step(const STEP_NUM one, const STEP_NUM two)
+{
+    uint16_t temp = 0;
+    uint16_t l_addr1 = TABLE_VALUE_NULL;
+    uint16_t l_addr2 = TABLE_VALUE_NULL;
+    
+    if(one == two)
+    {
+        return;
+    }
+    
+    if(one > g_cur_file->total || one == 0)
+    {
+        return;
+    }
+    
+    if(two > g_cur_file->total || two == 0)
+    {
+        return;
+    }
+    
+    l_addr1 = cur_group_table[one - 1];
+    l_addr2 = cur_group_table[two - 1];
+    
+    if(l_addr1 == TABLE_VALUE_NULL || l_addr2 == TABLE_VALUE_NULL)
+    {
+        return;
+    }
+    
+    /* 交换数据 */
+    temp = l_addr1;
+    l_addr1 = l_addr2;
+    l_addr2 = temp;
+    
+    /* 把交换后的映射数据保存到映射表中 */
+    cur_group_table[one - 1] = l_addr1;
+    cur_group_table[two - 1] = l_addr2;
+    
+    save_group_table(g_cur_file->num);/* 把更改过的映射表写入到存储器 */
+}
 
 /**
   * @brief  设置最近使用的记忆组文件编号

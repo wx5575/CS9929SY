@@ -371,11 +371,6 @@ CS_INDEX password_ui_ele_table[]=
     PASSWORD_CONFIRM,
 };
 
-static CS_INDEX com_ele_table[]=
-{
-	ELE_RANGE_NAME,///<主界面的通信状态
-	ELE_RANGE_NOTICE,///<主界面的系统时间
-};
 /**
   * @brief  密码界面要显示的文本对象索引表
   */
@@ -416,7 +411,7 @@ MYUSER_WINDOW_T password_windows=
     },
     {
         com_text_ele_pool, ARRAY_SIZE(com_text_ele_pool),
-        (CS_INDEX*)com_ele_table,ARRAY_SIZE(com_ele_table),
+        (CS_INDEX*)range_com_ele_table,ARRAY_SIZE(range_com_ele_table),
         init_create_pwd_com_ele
     },
 };
@@ -432,32 +427,6 @@ static MENU_KEY_INFO_T 	sys_menu_key_info[] =
     {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win },//f6
 };
 
-static void init_com_text_ele_dis_inf(WM_HWIN hWin)
-{
-	MYUSER_WINDOW_T* win;
-    UI_ELE_DISPLAY_INFO_T dis_info=
-    {
-        0/*base_x*/,0/*base_y*/,0/*x*/,200/*y*/,10/*width*/,30/*height*/,10,
-        &GUI_Fonthz_20, GUI_BLACK, GUI_INVALID_COLOR,GUI_TA_LEFT | GUI_TA_TOP
-    };
-    
-    win = get_user_window_info(hWin);
-    
-    dis_info.pos_size.x = 10;
-    dis_info.pos_size.y = win->pos_size.height - 45;
-    dis_info.pos_size.width = 70;
-    dis_info.pos_size.height = 45;
-    dis_info.max_len = 100;
-    dis_info.font[CHINESE] = &GUI_Fonthz_20;
-    dis_info.font_color = GUI_BLACK;
-    dis_info.back_color = GUI_INVALID_COLOR;
-    dis_info.align = GUI_TA_LEFT;
-    
-    set_com_text_ele_dis_inf(&dis_info, ELE_RANGE_NAME);//范围
-    dis_info.pos_size.x += dis_info.pos_size.width;
-    dis_info.pos_size.width = win->pos_size.width - 15 -  dis_info.pos_size.width;
-    set_com_text_ele_dis_inf(&dis_info, ELE_RANGE_NOTICE);//提示信息
-}
 
 static void update_menu_key_inf(WM_HMEM hWin)
 {
@@ -496,9 +465,8 @@ static void init_create_pwd_text_ele(MYUSER_WINDOW_T* win)
 }
 static void init_create_pwd_com_ele(MYUSER_WINDOW_T* win)
 {
-	WM_HWIN hWin = win->handle;
-    
-    init_com_text_ele_dis_inf(hWin);//初始化公共文本对象的显示信息
+    init_window_com_ele_list(win);//初始化窗口文本对象链表
+    init_com_text_ele_dis_inf(win);//初始化公共文本对象的显示信息
     init_window_com_text_ele(win);//初始化创建窗口中的公共文本对象
 }
 

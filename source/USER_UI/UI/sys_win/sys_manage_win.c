@@ -55,7 +55,7 @@ typedef enum{
     SYS_UI_END,
 }SYS_UI_INDEX;
 
-CS_INDEX sys_ui_index[]=
+static CS_INDEX sys_ui_index[]=
 {
     SYS_UI_ENV_PAR,// 环境参数
     SYS_UI_TIME,
@@ -65,8 +65,8 @@ CS_INDEX sys_ui_index[]=
     SYS_UI_RE_FACT_SETTING,// 恢复出厂设置
     SYS_UI_END,
 };
-UI_ELE_DISPLAY_INFO_T sys_ui_ele_dis_info_pool[SYS_UI_END];
-TEXT_ELE_T sys_ui_ele_pool[]=
+
+static TEXT_ELE_T sys_ui_ele_pool[]=
 {
     {{"环境参数"    ,"Env. Par."         }, SYS_UI_ENV_PAR        },
 	{{"系统时间"    ,"System Time"       }, SYS_UI_TIME           },
@@ -75,7 +75,7 @@ TEXT_ELE_T sys_ui_ele_pool[]=
     {{"模块管理"    ,"Module Management" }, SYS_UI_MODULE         },
     {{"恢复出厂设置","Rest.Fact.Settings"}, SYS_UI_RE_FACT_SETTING},
 };
-MYUSER_WINDOW_T sys_windows=
+static MYUSER_WINDOW_T sys_windows=
 {
     {"sys_windows"},
     cb_sys_windows, update_key_inf,
@@ -84,8 +84,6 @@ MYUSER_WINDOW_T sys_windows=
         (CS_INDEX*)sys_ui_index,ARRAY_SIZE(sys_ui_index)
     },
 };
-
-// #define WINDOWS_BAK_COLOR	GUI_GRAY //GUI_BLUE	//窗口背景色
 
 static void into_sub_set_win(int hWin);
 /* 系统界面下按键菜单 */

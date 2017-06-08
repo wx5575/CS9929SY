@@ -441,8 +441,8 @@ void update_ele_range_text(_WIDGET_ELEMENT_ *ele)
             break;
     }
     
-    set_com_text_ele_inf((CS_INDEX)ELE_RANGE_NOTICE, g_cur_win, str);
-    update_com_text_ele((CS_INDEX)ELE_RANGE_NOTICE, g_cur_win, str[SYS_LANGUAGE]);
+    set_com_text_ele_inf((CS_INDEX)COM_RANGE_NOTICE, g_cur_win, str);
+    update_com_text_ele((CS_INDEX)COM_RANGE_NOTICE, g_cur_win, str[SYS_LANGUAGE]);
 }
 /**
   * @brief  改变编辑对象中编辑控件的背景色，根据编辑控件的类型来区别处理

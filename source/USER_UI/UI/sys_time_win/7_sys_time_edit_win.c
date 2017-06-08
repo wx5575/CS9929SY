@@ -30,28 +30,4 @@ WIDGET_POS_SIZE_T _7_sys_time_windows=
 	80/*x*/, 50/*y*/, 400/*width*/, 300/*height*/,
 };
 
-
-// #define FONT    &GUI_Fonthz_24
-
-// DISPLAY_INF env_par_ele_pos_pool[]=
-// {
-//     /* ÓïÑÔ */
-//     {
-//         /*name*/
-//         {
-//             120/*width*/,30/*height*/,FONT/*font*/,GUI_BLACK/*fontcolor*/,
-//             GUI_INVALID_COLOR/*backcolor*/, GUI_TA_RIGHT/*align*/,10/*max_len*/
-//         },
-//         /*edit*/
-//         {
-//             150/*width*/,30/*height*/,FONT/*font*/,GUI_BLACK/*fontcolor*/,
-//             GUI_INVALID_COLOR/*backcolor*/, GUI_TA_CENTER/*align*/,14/*max_len*/
-//         },
-//         /*unit*/
-//         {
-//             25/*width*/,30/*height*/,FONT/*font*/,GUI_BLACK/*fontcolor*/,
-//             GUI_INVALID_COLOR/*backcolor*/, GUI_TA_LEFT/*align*/,10/*max_len*/
-//         },
-//     },/*dis*/
-// };
 /************************ (C) COPYRIGHT 2017 ³¤Ê¢ÒÇÆ÷ *****END OF FILE****/

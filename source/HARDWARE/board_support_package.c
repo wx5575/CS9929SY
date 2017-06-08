@@ -348,7 +348,7 @@ void CS99xx_Peripheral_Config(void)
 	
 	timingWrite.FSMC_AddressSetupTime = 4;
 	timingWrite.FSMC_AddressHoldTime = 0;
-	timingWrite.FSMC_DataSetupTime = 6;
+	timingWrite.FSMC_DataSetupTime = 4;
 	timingWrite.FSMC_BusTurnAroundDuration = 1;
 	timingWrite.FSMC_CLKDivision = 0;
 	timingWrite.FSMC_DataLatency = 0;

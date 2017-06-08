@@ -99,8 +99,8 @@ static FUNCTION_KEY_INFO_T sys_key_pool[]={
 	{KEY_LEFT	, direct_key_left	 },
 	{KEY_RIGHT	, direct_key_right	 },
     
-	{CODE_LEFT	, direct_key_up      },
-	{CODE_RIGH	, direct_key_down	 },
+	{CODE_RIGH	, direct_key_up      },
+	{CODE_LEFT	, direct_key_down	 },
 };
 
 static void fname_sys_key(int data)
@@ -209,11 +209,6 @@ _WIDGET_ELEMENT_ edit_file_ele_pool[]={
     },
 };
 
-CS_INDEX com_ele_table[]=
-{
-	ELE_RANGE_NAME,///<主界面的通信状态
-	ELE_RANGE_NOTICE,///<主界面的系统时间
-};
 static void update_menu_key_inf(WM_HMEM hWin)
 {
 }
@@ -256,7 +251,7 @@ MYUSER_WINDOW_T SaveFileWindows=
     },
     {
         com_text_ele_pool,ARRAY_SIZE(com_text_ele_pool),
-        (CS_INDEX*)com_ele_table,ARRAY_SIZE(com_ele_table),
+        (CS_INDEX*)range_com_ele_table,ARRAY_SIZE(range_com_ele_table),
         init_create_file_edit_win_com_ele,
     },
 };
@@ -274,11 +269,11 @@ MYUSER_WINDOW_T NewFileWindows=
     },
     {
         com_text_ele_pool,ARRAY_SIZE(com_text_ele_pool),
-        (CS_INDEX*)com_ele_table,ARRAY_SIZE(com_ele_table),
+        (CS_INDEX*)range_com_ele_table,ARRAY_SIZE(range_com_ele_table),
         init_create_file_edit_win_com_ele,
     },
 };
-MYUSER_WINDOW_T EditFileWindows=
+MYUSER_WINDOW_T edit_file_windows=
 {
     {"编辑文件","Edit File"},
     _cbCallback,update_menu_key_inf,
@@ -292,7 +287,7 @@ MYUSER_WINDOW_T EditFileWindows=
     },
     {
         com_text_ele_pool, ARRAY_SIZE(com_text_ele_pool),
-        (CS_INDEX*)com_ele_table,ARRAY_SIZE(com_ele_table),
+        (CS_INDEX*)range_com_ele_table,ARRAY_SIZE(range_com_ele_table),
         init_create_file_edit_win_com_ele,
     },
 };
@@ -348,32 +343,6 @@ static void direct_key_right(int data)
 	GUI_SendKeyMsg(GUI_KEY_RIGHT, 1);
 }
 
-static void init_com_text_ele_dis_inf(WM_HWIN hWin)
-{
-	MYUSER_WINDOW_T* win;
-    UI_ELE_DISPLAY_INFO_T dis_info=
-    {
-        0/*base_x*/,0/*base_y*/,0/*x*/,200/*y*/,10/*width*/,30/*height*/,10,
-        &GUI_Fonthz_20, GUI_BLACK, GUI_INVALID_COLOR,GUI_TA_LEFT | GUI_TA_TOP
-    };
-    
-    win = get_user_window_info(hWin);
-    
-    dis_info.pos_size.x = 10;
-    dis_info.pos_size.y = win->pos_size.height - 45;
-    dis_info.pos_size.width = 70;
-    dis_info.pos_size.height = 45;
-    dis_info.max_len = 100;
-    dis_info.font[CHINESE] = &GUI_Fonthz_20;
-    dis_info.font_color = GUI_BLACK;
-    dis_info.back_color = GUI_INVALID_COLOR;
-    dis_info.align = GUI_TA_LEFT;
-    
-    set_com_text_ele_dis_inf(&dis_info, ELE_RANGE_NAME);//范围
-    dis_info.pos_size.x += dis_info.pos_size.width;
-    dis_info.pos_size.width = win->pos_size.width - 15 -  dis_info.pos_size.width;
-    set_com_text_ele_dis_inf(&dis_info, ELE_RANGE_NOTICE);//提示信息
-}
 
 void set_file_par_window_ele_data(TEST_FILE *f)
 {
@@ -387,20 +356,20 @@ void set_file_par_window_ele_data(TEST_FILE *f)
   * @param  无
   * @retval 无
   */
-static void init_file_edit_ui_edit_ele_pos_inf(void)
-{
-    switch(sys_par.screem_size)
-    {
-        case SCREEN_4_3INCH:
-            break;
-        case SCREEN_6_5INCH:
-            break;
-        default:
-        case SCREEN_7INCH:
-            _7_init_file_save_win_edit_ele_pos(edit_file_ele_pool);
-            break;
-    }
-}
+//static void init_file_edit_ui_edit_ele_pos_inf(void)
+//{
+//    switch(sys_par.screem_size)
+//    {
+//        case SCREEN_4_3INCH:
+//            break;
+//        case SCREEN_6_5INCH:
+//            break;
+//        default:
+//        case SCREEN_7INCH:
+//            _7_init_file_save_win_edit_ele_pos(edit_file_ele_pool);
+//            break;
+//    }
+//}
 
 static void init_create_file_edit_win_edit_ele(MYUSER_WINDOW_T* win)
 {
@@ -413,15 +382,14 @@ static void init_create_file_edit_win_edit_ele(MYUSER_WINDOW_T* win)
     init_window_edit_ele(win);//初始化创建编辑对象
 }
 
-static void init_create_file_edit_win_text_ele(MYUSER_WINDOW_T* win)
-{
-    
-}
+//static void init_create_file_edit_win_text_ele(MYUSER_WINDOW_T* win)
+//{
+//    
+//}
 static void init_create_file_edit_win_com_ele(MYUSER_WINDOW_T* win)
 {
-	WM_HWIN hWin = win->handle;
-    
-    init_com_text_ele_dis_inf(hWin);//初始化公共文本对象的显示信息
+    init_window_com_ele_list(win);//初始化窗口文本对象链表
+    init_com_text_ele_dis_inf(win);//初始化公共文本对象的显示信息
     init_window_com_text_ele(win);//初始化创建窗口中的公共文本对象
 }
 
@@ -526,8 +494,8 @@ void create_new_file_dialog(int hWin)
 void create_edit_file_dialog(int hWin)
 {
     set_custom_msg_id(CM_FILE_UI_EDIT);
-    init_window_size(&EditFileWindows, file_save_win_pos_size_pool[sys_par.screem_size]);
-    create_user_dialog(&EditFileWindows, &windows_list, hWin);//创建主界面
+    init_window_size(&edit_file_windows, file_save_win_pos_size_pool[sys_par.screem_size]);
+    create_user_dialog(&edit_file_windows, &windows_list, hWin);//创建主界面
 }
 
 

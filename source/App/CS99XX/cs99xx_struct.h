@@ -524,6 +524,8 @@ extern void init_sys_par(void);
 extern void check_sys_par(CS_ERR *err);
 extern void set_cur_file(FILE_NUM file_num);
 extern void init_instrument_data(void);
+extern void swap_step(const STEP_NUM one, const STEP_NUM two);
+extern void insert_step(uint16_t pos, uint8_t mode);
 
 #endif //__CS99XX_STRUCT_H__
 

@@ -342,11 +342,6 @@ static void update_menu_key_inf(WM_HMEM hWin)
     register_system_key_fun(syst_time_key_pool, ARRAY_SIZE(syst_time_key_pool), hWin);
 }
 
-static CS_INDEX com_ele_table[]=
-{
-	ELE_RANGE_NAME,///<主界面的通信状态
-	ELE_RANGE_NOTICE,///<主界面的系统时间
-};
 static MYUSER_WINDOW_T sys_time_window=
 {
     {"系统时间","System Time"},
@@ -355,7 +350,7 @@ static MYUSER_WINDOW_T sys_time_window=
     {0},
     {
         com_text_ele_pool,ARRAY_SIZE(com_text_ele_pool),
-        (CS_INDEX*)com_ele_table,ARRAY_SIZE(com_ele_table)
+        (CS_INDEX*)range_com_ele_table,ARRAY_SIZE(range_com_ele_table)
     },
 };
 
@@ -499,8 +494,8 @@ static void sel_cur_time_list_wheel(void)
     
     LISTWHEEL_SetTextColor(hWin, LISTWHEEL_CI_SEL, color);
     
-    set_com_text_ele_inf(ELE_RANGE_NOTICE, g_cur_win, g_cur_sys_time->notice);
-    update_com_text_ele(ELE_RANGE_NOTICE, g_cur_win, g_cur_sys_time->notice[SYS_LANGUAGE]);
+    set_com_text_ele_inf(COM_RANGE_NOTICE, g_cur_win, g_cur_sys_time->notice);
+    update_com_text_ele(COM_RANGE_NOTICE, g_cur_win, g_cur_sys_time->notice[SYS_LANGUAGE]);
 }
 static void unsel_cur_time_list_wheel(void)
 {
@@ -939,33 +934,6 @@ void del_all_mem_device(void)
         sys_time_t[i].wheel.hMemRBorder = 0;
     }
 }
-static void init_com_text_ele_dis_inf(WM_HWIN hWin)
-{
-	MYUSER_WINDOW_T* win;
-    UI_ELE_DISPLAY_INFO_T dis_info=
-    {
-        0/*base_x*/,0/*base_y*/,0/*x*/,200/*y*/,10/*width*/,30/*height*/,10,
-        &GUI_Fonthz_20, GUI_BLACK, GUI_INVALID_COLOR,GUI_TA_LEFT | GUI_TA_TOP
-    };
-    
-    win = get_user_window_info(hWin);
-    
-    dis_info.pos_size.x = 10;
-    dis_info.pos_size.y = win->pos_size.height - 45;
-    dis_info.pos_size.width = 70;
-    dis_info.pos_size.height = 45;
-    dis_info.max_len = 100;
-    dis_info.font[CHINESE] = &GUI_Fonthz_20;
-    dis_info.font_color = GUI_BLACK;
-    dis_info.back_color = GUI_INVALID_COLOR;
-    dis_info.align = GUI_TA_LEFT;
-    
-    set_com_text_ele_dis_inf(&dis_info, ELE_RANGE_NAME);//范围
-    dis_info.pos_size.x += dis_info.pos_size.width;
-    dis_info.pos_size.width = win->pos_size.width - 15 -  dis_info.pos_size.width;
-    set_com_text_ele_dis_inf(&dis_info, ELE_RANGE_NOTICE);//提示信息
-}
-
 /**
   * @brief  回调函数
   * @param  [in] pMsg 窗口消息指针
@@ -997,11 +965,12 @@ static void _cbCallback(WM_MESSAGE * pMsg)
             init_time_listwheel(hWin);
             update_menu_key_inf(hWin);
             init_window_edit_ele(win);
-            init_com_text_ele_dis_inf(hWin);//初始化公共文本对象的显示信息
+            init_window_com_ele_list(win);//初始化窗口文本对象链表
+            init_com_text_ele_dis_inf(win);//初始化公共文本对象的显示信息
             init_window_com_text_ele(win);//初始化创建窗口中的公共文本对象
             {
                 uint8_t *buf[2] = {"提示:"  ,"Notice:"};
-                update_com_text_ele(ELE_RANGE_NAME, g_cur_win, buf[SYS_LANGUAGE]);
+                update_com_text_ele(COM_RANGE_NAME, g_cur_win, buf[SYS_LANGUAGE]);
             }
             
             g_cur_edit_ele = get_cur_win_edit_ele_list_head();//获取当前窗口编辑表头节点
