@@ -18,6 +18,7 @@
 #include "fonts.h"
 #include "ui_com/com_ui_info.h"
 #include "string.h"
+#include "stdio.h"
 #include "OS.H"
 
 
@@ -142,11 +143,11 @@ void init_window_edit_ele_dis_inf(MYUSER_WINDOW_T *win, EDIT_ELE_AUTO_LAYOUT_T* 
 	CS_LIST *list = &win->edit.list_head;
     EDIT_ELE_DISPLAY_INF *dis;
 	CS_LIST* t_node = NULL;
-	_WIDGET_ELEMENT_ *node = NULL;
+	WIDGET_ELEMENT *node = NULL;
 	
     list_for_each(t_node, list)
     {
-        node = list_entry( t_node, _WIDGET_ELEMENT_, e_list );
+        node = list_entry( t_node, WIDGET_ELEMENT, e_list );
         
         dis = &node->dis;
         
@@ -221,11 +222,11 @@ void init_window_com_ele_list(MYUSER_WINDOW_T *win)
 static void update_win_edit_ele_text(CS_LIST *list)
 {
     CS_LIST *t_node;
-    _WIDGET_ELEMENT_ *node;
+    WIDGET_ELEMENT *node;
     
 	list_for_each(t_node, list)
 	{
-		node = list_entry( t_node, _WIDGET_ELEMENT_, e_list );
+		node = list_entry( t_node, WIDGET_ELEMENT, e_list );
         
         TEXT_SetText(node->dis.name.handle, (const char *)node->name[SYS_LANGUAGE]);
 	}
@@ -513,7 +514,7 @@ void init_window_size(MYUSER_WINDOW_T* win_inf, WIDGET_POS_SIZE_T *pos_size_inf)
 }
 
 /**
-  * @brief  初始化并创建窗口内所有控件
+  * @brief  初始化并创建窗口内所有控件 只包含文本控件和编辑控件(编辑框、下拉框)
   * @param  [in] win 窗口结构指针
   * @retval 无
   */
@@ -576,7 +577,9 @@ void create_user_dialog(MYUSER_WINDOW_T* win_info, CS_LIST *list_head, WM_HWIN h
 	uint16_t height = win_info->pos_size.height;
 	USER_CALLBACK cb_fun = win_info->call_back_fun;
     GUI_WIDGET_CREATE_INFO aDialogBox =
-	{FRAMEWIN_CreateIndirect, "", 0, 0, 0, 0, 0, 0, 0, 0};
+    {
+        FRAMEWIN_CreateIndirect, "", 0, 0, 0, 0, 0, 0, 0, 0
+    };
 	
     aDialogBox.Id = ++id_base;
     aDialogBox.x0 = x;
@@ -607,7 +610,8 @@ static void delete_text_list_node(CS_LIST *list_head)
 	list_for_each( index, list_head )
 	{
 		node = list_entry( index, TEXT_ELE_T, list );
-		if(node->handle == 0)
+        
+		if(node->handle != 0)
 		{
             WM_DeleteWindow(node->handle);//删除窗口控件
             node->handle = 0;//清除被删除窗口的句柄
@@ -621,12 +625,13 @@ static void delete_text_list_node(CS_LIST *list_head)
   */
 static void delete_edit_list_node(CS_LIST *list_head)
 {
-    _WIDGET_ELEMENT_ *node;
+    WIDGET_ELEMENT *node;
     CS_LIST *index;
     
 	list_for_each( index, list_head )
 	{
-		node = list_entry( index, _WIDGET_ELEMENT_, e_list );
+		node = list_entry( index, WIDGET_ELEMENT, e_list );
+        
 		if(node->dis.name.handle != 0)
 		{
             WM_DeleteWindow(node->dis.name.handle);//删除窗口控件
@@ -649,18 +654,18 @@ static void delete_edit_list_node(CS_LIST *list_head)
   * @param  [in] win_info 窗口信息
   * @retval 无
   */
-static void delete_all_ele(MYUSER_WINDOW_T* win_info)
+void delete_win_all_ele(MYUSER_WINDOW_T* win)
 {
-    delete_text_list_node(&win_info->com.list_head);
-    delete_text_list_node(&win_info->text.list_head);
-    delete_edit_list_node(&win_info->edit.list_head);
+    delete_text_list_node(&win->com.list_head);
+    delete_text_list_node(&win->text.list_head);
+    delete_edit_list_node(&win->edit.list_head);
 }
 /**
   * @brief  设置全局当前编辑对象指针
   * @param  [in] node 编辑对象地址
   * @retval 无
   */
-void set_cur_edit_ele(_WIDGET_ELEMENT_ *node)
+void set_cur_edit_ele(WIDGET_ELEMENT *node)
 {
     CPU_SR_ALLOC();
     
@@ -697,7 +702,7 @@ void del_cur_window(void)
     
     set_cur_window(win);//把新窗口设置为当前窗口
     
-    delete_all_ele(win_info);//删除窗口中所有控件
+    delete_win_all_ele(win_info);//删除窗口中所有控件
     set_cur_edit_ele(NULL);//将当前编辑对象置为空
     disable_system_fun_key_fun();//失能系统功能按键
 	WM_DeleteWindow(win_info->handle);//删除窗口控件
@@ -823,6 +828,15 @@ CS_INDEX range_group_com_ele_table[COM_ELE_NUM]=
     COM_UI_WORK_MODE    ,///< 记忆组工作模式
     COM_UI_CUR_WORK_MODE,///< 记忆组工作模式内容
 };
+CS_INDEX group_com_ele_table[COM_GRUOP_ELE_NUM]=
+{
+    COM_UI_FILE_NAME    ,///< 记忆组文件名
+    COM_UI_CUR_FILE_NAME,///< 记忆组文件名内容
+    COM_UI_STEP         ,///< 记忆组步骤信息
+    COM_UI_CUR_STEP     ,///< 记忆组步骤信息内容
+    COM_UI_WORK_MODE    ,///< 记忆组工作模式
+    COM_UI_CUR_WORK_MODE,///< 记忆组工作模式内容
+};
 /**
   * @brief  公共文本对象池
   */
@@ -885,7 +899,7 @@ void set_com_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str[])
   * @brief  设置记忆组文本对象的显示文本内容
   * @param  [in] index 对象索引
   * @param  [in] win 窗口指针
-  * @param  [in] str[] 文本数组
+  * @param  [in] str 文本
   * @retval 无
   */
 void set_group_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str)
@@ -936,6 +950,11 @@ void set_group_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str)
     node->text[ENGLISH] = p_buf;
 }
 
+/**
+  * @brief  初始化公共文本对象的显示信息(坐标，尺寸
+  * @param  [in] win 窗口指针
+  * @retval 无
+  */
 void init_com_text_ele_dis_inf(MYUSER_WINDOW_T* win)
 {
     UI_ELE_DISPLAY_INFO_T dis_info=
@@ -960,6 +979,11 @@ void init_com_text_ele_dis_inf(MYUSER_WINDOW_T* win)
     set_com_text_ele_dis_inf(&dis_info, COM_RANGE_NOTICE);//提示信息
 }
 
+/**
+  * @brief  初始化记忆组公共文本对象的显示信息(坐标，尺寸
+  * @param  [in] win 窗口指针
+  * @retval 无
+  */
 void init_group_com_text_ele_dis_inf(MYUSER_WINDOW_T* win)
 {
     UI_ELE_DISPLAY_INFO_T inf;
@@ -1048,6 +1072,28 @@ void init_group_com_text_ele_dis_inf(MYUSER_WINDOW_T* win)
     
     memcpy(&pool->cur_work_mode->dis_info, &inf, sizeof(UI_ELE_DISPLAY_INFO_T));
 }
+/**
+  * @brief  更新窗口中记忆组显示信息
+  * @param  [in] win 窗口指针
+  * @retval 无
+  */
+void update_group_inf(MYUSER_WINDOW_T* win)
+{
+    uint8_t buf[10] = {0};
+    STEP_NUM step;
+    
+    set_group_text_ele_inf(COM_UI_CUR_FILE_NAME, win, g_cur_file->name);
+    step = g_cur_step->one_step.com.step;
+    sprintf((char*)buf, "%d/%d", step, g_cur_file->total);
+    set_group_text_ele_inf(COM_UI_CUR_STEP, win, buf);
+    strncpy((char*)buf, (const char*)work_mode_pool[g_cur_file->work_mode], 2);
+    set_group_text_ele_inf(COM_UI_CUR_WORK_MODE, win, buf);
+    
+    update_com_text_ele((CS_INDEX)COM_UI_CUR_FILE_NAME, win, NULL);
+    update_com_text_ele((CS_INDEX)COM_UI_CUR_STEP, win, NULL);
+    update_com_text_ele((CS_INDEX)COM_UI_CUR_WORK_MODE, win, NULL);
+}
+/**************************************************************/
 /**
   * @brief  设置全局自定义消息的ID
   * @param  [in] id 自定义消息ID

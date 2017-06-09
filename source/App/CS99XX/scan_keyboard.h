@@ -19,11 +19,18 @@ typedef enum{
 	MENU_KEY_DIS,//菜单键失能
 }MENU_KEY_ST_ENUM;
 
+typedef struct{
+	int user_data;///<传递给键盘处理函数的用户数据
+    int custom_data;///<用户定制数据，用于在定制菜单信息时使用
+}KEY_MESSAGE;
+
+/** 按键回调函数指针 */
+typedef void (*KEY_CB_FUN)(KEY_MESSAGE *);
+
 typedef struct
 {
-	void (*fun)(int);///<按键处理函数
-	int user_data;///<用户数据
-    int custom_data;///<用户定制数据
+	KEY_CB_FUN fun;///<按键处理函数
+	KEY_MESSAGE msg;///<按键消息
 	int en;///<使能按键
 }KEY_DISPOSE_FUN;
 

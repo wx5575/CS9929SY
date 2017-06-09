@@ -35,13 +35,13 @@
 #include "step_par_win/7_step_edit_win.h"
 #include "type/cs99xx_type.h"
 
-static void cb_step_edit_windows(WM_MESSAGE* pMsg);
+static void step_edit_windows_cb(WM_MESSAGE* pMsg);
 static void update_key_inf(WM_HMEM hWin);
-static void direct_key_down(int data);
-static void direct_key_up(int data);
+static void direct_key_down_cb(KEY_MESSAGE *key_msg);
+static void direct_key_up_cb(KEY_MESSAGE *key_msg);
 static void save_setting_step(void);
 
-static UN_STRUCT tmp_step_par;
+static NODE_STEP tmp_step_par;
 
 static WIDGET_POS_SIZE_T* step_edit_win_pos_size_pool[SCREEN_NUM]=
 {
@@ -62,68 +62,153 @@ static CS_INDEX step_par_index[]=
     STEP_EDIT_UI_MODE,
 };
 
+static void edit_step_num_f1_cb(KEY_MESSAGE *key_msg);
+static void edit_step_num_f2_cb(KEY_MESSAGE *key_msg);
+static void edit_step_num_f3_cb(KEY_MESSAGE *key_msg);
+static void edit_step_num_f4_cb(KEY_MESSAGE *key_msg);
+static void edit_step_num_f5_cb(KEY_MESSAGE *key_msg);
+static void edit_step_num_f6_cb(KEY_MESSAGE *key_msg);
 /* 按键菜单 */
-static MENU_KEY_INFO_T 	edit_step_menu_key_info[] =
+static MENU_KEY_INFO_T 	edit_step_num_menu_key_info[] =
 {
-    {"", F_KEY_DEL		, KEY_F1 & _KEY_UP,	menu_key_backspace },//f1
-    {"", F_KEY_CLEAR    , KEY_F2 & _KEY_UP,	clear_edit_ele },//f2
-    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP,	0 },//f3
-    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP,	0 },//f4
-    {"", F_KEY_NULL		, KEY_F5 & _KEY_UP,	0 },//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win },//f6
+    {"", F_KEY_DEL		, KEY_F1 & _KEY_UP, edit_step_num_f1_cb },//f1
+    {"", F_KEY_CLEAR    , KEY_F2 & _KEY_UP, edit_step_num_f2_cb },//f2
+    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP, edit_step_num_f3_cb },//f3
+    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP, edit_step_num_f4_cb },//f4
+    {"", F_KEY_NULL		, KEY_F5 & _KEY_UP, edit_step_num_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, edit_step_num_f6_cb },//f6
 };
+
+static void edit_step_num_f1_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_backspace(key_msg->user_data);
+}
+static void edit_step_num_f2_cb(KEY_MESSAGE *key_msg)
+{
+    clear_edit_ele(key_msg->user_data);
+}
+static void edit_step_num_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_step_num_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_step_num_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_step_num_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+
+static void edit_mode_f1_cb(KEY_MESSAGE *key_msg);
+static void edit_mode_f2_cb(KEY_MESSAGE *key_msg);
+static void edit_mode_f3_cb(KEY_MESSAGE *key_msg);
+static void edit_mode_f4_cb(KEY_MESSAGE *key_msg);
+static void edit_mode_f5_cb(KEY_MESSAGE *key_msg);
+static void edit_mode_f6_cb(KEY_MESSAGE *key_msg);
 static MENU_KEY_INFO_T 	edit_mode_menu_key_info[] =
 {
-    {"", F_KEY_CUSTOM   , KEY_F1 & _KEY_UP,	0 },//f1
-    {"", F_KEY_CUSTOM   , KEY_F2 & _KEY_UP,	0 },//f2
-    {"", F_KEY_CUSTOM   , KEY_F3 & _KEY_UP,	0 },//f3
-    {"", F_KEY_CUSTOM   , KEY_F4 & _KEY_UP,	0 },//f4
-    {"", F_KEY_CUSTOM   , KEY_F5 & _KEY_UP,	0 },//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win },//f6
+    {"", F_KEY_CUSTOM   , KEY_F1 & _KEY_UP, edit_mode_f1_cb },//f1
+    {"", F_KEY_CUSTOM   , KEY_F2 & _KEY_UP, edit_mode_f2_cb },//f2
+    {"", F_KEY_CUSTOM   , KEY_F3 & _KEY_UP, edit_mode_f3_cb },//f3
+    {"", F_KEY_CUSTOM   , KEY_F4 & _KEY_UP, edit_mode_f4_cb },//f4
+    {"", F_KEY_CUSTOM   , KEY_F5 & _KEY_UP, edit_mode_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, edit_mode_f6_cb },//f6
 };
 
+static void edit_mode_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_mode_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_mode_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_mode_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_mode_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_mode_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
 
 static FUNCTION_KEY_INFO_T 	sys_key_pool[]={
-	{KEY_UP		, direct_key_up		},
-	{KEY_DOWN	, direct_key_down 	},
-	{CODE_LEFT	, direct_key_down   },
-	{CODE_RIGH	, direct_key_up     },
+	{KEY_UP		, direct_key_up_cb      },
+	{KEY_DOWN	, direct_key_down_cb 	},
+	{CODE_LEFT	, direct_key_down_cb    },
+	{CODE_RIGH	, direct_key_up_cb      },
 };
 /************************** step *************************************/
-static void edit_step_direct_key_up(int data);
-static void edit_step_direct_key_down(int data);
+static void edit_step_direct_key_up_cb(KEY_MESSAGE *key_msg);
+static void edit_step_direct_key_down_cb(KEY_MESSAGE *key_msg);
+static void edit_step_direct_key_enter_cb(KEY_MESSAGE *key_msg);
 
 static FUNCTION_KEY_INFO_T 	edit_step_sys_key_pool[]={
-	{KEY_UP		, edit_step_direct_key_up   },
-	{KEY_DOWN	, edit_step_direct_key_down },
-	{CODE_LEFT	, edit_step_direct_key_down },
-	{CODE_RIGH	, edit_step_direct_key_up   },
+	{KEY_UP		, edit_step_direct_key_up_cb    },
+	{KEY_DOWN	, edit_step_direct_key_down_cb  },
+	{CODE_LEFT	, edit_step_direct_key_down_cb  },
+	{CODE_RIGH	, edit_step_direct_key_up_cb    },
+	{KEY_ENTER	, edit_step_direct_key_enter_cb },
 };
 
 static STEP_NUM get_cur_step(void)
 {
     return *(STEP_NUM*)g_cur_edit_ele->data.data;
 }
-
-static void edit_step_direct_key_up(int data)
+static void edit_step_direct_key_enter_cb(KEY_MESSAGE *key_msg)
 {
-    uint32_t step = get_edit_num_value(g_cur_edit_ele);
+    NODE_STEP *node;
+    uint32_t new_step = get_edit_num_value(g_cur_edit_ele);
+    uint32_t old_step = get_cur_step();
     
-    if(step < g_cur_file->total)
+    if(new_step != 0 && new_step < g_cur_file->total)
     {
-        set_edit_num_value(g_cur_edit_ele, step + 1);
-        upload_par_to_ram(g_cur_edit_ele);
+        delete_win_all_ele(g_cur_win);
+        load_steps_to_list(new_step, 1);
+        
+        node = get_g_cur_step();
+        
+        if(NULL != node)
+        {
+            memcpy(g_cur_step, node, sizeof(NODE_STEP));
+            init_create_win_all_ele(g_cur_win);
+            g_cur_edit_ele = get_cur_win_edit_ele_list_head();//获取当前窗口编辑表头节点
+            select_edit_ele(g_cur_edit_ele);
+            update_group_inf(g_cur_win);
+        }
     }
     else
     {
-        step = get_cur_step();
-        set_edit_num_value(g_cur_edit_ele, step);
+        set_edit_num_value(g_cur_edit_ele, old_step);
     }
-    
-    direct_key_up(data);
 }
 
-static void edit_step_direct_key_down(int data)
+static void edit_step_direct_key_up_cb(KEY_MESSAGE *key_msg)
+{
+    uint32_t step = get_edit_num_value(g_cur_edit_ele);
+    
+    
+    if(step < g_cur_file->total)
+    {
+//        set_edit_num_value(g_cur_edit_ele, step + 1);
+        upload_par_to_ram(g_cur_edit_ele);
+        save_setting_step();
+    }
+//    else
+//    {
+//        step = get_cur_step();
+//        set_edit_num_value(g_cur_edit_ele, step);
+//    }
+    
+    direct_key_up_cb(key_msg);
+}
+
+static void edit_step_direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
     NODE_STEP *node;
     uint32_t step = get_edit_num_value(g_cur_edit_ele);
@@ -131,24 +216,24 @@ static void edit_step_direct_key_down(int data)
     if(step < g_cur_file->total)
     {
         save_setting_step();
-        upload_par_to_ram(g_cur_edit_ele);
-        load_steps_to_list(step, 1);
-        
-        node = get_g_cur_step();
-        
-        if(NULL != node)
-        {
-            g_cur_step = node;
-            update_group_inf(g_cur_win);
-        }
+//        upload_par_to_ram(g_cur_edit_ele);
+//        load_steps_to_list(step, 1);
+//        
+//        node = get_g_cur_step();
+//        
+//        if(NULL != node)
+//        {
+//            g_cur_step = node;
+//            update_group_inf(g_cur_win);
+//        }
     }
     else
     {
-        step = get_cur_step();
-        set_edit_num_value(g_cur_edit_ele, step);
+//        step = get_cur_step();
+//        set_edit_num_value(g_cur_edit_ele, step);
     }
     
-    direct_key_down(data);
+    direct_key_down_cb(key_msg);
 }
 
 static void edit_step_sys_key(int data)
@@ -166,37 +251,39 @@ static void step_edit_sys_key(int hWin)
 
 static void edit_step_menu_key(int hWin)
 {
-    MENU_KEY_INFO_T * info = edit_step_menu_key_info;
-    uint32_t size = ARRAY_SIZE(edit_step_menu_key_info);
+    MENU_KEY_INFO_T * info = edit_step_num_menu_key_info;
+    uint32_t size = ARRAY_SIZE(edit_step_num_menu_key_info);
     int32_t data = g_cur_edit_ele->dis.edit.handle;
     
 	init_menu_key_info(info, size, data);
 }
 
-static void select_test_mode(int data);
-#define TRAN_TEST_MODE(mode, n)    (mode - n)
+static void select_test_mode(KEY_MESSAGE *key_msg);
 CUSTOM_MENU_KEY_INF mode_inf_pool[]=
 {
-    {ACW_STR , TRAN_TEST_MODE(ACW, 1), select_test_mode},
-    {DCW_STR , TRAN_TEST_MODE(DCW, 1), select_test_mode},
-    {IR_STR  , TRAN_TEST_MODE(IR , 1), select_test_mode},
-    {GR_STR  , TRAN_TEST_MODE(GR , 1), select_test_mode},
-    {BBD_STR , TRAN_TEST_MODE(BBD, 1), select_test_mode},
-    {CC_STR  , TRAN_TEST_MODE(CC , 1), select_test_mode},
+    {ACW_STR , ACW, select_test_mode},
+    {DCW_STR , DCW, select_test_mode},
+    {IR_STR  , IR , select_test_mode},
+    {GR_STR  , GR , select_test_mode},
+    {BBD_STR , BBD, select_test_mode},
+    {CC_STR  , CC , select_test_mode},
 };
 
-static void select_test_mode(int hWin)
+static void select_test_mode(KEY_MESSAGE *key_msg)
 {
-    int data = golbal_key_info.custom_data;
+    int data = key_msg->custom_data;
+    int hWin = key_msg->user_data;
     uint32_t size = g_cur_edit_ele->data.bytes;
+    CS_INDEX index;
     
-    DROPDOWN_SetSel(hWin, data);
-    data = TRAN_TEST_MODE(data , -1);
+    index = get_data_in_resource_table_index(g_cur_edit_ele, size, &data);
+    
+    DROPDOWN_SetSel(hWin, index);
     DROPDOWN_SetUserData(hWin, &data, size);
 }
 void init_menu_key_custom_inf(CUSTOM_MENU_KEY_INF *cus_inf,
                             uint16_t cus_size,
-                            _WIDGET_ELEMENT_ *edit,
+                            WIDGET_ELEMENT *edit,
                             MENU_KEY_INFO_T * inf,
                             uint16_t size)
 {
@@ -218,7 +305,7 @@ void init_menu_key_custom_inf(CUSTOM_MENU_KEY_INF *cus_inf,
                 if(0 == strcmp((const char*)table[i], (const char*)cus_inf[j].name))
                 {
                     inf[i].fun_key.key_up_dispose_fun = cus_inf[j].fun;
-                    inf[i].fun_key.custom_data = cus_inf[j].data;
+                    inf[i].fun_key.msg.custom_data = cus_inf[j].data;
                     
                     break;
                 }
@@ -226,6 +313,7 @@ void init_menu_key_custom_inf(CUSTOM_MENU_KEY_INF *cus_inf,
         }
     }
 }
+
 static void edit_mode_menu_key(int hWin)
 {
     MENU_KEY_INFO_T * info = edit_mode_menu_key_info;
@@ -238,7 +326,7 @@ static void edit_mode_menu_key(int hWin)
 	init_menu_key_info(info, size, data);
 }
 
-static _WIDGET_ELEMENT_ step_par_ele_pool[]={
+static WIDGET_ELEMENT step_par_ele_pool[]={
     {
         {"测试步骤:","TestStep:"}, /* 名称 */
         STEP_EDIT_UI_STEP,/* 通过枚举索引 */
@@ -255,7 +343,7 @@ static _WIDGET_ELEMENT_ step_par_ele_pool[]={
         STEP_EDIT_UI_MODE,/* 通过枚举索引 */
         {0},/* 默认值 */
         {NULL, 1/*数据字节数*/},/* 数据指针 */
-        {NULL, 0},/* 资源表 */
+        {NULL, 0,NULL, 0},/* 资源表 */
         {ELE_DROPDOWN, E_INT_T},/*类型*/
         {0/*decs*/,20/*lon*/,NULL_U_NULL/*unit*/,},/*format*/
         {MODE_END/*heigh*/,ACW/*low*/,{"Language","Language"}/*notice*/},/*range*/
@@ -280,7 +368,7 @@ static void init_create_step_edit_win_edit_ele(MYUSER_WINDOW_T* win);
 static MYUSER_WINDOW_T step_edit_windows=
 {
     {"步骤编辑","step_edit_windows"},
-    cb_step_edit_windows, update_key_inf,
+    step_edit_windows_cb, update_key_inf,
 	{0},
     {
         step_par_ele_pool,ARRAY_SIZE(step_par_ele_pool),
@@ -317,6 +405,8 @@ void set_step_par_window_ele_data(UN_STRUCT *step)
     step_par_ele_pool[STEP_EDIT_UI_MODE].data.data = &step->com.mode;
     step_par_ele_pool[STEP_EDIT_UI_MODE].resource.table = get_defined_mode_table();
     step_par_ele_pool[STEP_EDIT_UI_MODE].resource.size = get_defined_mode_num();
+    step_par_ele_pool[STEP_EDIT_UI_MODE].resource.user_data = get_defined_mode_flag();
+    step_par_ele_pool[STEP_EDIT_UI_MODE].resource.user_data_size = get_defined_mode_num();
     
     switch(step->com.mode)
     {
@@ -337,8 +427,8 @@ void set_step_par_window_ele_data(UN_STRUCT *step)
 static void init_create_step_edit_win_edit_ele(MYUSER_WINDOW_T* win)
 {
     memcpy(&tmp_step_par, g_cur_step, sizeof(tmp_step_par));
-    tmp_step_par.com.mode = TRAN_TEST_MODE(tmp_step_par.com.mode, 1);
-    set_step_par_window_ele_data(&tmp_step_par);//初始化编辑对象的参数
+    g_cur_step = &tmp_step_par;
+    set_step_par_window_ele_data(&g_cur_step->one_step);//初始化编辑对象的参数
     init_window_edit_ele_list(win);//初始化窗口编辑对象链表
     
     //初始化编辑对象显示信息
@@ -346,19 +436,11 @@ static void init_create_step_edit_win_edit_ele(MYUSER_WINDOW_T* win)
     
     init_window_edit_ele(win);//初始化创建编辑对象
 }
-
-void update_group_inf(MYUSER_WINDOW_T* win)
-{
-    uint8_t buf[10] = {0};
-    STEP_NUM step;
-    
-    set_group_text_ele_inf(COM_UI_CUR_FILE_NAME, win, g_cur_file->name);
-    step = g_cur_step->one_step.com.step;
-    sprintf((char*)buf, "%d/%d", step, g_cur_file->total);
-    set_group_text_ele_inf(COM_UI_CUR_STEP, win, buf);
-    strncpy((char*)buf, (const char*)work_mode_pool[g_cur_file->work_mode], 2);
-    set_group_text_ele_inf(COM_UI_CUR_WORK_MODE, win, buf);
-}
+/**
+  * @brief  初始化并创建窗口中的公共文本对象
+  * @param  [in] win 用户窗口信息
+  * @retval 无
+  */
 static void init_create_step_edit_win_com_ele(MYUSER_WINDOW_T* win)
 {
     init_window_com_ele_list(win);//初始化窗口文本对象链表
@@ -368,11 +450,20 @@ static void init_create_step_edit_win_com_ele(MYUSER_WINDOW_T* win)
     init_window_com_text_ele(win);//初始化创建窗口中的公共文本对象
 }
 
+/**
+  * @brief  更新菜单键信息
+  * @param  [in] hWin 用户窗口句柄
+  * @retval 无
+  */
 static void update_menu_key_inf(WM_HMEM hWin)
 {
 //	step_edit_menu_key();
 }
-
+/**
+  * @brief  窗口重绘
+  * @param  无
+  * @retval 无
+  */
 static void _PaintFrame(void) 
 {
 	GUI_RECT r;
@@ -380,7 +471,11 @@ static void _PaintFrame(void)
 	GUI_SetBkColor(GUI_WHITE);
 	GUI_ClearRectEx(&r);
 }
-
+/**
+  * @brief  保存正在设置的步骤
+  * @param  无
+  * @retval 无
+  */
 static void save_setting_step(void)
 {
     FILE_NUM file_num;
@@ -389,44 +484,69 @@ static void save_setting_step(void)
     file_num = g_cur_file->num;
     step_num = g_cur_step->one_step.com.step;
     
-    memcpy(g_cur_step, &tmp_step_par, sizeof(tmp_step_par));
-    save_one_step(g_cur_step, file_num, step_num);
+    save_one_step(g_cur_step, file_num, step_num);//保存数据
 }
-
-static void direct_key_up(int data)
+/************************** 按键回调函数 **************************************/
+/**
+  * @brief  向上键的回调函数
+  * @param  [in] key_msg 回调函数携带的按键消息
+  * @retval 无
+  */
+static void direct_key_up_cb(KEY_MESSAGE *key_msg)
 {
     dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
+    
     if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.prev)
     {
-        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, _WIDGET_ELEMENT_, e_list);
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, WIDGET_ELEMENT, e_list);
     }
+    
     select_edit_ele(g_cur_edit_ele);
     save_setting_step();
 }
-
-static void direct_key_down(int data)
+/**
+  * @brief  向下键的回调函数
+  * @param  [in] key_msg 回调函数携带的按键消息
+  * @retval 无
+  */
+static void direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
     dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
+    
     if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.next)
     {
-        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, _WIDGET_ELEMENT_, e_list);
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, WIDGET_ELEMENT, e_list);
     }
+    
     select_edit_ele(g_cur_edit_ele);
     save_setting_step();
 }
-
+/*********************************************************************/
+/**
+  * @brief  更新系统按键信息
+  * @param  [in] hWin窗口句柄
+  * @retval 无
+  */
 static void update_sys_key_inf(WM_HWIN hWin)
 {
     register_system_key_fun(sys_key_pool, ARRAY_SIZE(sys_key_pool), hWin);
 }
-
+/**
+  * @brief  更新按键信息
+  * @param  [in] hWin窗口句柄
+  * @retval 无
+  */
 static void update_key_inf(WM_HWIN hWin)
 {
     update_menu_key_inf(hWin);
     update_sys_key_inf(hWin);
 }
-
-static void cb_step_edit_windows(WM_MESSAGE* pMsg)
+/**
+  * @brief  更新按键信息
+  * @param  [in] pMsg窗口消息
+  * @retval 无
+  */
+static void step_edit_windows_cb(WM_MESSAGE* pMsg)
 {
 	MYUSER_WINDOW_T* win;
 	WM_HWIN hWin = pMsg->hWin;

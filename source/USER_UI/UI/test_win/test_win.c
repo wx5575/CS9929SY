@@ -22,7 +22,7 @@ extern void draw_composition_7_1(void);
 static	WM_HWIN timer_handle;///<定时器句柄
 
 static void update_menu_key_inf(WM_HMEM hWin);
-static void TestUIcb(WM_MESSAGE * pMsg);
+static void test_win_cb(WM_MESSAGE * pMsg);
 
 extern WIDGET_POS_SIZE_T _7_test_windows;
 
@@ -34,34 +34,98 @@ static WIDGET_POS_SIZE_T* test_win_pos_size_pool[SCREEN_NUM]=
 };
 
 void change_key_menu(int id);
+static void test_win_f0_cb(KEY_MESSAGE *key_msg);
+static void test_win_f1_cb(KEY_MESSAGE *key_msg);
+static void test_win_f2_cb(KEY_MESSAGE *key_msg);
+static void test_win_f3_cb(KEY_MESSAGE *key_msg);
+static void test_win_f4_cb(KEY_MESSAGE *key_msg);
+static void test_win_f5_cb(KEY_MESSAGE *key_msg);
+static void test_win_f6_cb(KEY_MESSAGE *key_msg);
 /* 测试界面下的按键菜单 */
 static MENU_KEY_INFO_T test_ui_menu_key_pool[]=
 {
-    {"", F_KEY_DISPLAY	, KEY_F0 & _KEY_UP,	0					},//f0
-    {"", F_KEY_MODE		, KEY_F1 & _KEY_UP,	0               	},//f1
-    {"", F_KEY_VOL	    , KEY_F2 & _KEY_UP,	0					},//f2
-    {"", F_KEY_RANGE    , KEY_F3 & _KEY_UP,	0					},//f3
-    {"", F_KEY_TIME	    , KEY_F4 & _KEY_UP,	0					},//f4
-    {"", F_KEY_MORE     , KEY_F5 & _KEY_UP,	change_key_menu		},//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win			},//f6
+    {"", F_KEY_DISPLAY	, KEY_F0 & _KEY_UP,	test_win_f0_cb },//f0
+    {"", F_KEY_MODE		, KEY_F1 & _KEY_UP,	test_win_f1_cb },//f1
+    {"", F_KEY_VOL	    , KEY_F2 & _KEY_UP,	test_win_f2_cb },//f2
+    {"", F_KEY_RANGE    , KEY_F3 & _KEY_UP,	test_win_f3_cb },//f3
+    {"", F_KEY_TIME	    , KEY_F4 & _KEY_UP,	test_win_f4_cb },//f4
+    {"", F_KEY_MORE     , KEY_F5 & _KEY_UP,	test_win_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	test_win_f6_cb },//f6
 };
+static void test_win_f0_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f5_cb(KEY_MESSAGE *key_msg)
+{
+    change_key_menu(key_msg->user_data);
+}
+static void test_win_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
 
+static void test_win_f1_1_cb(KEY_MESSAGE *key_msg);
+static void test_win_f2_1_cb(KEY_MESSAGE *key_msg);
+static void test_win_f3_1_cb(KEY_MESSAGE *key_msg);
+static void test_win_f4_1_cb(KEY_MESSAGE *key_msg);
+
+static void test_win_f1_2_cb(KEY_MESSAGE *key_msg);
+static void test_win_f2_2_cb(KEY_MESSAGE *key_msg);
+static void test_win_f3_2_cb(KEY_MESSAGE *key_msg);
+static void test_win_f4_2_cb(KEY_MESSAGE *key_msg);
 static MENU_KEY_INFO_T test_ui_acw_menu_pool[][4]=
 {
     {
-        {"", F_KEY_MODE  , KEY_F1 & _KEY_UP,	0               	},//f1
-        {"", F_KEY_VOL   , KEY_F2 & _KEY_UP,	0					},//f2
-        {"", F_KEY_RANGE , KEY_F3 & _KEY_UP,	0					},//f3
-        {"", F_KEY_TIME  , KEY_F4 & _KEY_UP,	0					},//f4
+        {"", F_KEY_MODE  , KEY_F1 & _KEY_UP, test_win_f1_1_cb},//f1
+        {"", F_KEY_VOL   , KEY_F2 & _KEY_UP, test_win_f2_1_cb},//f2
+        {"", F_KEY_RANGE , KEY_F3 & _KEY_UP, test_win_f3_1_cb},//f3
+        {"", F_KEY_TIME  , KEY_F4 & _KEY_UP, test_win_f4_1_cb},//f4
     },
     {
-        {"", F_KEY_UPPER , KEY_F1 & _KEY_UP,	0               	},//f1
-        {"", F_KEY_LOWER , KEY_F2 & _KEY_UP,	0					},//f2
-        {"", F_KEY_NULL  , KEY_F3 & _KEY_UP,	0					},//f3
-        {"", F_KEY_NULL  , KEY_F4 & _KEY_UP,	0					},//f4
+        {"", F_KEY_UPPER , KEY_F1 & _KEY_UP, test_win_f1_2_cb},//f1
+        {"", F_KEY_LOWER , KEY_F2 & _KEY_UP, test_win_f2_2_cb},//f2
+        {"", F_KEY_NULL  , KEY_F3 & _KEY_UP, test_win_f3_2_cb},//f3
+        {"", F_KEY_NULL  , KEY_F4 & _KEY_UP, test_win_f4_2_cb},//f4
     },
 };
 
+static void test_win_f1_1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f2_1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f3_1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f4_1_cb(KEY_MESSAGE *key_msg)
+{
+}
+
+static void test_win_f1_2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f2_2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f3_2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f4_2_cb(KEY_MESSAGE *key_msg)
+{
+}
 void change_key_menu(int id)
 {
     static int i = 0;
@@ -311,7 +375,7 @@ TEXT_ELE_T test_ui_ele_pool[]=
 MYUSER_WINDOW_T test_windows=
 {
     {0},
-    TestUIcb, update_menu_key_inf,
+    test_win_cb, update_menu_key_inf,
 	{
         test_ui_ele_pool,COUNT_ARRAY_SIZE(test_ui_ele_pool),
         (CS_INDEX*)test_ui_ele_buf,COUNT_ARRAY_SIZE(test_ui_ele_buf)
@@ -364,7 +428,7 @@ static void _PaintFrame(void)
   * @param  [in] pMsg 回调函数指针
   * @retval 无
   */
-static void TestUIcb(WM_MESSAGE* pMsg) 
+static void test_win_cb(WM_MESSAGE* pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
 	MYUSER_WINDOW_T* win;

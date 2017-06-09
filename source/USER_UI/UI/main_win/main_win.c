@@ -36,20 +36,20 @@ static	WM_HWIN U_FLASH_1_handle;///<U盘图标1句柄
 static	WM_HWIN U_FLASH_2_handle;///<U盘图标2句柄
 static	WM_HWIN KEY_LOCK_handle;///<键盘锁图标句柄
 static	WM_HWIN KEY_CAPITAL_SMALL_handle;///<大小写图标句柄
-static void main_ui_cb(WM_MESSAGE * pMsg);
+static void main_win_cb(WM_MESSAGE * pMsg);
 static void update_main_ui_menu_key_inf(WM_HMEM hWin);
 
-static void sys_shift_key_fun(int data);
-static void sys_unlock_key_fun(int data);
-static void screen_capture_key_fun(int data);
+static void sys_shift_key_fun_cb(KEY_MESSAGE *key_msg);
+static void sys_unlock_key_fun_cb(KEY_MESSAGE *key_msg);
+static void screen_capture_key_fun_cb(KEY_MESSAGE *key_msg);
 /**
   * @brief  系统按键信息
   */
 static FUNCTION_KEY_INFO_T sys_key_pool[]=
 {
-	{KEY_SHIFT	        , sys_shift_key_fun     },
-	{KEY_UNLOCK	        , sys_unlock_key_fun    },
-	{KEY_F1 & KEY_0 , screen_capture_key_fun    },
+	{KEY_SHIFT	        , sys_shift_key_fun_cb     },
+	{KEY_UNLOCK	        , sys_unlock_key_fun_cb    },
+	{KEY_F1 & KEY_0     , screen_capture_key_fun_cb},
 };
 
 /**
@@ -62,18 +62,47 @@ static WIDGET_POS_SIZE_T* main_win_pos_size_pool[SCREEN_NUM]=
     &_7_main_windows,/*7寸屏*/
 };
 
+static void main_win_f1_cb(KEY_MESSAGE *key_msg);
+static void main_win_f2_cb(KEY_MESSAGE *key_msg);
+static void main_win_f3_cb(KEY_MESSAGE *key_msg);
+static void main_win_f4_cb(KEY_MESSAGE *key_msg);
+static void main_win_f5_cb(KEY_MESSAGE *key_msg);
+static void main_win_f6_cb(KEY_MESSAGE *key_msg);
 /** 主界面使用的菜单键信息的配置 */
 static MENU_KEY_INFO_T 	main_ui_menu_key_inf[] = 
 {
-    {"", F_KEY_DISPLAY  , KEY_F0 & _KEY_UP, 0                     , MENU_KEY_DIS},//f0
-    {"", F_KEY_FILE		, KEY_F1 & _KEY_UP, create_file_win       , MENU_KEY_EN },//f1
-    {"", F_KEY_STEP		, KEY_F2 & _KEY_UP, create_step_par_win   , MENU_KEY_EN},//f2
-    {"", F_KEY_SYS		, KEY_F3 & _KEY_UP, create_sys_manager_win, MENU_KEY_EN },//f3
-    {"", F_KEY_RESULT   , KEY_F4 & _KEY_UP, create_result_win     , MENU_KEY_EN},//f4
-    {"", F_KEY_TEST		, KEY_F5 & _KEY_UP, create_test_win       , MENU_KEY_EN},//f5
-    {"", F_KEY_HELP		, KEY_F6 & _KEY_UP, 0                     , MENU_KEY_DIS },//f6
+    {"", F_KEY_DISPLAY  , KEY_F0 & _KEY_UP, 0             , MENU_KEY_DIS},//f0
+    {"", F_KEY_FILE		, KEY_F1 & _KEY_UP, main_win_f1_cb, MENU_KEY_EN },//f1
+    {"", F_KEY_STEP		, KEY_F2 & _KEY_UP, main_win_f2_cb, MENU_KEY_EN},//f2
+    {"", F_KEY_SYS		, KEY_F3 & _KEY_UP, main_win_f3_cb, MENU_KEY_EN },//f3
+    {"", F_KEY_RESULT   , KEY_F4 & _KEY_UP, main_win_f4_cb, MENU_KEY_EN},//f4
+    {"", F_KEY_TEST		, KEY_F5 & _KEY_UP, main_win_f5_cb, MENU_KEY_EN},//f5
+    {"", F_KEY_HELP		, KEY_F6 & _KEY_UP, main_win_f6_cb, MENU_KEY_DIS },//f6
 };
 
+static void main_win_f1_cb(KEY_MESSAGE *key_msg)
+{
+    create_file_win(key_msg->user_data);
+}
+static void main_win_f2_cb(KEY_MESSAGE *key_msg)
+{
+    create_step_par_win(key_msg->user_data);
+}
+static void main_win_f3_cb(KEY_MESSAGE *key_msg)
+{
+    create_sys_manager_win(key_msg->user_data);
+}
+static void main_win_f4_cb(KEY_MESSAGE *key_msg)
+{
+    create_result_win(key_msg->user_data);
+}
+static void main_win_f5_cb(KEY_MESSAGE *key_msg)
+{
+    create_test_win(key_msg->user_data);
+}
+static void main_win_f6_cb(KEY_MESSAGE *key_msg)
+{
+}
 /**
   * @brief  主界面的文本对象池
   */
@@ -137,7 +166,7 @@ static CS_INDEX main_ui_text_ele_table[] =
 MYUSER_WINDOW_T main_windows=
 {
     {"main_window"},
-    main_ui_cb, update_main_ui_menu_key_inf,
+    main_win_cb, update_main_ui_menu_key_inf,
 	{
         main_ui_text_ele_pool, ARRAY_SIZE(main_ui_text_ele_pool),
         (CS_INDEX*)main_ui_text_ele_table, ARRAY_SIZE(main_ui_text_ele_table)
@@ -169,7 +198,7 @@ void update_shift_bmp(void)
   * @param  [in] data 用户数据
   * @retval 无
   */
-static void sys_shift_key_fun(int data)
+static void sys_shift_key_fun_cb(KEY_MESSAGE *key_msg)
 {
     ui_flag.shift_flag = !ui_flag.shift_flag;
     update_shift_bmp();
@@ -191,7 +220,7 @@ void update_unlock_bmp(void)
   * @param  [in] data 用户数据
   * @retval 无
   */
-static void sys_unlock_key_fun(int data)
+static void sys_unlock_key_fun_cb(KEY_MESSAGE *key_msg)
 {
     ui_flag.key_lock_flag = !ui_flag.key_lock_flag;
     update_unlock_bmp();
@@ -203,8 +232,10 @@ static void sys_unlock_key_fun(int data)
   * @retval 无
   */
 #include "PROGBAR.h"
-static void screen_capture_key_fun(int data)
+static void screen_capture_key_fun_cb(KEY_MESSAGE *key_msg)
 {
+    int32_t data = key_msg->user_data;
+    
     set_usb_disk_task(USB_SCREEN_CAPTURE);
     //创建进度条
     progbar_handle = PROGBAR_CreateEx(100, 455, 50, 20, data, WM_CF_HIDE, 0, id_base++);
@@ -278,22 +309,22 @@ void update_usb_dis_status(void)
     
     if(st == 1)
     {
-        set_u_flash_1_ok_image(U_FLASH_1_handle);
+        set_usb_disk_1_ok_image(U_FLASH_1_handle);
     }
     else
     {
-        set_u_flash_1_ng_image(U_FLASH_1_handle);
+        set_usb_disk_1_ng_image(U_FLASH_1_handle);
     }
     
     st = get_ch376_status(2);
     
     if(st == 1)
     {
-        set_u_flash_2_ok_image(U_FLASH_2_handle);
+        set_usb_disk_2_ok_image(U_FLASH_2_handle);
     }
     else
     {
-        set_u_flash_2_ng_image(U_FLASH_2_handle);
+        set_usb_disk_2_ng_image(U_FLASH_2_handle);
     }
     
     update_unlock_bmp();
@@ -305,7 +336,7 @@ void update_usb_dis_status(void)
   * @param  [in] pMsg 回调函数指针
   * @retval 无
   */
-static void main_ui_cb(WM_MESSAGE * pMsg)
+static void main_win_cb(WM_MESSAGE * pMsg)
 {
 	MYUSER_WINDOW_T* win;
 	WM_HWIN hWin = pMsg->hWin;
@@ -331,8 +362,8 @@ static void main_ui_cb(WM_MESSAGE * pMsg)
             KEY_LOCK_handle = create_key_lock_image(hWin, 5 + 25 * 2, 480 - 24);
             KEY_CAPITAL_SMALL_handle = create_capital_small_letter_image(hWin, 5 + 25 * 3, 480 - 24);
             
-            set_u_flash_1_ng_image(U_FLASH_1_handle);
-            set_u_flash_2_ng_image(U_FLASH_2_handle);
+            set_usb_disk_1_ng_image(U_FLASH_1_handle);
+            set_usb_disk_2_ng_image(U_FLASH_2_handle);
             set_key_unlock_image(KEY_LOCK_handle);
             set_small_letter_image(KEY_CAPITAL_SMALL_handle);
 			break;
@@ -403,7 +434,7 @@ void main_ui_enter(void)
 		/* 响应按键回调函数 */
         if(golbal_key_info.fun != NULL && golbal_key_info.en == MENU_KEY_EN)
         {
-            golbal_key_info.fun(golbal_key_info.user_data);
+            golbal_key_info.fun(&golbal_key_info.msg);
             golbal_key_info.fun = NULL;
         }
 	}

@@ -30,13 +30,13 @@
 #include "7_env_par_edit_win.h"
 #include "env_par_edit_win.h"
 
-void _cbCallback(WM_MESSAGE * pMsg);
+void env_par_edit_win_cb(WM_MESSAGE * pMsg);
 static FUNCTION_KEY_INFO_T sys_key_pool[];
-extern _WIDGET_ELEMENT_ save_file_ele_pool[];
-static void direct_key_up(int data);
-static void direct_key_down(int data);
-static void direct_key_left(int data);
-static void direct_key_right(int data);
+extern WIDGET_ELEMENT save_file_ele_pool[];
+static void direct_key_up_cb(KEY_MESSAGE *key_msg);
+static void direct_key_down_cb(KEY_MESSAGE *key_msg);
+static void direct_key_left_cb(KEY_MESSAGE *key_msg);
+static void direct_key_right_cb(KEY_MESSAGE *key_msg);
 static void menu_key_ok(int);
 //static void menu_key_backspace(int p);
 
@@ -65,25 +65,52 @@ static void set_env_language_english(int hWin)
     update_all_windows_text();
     init_dialog(g_cur_win);//为了更新对话框名字
 }
+static void edit_language_f1_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f2_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f3_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f4_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f5_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f6_cb(KEY_MESSAGE *key_msg);
 static MENU_KEY_INFO_T 	env_langulag_key_info[] =
 /* 语言 */
 {
-    {"中文"     , F_KEY_CUSTOM, KEY_F1 & _KEY_UP, set_env_language_chinese },//f1
-    {"English"  , F_KEY_CUSTOM, KEY_F2 & _KEY_UP, set_env_language_english },//f2
-    {""         , F_KEY_NULL  , KEY_F3 & _KEY_UP, 0 },//f3
-    {""         , F_KEY_NULL  , KEY_F4 & _KEY_UP, 0 },//f4
-    {""         , F_KEY_NULL  , KEY_F5 & _KEY_UP, 0 },//f3
-    {""         , F_KEY_BACK  , KEY_F6 & _KEY_UP, menu_key_ok },//f4
+    {"中文"     , F_KEY_CUSTOM, KEY_F1 & _KEY_UP, edit_language_f1_cb },//f1
+    {"English"  , F_KEY_CUSTOM, KEY_F2 & _KEY_UP, edit_language_f2_cb },//f2
+    {""         , F_KEY_NULL  , KEY_F3 & _KEY_UP, edit_language_f3_cb },//f3
+    {""         , F_KEY_NULL  , KEY_F4 & _KEY_UP, edit_language_f4_cb },//f4
+    {""         , F_KEY_NULL  , KEY_F5 & _KEY_UP, edit_language_f5_cb },//f3
+    {""         , F_KEY_BACK  , KEY_F6 & _KEY_UP, edit_language_f6_cb },//f4
 };
 
+static void edit_language_f1_cb(KEY_MESSAGE *key_msg)
+{
+    set_env_language_chinese(key_msg->user_data);
+}
+static void edit_language_f2_cb(KEY_MESSAGE *key_msg)
+{
+    set_env_language_english(key_msg->user_data);
+}
+static void edit_language_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_language_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_language_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void edit_language_f6_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_ok(key_msg->user_data);
+}
 static FUNCTION_KEY_INFO_T sys_key_pool[]={
-	{KEY_UP		, direct_key_up		 },
-	{KEY_DOWN	, direct_key_down	 },
-	{KEY_LEFT	, direct_key_left	 },
-	{KEY_RIGHT	, direct_key_right	 },
+	{KEY_UP		, direct_key_up_cb		 },
+	{KEY_DOWN	, direct_key_down_cb	 },
+	{KEY_LEFT	, direct_key_left_cb	 },
+	{KEY_RIGHT	, direct_key_right_cb	 },
     
-	{CODE_LEFT	, direct_key_up      },
-	{CODE_RIGH	, direct_key_down	 },
+	{CODE_LEFT	, direct_key_up_cb      },
+	{CODE_RIGH	, direct_key_down_cb	 },
 };
 
 static void env_langulag_sys_key(int data)
@@ -101,7 +128,7 @@ static void env_langulag_menu_key()
 }
 
 
-_WIDGET_ELEMENT_ env_par_ele_pool[]={
+WIDGET_ELEMENT env_par_ele_pool[]={
     {
         {"语  言:","Language:"}, /* 名称 */
         ENV_PAR_LANGUAGE,/* 通过枚举索引 */
@@ -154,7 +181,7 @@ static void init_create_env_par_win_edit_ele(MYUSER_WINDOW_T* win);
 static MYUSER_WINDOW_T env_par_window=
 {
     {"环境参数","Env.Par"},
-    _cbCallback,update_menu_key_inf,
+    env_par_edit_win_cb,update_menu_key_inf,
     {0},
     {
         env_par_ele_pool,ARRAY_SIZE(env_par_ele_pool),
@@ -187,32 +214,32 @@ static void menu_key_ok(int hWin)
 // }
 
 
-static void direct_key_up(int data)
+static void direct_key_up_cb(KEY_MESSAGE *key_msg)
 {
     dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
     if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.prev)
     {
-        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, _WIDGET_ELEMENT_, e_list);
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, WIDGET_ELEMENT, e_list);
     }
     select_edit_ele(g_cur_edit_ele);
 }
 
-static void direct_key_down(int data)
+static void direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
     dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
     if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.next)
     {
-        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, _WIDGET_ELEMENT_, e_list);
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, WIDGET_ELEMENT, e_list);
     }
     select_edit_ele(g_cur_edit_ele);
 }
 
-static void direct_key_left(int data)
+static void direct_key_left_cb(KEY_MESSAGE *key_msg)
 {
 	GUI_SendKeyMsg(GUI_KEY_LEFT, 1);
 }
 
-static void direct_key_right(int data)
+static void direct_key_right_cb(KEY_MESSAGE *key_msg)
 {
 	GUI_SendKeyMsg(GUI_KEY_RIGHT, 1);
 }
@@ -266,7 +293,7 @@ static void init_create_env_par_win_com_ele(MYUSER_WINDOW_T* win)
   * @param  [in] pMsg 窗口消息指针
   * @retval 无
   */
-static void _cbCallback(WM_MESSAGE * pMsg)
+static void env_par_edit_win_cb(WM_MESSAGE * pMsg)
 {
 	MYUSER_WINDOW_T* win;
     WM_HWIN hWin = pMsg->hWin;

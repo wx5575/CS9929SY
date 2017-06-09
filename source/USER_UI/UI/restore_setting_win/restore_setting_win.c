@@ -33,7 +33,7 @@
 #include "7_restore_setting_win.h"
 #include "restore_setting_win.h"
 
-static void cb_restore_setting_windows(WM_MESSAGE* pMsg);
+static void restore_setting_win_cb(WM_MESSAGE* pMsg);
 static void update_menu_key_inf(WM_HMEM hWin);
 static void menu_key_ok(int hWin);
 static void menu_key_cancle(int hWin);
@@ -53,16 +53,42 @@ TEXT_ELE_AUTO_LAYOUT_T  *restore_setting_text_ele_auto_layout[]=
 };
 
 
+static void restore_setting_win_f1_cb(KEY_MESSAGE *key_msg);
+static void restore_setting_win_f2_cb(KEY_MESSAGE *key_msg);
+static void restore_setting_win_f3_cb(KEY_MESSAGE *key_msg);
+static void restore_setting_win_f4_cb(KEY_MESSAGE *key_msg);
+static void restore_setting_win_f5_cb(KEY_MESSAGE *key_msg);
+static void restore_setting_win_f6_cb(KEY_MESSAGE *key_msg);
 static MENU_KEY_INFO_T 	restore_setting_menu_key_info[] =
 {
-    {"", F_KEY_NULL     , KEY_F1 & _KEY_UP, 0},//f1
-    {"", F_KEY_NULL     , KEY_F2 & _KEY_UP, 0},//f2
-    {"", F_KEY_NULL     , KEY_F3 & _KEY_UP, 0},//f3
-    {"", F_KEY_NULL     , KEY_F4 & _KEY_UP, 0},//f4
-    {"", F_KEY_OK       , KEY_F5 & _KEY_UP, menu_key_ok           },//f5
-    {"", F_KEY_CANCLE   , KEY_F6 & _KEY_UP, menu_key_cancle       },//f6
+    {"", F_KEY_NULL     , KEY_F1 & _KEY_UP, restore_setting_win_f1_cb },//f1
+    {"", F_KEY_NULL     , KEY_F2 & _KEY_UP, restore_setting_win_f2_cb },//f2
+    {"", F_KEY_NULL     , KEY_F3 & _KEY_UP, restore_setting_win_f3_cb },//f3
+    {"", F_KEY_NULL     , KEY_F4 & _KEY_UP, restore_setting_win_f4_cb },//f4
+    {"", F_KEY_OK       , KEY_F5 & _KEY_UP, restore_setting_win_f5_cb },//f5
+    {"", F_KEY_CANCLE   , KEY_F6 & _KEY_UP, restore_setting_win_f6_cb },//f6
 };
 
+static void restore_setting_win_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void restore_setting_win_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void restore_setting_win_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void restore_setting_win_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void restore_setting_win_f5_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_ok(key_msg->user_data);
+}
+static void restore_setting_win_f6_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_cancle(key_msg->user_data);
+}
 
 static void menu_key_ok(int hWin)
 {
@@ -114,7 +140,7 @@ static void init_create_restore_setting_text_ele(MYUSER_WINDOW_T* win)
 MYUSER_WINDOW_T restore_setting_windows=
 {
     {"恢复出厂设置","Restore Factory Setting"},
-    cb_restore_setting_windows, update_menu_key_inf,
+    restore_setting_win_cb, update_menu_key_inf,
 	{
         restore_setting_ui_text_ele_pool, ARRAY_SIZE(restore_setting_ui_text_ele_pool),
         (CS_INDEX*)restore_setting_text_ele_table, ARRAY_SIZE(restore_setting_text_ele_table),
@@ -127,7 +153,7 @@ static void update_menu_key_inf(WM_HMEM hWin)
 	init_menu_key_info(restore_setting_menu_key_info, ARRAY_SIZE(restore_setting_menu_key_info), hWin);//刷新菜单键显示
 }
 
-static void cb_restore_setting_windows(WM_MESSAGE* pMsg)
+static void restore_setting_win_cb(WM_MESSAGE* pMsg)
 {
 	MYUSER_WINDOW_T* win;
 	WM_HWIN hWin = pMsg->hWin;

@@ -30,7 +30,7 @@
 
 
 static LISTVIEW_Handle list_h;
-static void _cbInsertCard(WM_MESSAGE* pMsg);
+static void result_win_cb(WM_MESSAGE* pMsg);
 static void update_menu_key_inf(WM_HMEM hWin);
 static FUNCTION_KEY_INFO_T 	sys_key_pool[];
 
@@ -44,7 +44,7 @@ static WIDGET_POS_SIZE_T* result_win_pos_size_pool[SCREEN_NUM]=
 MYUSER_WINDOW_T result_windows =
 {
     {"File_window"},
-    _cbInsertCard,update_menu_key_inf,
+    result_win_cb,update_menu_key_inf,
 	0,0, 0,
 };
 
@@ -56,26 +56,78 @@ MYUSER_WINDOW_T result_windows =
 void pop_warning_dialog(int hWin);
 void into_save_file_dialog(int hWin);
 
+static void result_exist_f1_cb(KEY_MESSAGE *key_msg);
+static void result_exist_f2_cb(KEY_MESSAGE *key_msg);
+static void result_exist_f3_cb(KEY_MESSAGE *key_msg);
+static void result_exist_f4_cb(KEY_MESSAGE *key_msg);
+static void result_exist_f5_cb(KEY_MESSAGE *key_msg);
+static void result_exist_f6_cb(KEY_MESSAGE *key_msg);
 static MENU_KEY_INFO_T 	step_exist_menu_key_info[] =
 {
-    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP,	0 },//f1
-    {"", F_KEY_READ		, KEY_F2 & _KEY_UP,	0},//f2
-    {"", F_KEY_EDIT		, KEY_F3 & _KEY_UP,	0	},//f3
-    {"", F_KEY_DEL		, KEY_F4 & _KEY_UP,	0},//f4
-    {"", F_KEY_NULL		, KEY_F5 & _KEY_UP,	0   },//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win},//f6
+    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP, result_exist_f1_cb },//f1
+    {"", F_KEY_READ		, KEY_F2 & _KEY_UP, result_exist_f2_cb },//f2
+    {"", F_KEY_EDIT		, KEY_F3 & _KEY_UP, result_exist_f3_cb },//f3
+    {"", F_KEY_DEL		, KEY_F4 & _KEY_UP, result_exist_f4_cb },//f4
+    {"", F_KEY_NULL		, KEY_F5 & _KEY_UP, result_exist_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, result_exist_f6_cb },//f6
 };
 
+static void result_exist_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_exist_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_exist_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_exist_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_exist_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_exist_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+
+
+static void result_no_exist_f1_cb(KEY_MESSAGE *key_msg);
+static void result_no_exist_f2_cb(KEY_MESSAGE *key_msg);
+static void result_no_exist_f3_cb(KEY_MESSAGE *key_msg);
+static void result_no_exist_f4_cb(KEY_MESSAGE *key_msg);
+static void result_no_exist_f5_cb(KEY_MESSAGE *key_msg);
+static void result_no_exist_f6_cb(KEY_MESSAGE *key_msg);
 static MENU_KEY_INFO_T 	step_no_exist_menu_key_info[] =
 {
-    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP,	0 },//f1
-    {"", F_KEY_NEW		, KEY_F2 & _KEY_UP,	0},//f2
-    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP,	0},//f3
-    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP,	0},//f4
-    {"", F_KEY_NULL     , KEY_F5 & _KEY_UP,	0},//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win},//f6
+    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP, result_no_exist_f1_cb },//f1
+    {"", F_KEY_NEW		, KEY_F2 & _KEY_UP, result_no_exist_f2_cb },//f2
+    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP, result_no_exist_f3_cb },//f3
+    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP, result_no_exist_f4_cb },//f4
+    {"", F_KEY_NULL     , KEY_F5 & _KEY_UP, result_no_exist_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, result_no_exist_f6_cb },//f6
 };
 
+static void result_no_exist_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_no_exist_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_no_exist_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_no_exist_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_no_exist_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void result_no_exist_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
 //static void into_save_file_dialog(int hWin)
 //{
 //    int row = 0;
@@ -185,23 +237,23 @@ static void _create_dialog_(WM_HWIN hWin)
 //	update_file_dis();
 }
 
-static void direct_key_up(int data)
+static void direct_key_up_cb(KEY_MESSAGE *key_msg)
 {
 	LISTVIEW_DecSel(list_h);
-    update_cur_row_menu_key_st(data);
+    update_cur_row_menu_key_st(key_msg->user_data);
 }
 
-static void direct_key_down(int data)
+static void direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
 	LISTVIEW_IncSel(list_h);
-    update_cur_row_menu_key_st(data);
+    update_cur_row_menu_key_st(key_msg->user_data);
 }
 
 static FUNCTION_KEY_INFO_T 	sys_key_pool[]={
-	{KEY_UP		, direct_key_up		},
-	{KEY_DOWN	, direct_key_down 	},
-	{CODE_LEFT	, direct_key_down	 },
-	{CODE_RIGH	, direct_key_up      },
+	{KEY_UP		, direct_key_up_cb		},
+	{KEY_DOWN	, direct_key_down_cb 	},
+	{CODE_LEFT	, direct_key_down_cb	 },
+	{CODE_RIGH	, direct_key_up_cb      },
 };
 
 static void update_sys_key_inf(WM_HWIN hWin)
@@ -298,7 +350,7 @@ static void update_key_inf(WM_HWIN hWin)
 //    }
 //}
 
-static void _cbInsertCard(WM_MESSAGE* pMsg)
+static void result_win_cb(WM_MESSAGE* pMsg)
 {
 //    static CUSTOM_MSG_T msg;
     

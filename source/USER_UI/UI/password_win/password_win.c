@@ -33,7 +33,7 @@
 #include "password_win.h"
 #include "app.h"
 
-static void cb_password_windows(WM_MESSAGE* pMsg);
+static void password_win_cb(WM_MESSAGE* pMsg);
 static void update_menu_key_inf(WM_HMEM hWin);
 static FUNCTION_KEY_INFO_T 	sys_key_pool[];
 static void menu_key_ok(int hWin);
@@ -83,20 +83,57 @@ static void backspace_pwd_edit_ele(int hWin)
     del_a_char_from_edit_str(cur);
     menu_key_backspace(hWin);
 }
-
+static void old_new_pwd_win_f1_cb(KEY_MESSAGE *key_msg);
+static void old_new_pwd_win_f2_cb(KEY_MESSAGE *key_msg);
+static void old_new_pwd_win_f3_cb(KEY_MESSAGE *key_msg);
+static void old_new_pwd_win_f4_cb(KEY_MESSAGE *key_msg);
+static void old_new_pwd_win_f5_cb(KEY_MESSAGE *key_msg);
+static void old_new_pwd_win_f6_cb(KEY_MESSAGE *key_msg);
 /* 原始密码 新设密码 */
 static MENU_KEY_INFO_T 	o_n_pwd_menu_key_info[] =
 {
-    {"", F_KEY_DEL      , KEY_F1 & _KEY_UP, backspace_pwd_edit_ele},//f1
-    {"", F_KEY_CLEAR    , KEY_F2 & _KEY_UP, clear_pwd_edit_ele    },//f2
-    {"", F_KEY_OK       , KEY_F5 & _KEY_UP, menu_key_ok ,MENU_KEY_DIS},//f5
-    {"", F_KEY_BACK     , KEY_F6 & _KEY_UP, back_win              },//f6
+    {"", F_KEY_DEL      , KEY_F1 & _KEY_UP, old_new_pwd_win_f1_cb },//f1
+    {"", F_KEY_CLEAR    , KEY_F2 & _KEY_UP, old_new_pwd_win_f2_cb },//f2
+    {"", F_KEY_NULL     , KEY_F3 & _KEY_UP, old_new_pwd_win_f3_cb },//f3
+    {"", F_KEY_NULL     , KEY_F4 & _KEY_UP, old_new_pwd_win_f4_cb },//f4
+    {"", F_KEY_OK       , KEY_F5 & _KEY_UP, old_new_pwd_win_f5_cb ,MENU_KEY_DIS},//f5
+    {"", F_KEY_BACK     , KEY_F6 & _KEY_UP, old_new_pwd_win_f6_cb },//f6
 };
+static void old_new_pwd_win_f1_cb(KEY_MESSAGE *key_msg)
+{
+    backspace_pwd_edit_ele(key_msg->user_data);
+}
+static void old_new_pwd_win_f2_cb(KEY_MESSAGE *key_msg)
+{
+    clear_pwd_edit_ele(key_msg->user_data);
+}
+static void old_new_pwd_win_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void old_new_pwd_win_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void old_new_pwd_win_f5_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_ok(key_msg->user_data);
+}
+static void old_new_pwd_win_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+
+static void confirm_pwd_win_f5_cb(KEY_MESSAGE *key_msg);
 /* 确认密码 */
 static MENU_KEY_INFO_T 	c_pwd_menu_key_info[] =
 {
-    {"", F_KEY_OK       , KEY_F5 & _KEY_UP, menu_key_ok           },//f5
+    {"", F_KEY_OK       , KEY_F5 & _KEY_UP, confirm_pwd_win_f5_cb },//f5
 };
+
+static void confirm_pwd_win_f5_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_ok(key_msg->user_data);
+}
+
 static void pwd_sys_key(int data);
 
 static void pwd_menu_key()
@@ -116,7 +153,7 @@ static void c_pwd_menu_key()
 	init_menu_key_info(info, size, data);
 }
 
-_WIDGET_ELEMENT_ password_ele_pool[]=
+WIDGET_ELEMENT password_ele_pool[]=
 {
     {
         {"原始密码:","Old PWD:"}, /* 名称 */
@@ -255,13 +292,13 @@ static void clear_change_pwd_result_notice(void)
     update_text_ele((CS_INDEX)PWD_UI_CHANGE_RESULT, g_cur_win, "");
 }
 
-static void direct_key_up(int data)
+static void direct_key_up_cb(KEY_MESSAGE *key_msg)
 {
     dis_select_edit_ele(g_cur_edit_ele, UNLOAD_TO_RAM);
     
     if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.prev)
     {
-        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, _WIDGET_ELEMENT_, e_list);
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, WIDGET_ELEMENT, e_list);
     }
     
     select_edit_ele(g_cur_edit_ele);
@@ -281,7 +318,7 @@ static void direct_key_up(int data)
     }
 }
 
-static void direct_key_down(int data)
+static void direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
     uint8_t flag = 0;
     
@@ -309,7 +346,7 @@ static void direct_key_down(int data)
     {
         if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.next)
         {
-            g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, _WIDGET_ELEMENT_, e_list);
+            g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, WIDGET_ELEMENT, e_list);
         }
     }
     
@@ -317,24 +354,24 @@ static void direct_key_down(int data)
 }
 
 
-static void direct_key_left(int data)
+static void direct_key_left_cb(KEY_MESSAGE *key_msg)
 {
 	GUI_SendKeyMsg(GUI_KEY_LEFT, 1);
 }
 
-static void direct_key_right(int data)
+static void direct_key_right_cb(KEY_MESSAGE *key_msg)
 {
 	GUI_SendKeyMsg(GUI_KEY_RIGHT, 1);
 }
 
 static FUNCTION_KEY_INFO_T sys_key_pool[]={
-	{KEY_UP		, direct_key_up		 },
-	{KEY_DOWN	, direct_key_down	 },
-	{KEY_LEFT	, direct_key_left	 },
-	{KEY_RIGHT	, direct_key_right	 },
+	{KEY_UP		, direct_key_up_cb		 },
+	{KEY_DOWN	, direct_key_down_cb	 },
+	{KEY_LEFT	, direct_key_left_cb	 },
+	{KEY_RIGHT	, direct_key_right_cb	 },
     
-	{CODE_LEFT	, direct_key_down    },
-	{CODE_RIGH	, direct_key_up	     },
+	{CODE_LEFT	, direct_key_down_cb    },
+	{CODE_RIGH	, direct_key_up_cb	     },
 };
 
 static void pwd_sys_key(int data)
@@ -400,7 +437,7 @@ static TEXT_ELE_T password_ui_text_ele_pool[]=
 MYUSER_WINDOW_T password_windows=
 {
     {"系统密码","password_windows"},
-    cb_password_windows, update_menu_key_inf,
+    password_win_cb, update_menu_key_inf,
 	{
         password_ui_text_ele_pool, ARRAY_SIZE(password_ui_text_ele_pool),
         (CS_INDEX*)pwd_text_ele_table, ARRAY_SIZE(pwd_text_ele_table),
@@ -417,18 +454,42 @@ MYUSER_WINDOW_T password_windows=
         init_create_pwd_com_ele
     },
 };
-
+static void pwd_win_f1_cb(KEY_MESSAGE *key_msg);
+static void pwd_win_f2_cb(KEY_MESSAGE *key_msg);
+static void pwd_win_f3_cb(KEY_MESSAGE *key_msg);
+static void pwd_win_f4_cb(KEY_MESSAGE *key_msg);
+static void pwd_win_f5_cb(KEY_MESSAGE *key_msg);
+static void pwd_win_f6_cb(KEY_MESSAGE *key_msg);
 /* 系统界面下按键菜单 */
 static MENU_KEY_INFO_T 	sys_menu_key_info[] =
 {
-    {"", F_KEY_NULL		, KEY_F1 & _KEY_UP,	0 },//f1
-    {"", F_KEY_NULL		, KEY_F2 & _KEY_UP,	0 },//f2
-    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP,	0 },//f3
-    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP,	0 },//f4
-    {"", F_KEY_NULL		, KEY_F5 & _KEY_UP,	0 },//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win },//f6
+    {"", F_KEY_NULL		, KEY_F1 & _KEY_UP, pwd_win_f1_cb },//f1
+    {"", F_KEY_NULL		, KEY_F2 & _KEY_UP, pwd_win_f2_cb },//f2
+    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP, pwd_win_f3_cb },//f3
+    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP, pwd_win_f4_cb },//f4
+    {"", F_KEY_NULL		, KEY_F5 & _KEY_UP, pwd_win_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, pwd_win_f6_cb },//f6
 };
 
+static void pwd_win_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void pwd_win_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void pwd_win_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void pwd_win_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void pwd_win_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void pwd_win_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
 
 static void update_menu_key_inf(WM_HMEM hWin)
 {
@@ -482,7 +543,7 @@ static void clear_pwd_data(void)
     memset(&pdw_inf, 0, sizeof(pdw_inf));
 }
 
-static void cb_password_windows(WM_MESSAGE* pMsg)
+static void password_win_cb(WM_MESSAGE* pMsg)
 {
 	MYUSER_WINDOW_T* win;
 	WM_HWIN hWin = pMsg->hWin;

@@ -35,7 +35,7 @@
 /** 
   * @brief 编辑控件结构
   */
-typedef struct WIDGET_ELEMENT_  _WIDGET_ELEMENT_;
+typedef struct WIDGET_ELEMENT_  WIDGET_ELEMENT;
 
 /** 
   * @brief 用户窗口结构
@@ -181,6 +181,8 @@ struct WIDGET_ELEMENT_{
     struct{
         void *table;///< 资源表
         uint8_t size;///< 资源表的条数
+        void *user_data;///<用户数据
+        uint8_t user_data_size;///<用户数据个数
     }resource;
     
     /* 类型 */
@@ -201,7 +203,7 @@ struct WIDGET_ELEMENT_{
         uint32_t high;///< 上限
         uint32_t low;///< 下限 
         uint8_t *notice[LANGUAGE_NUM];///< 提示信息包含中英文
-        void (*check_value_validity)(_WIDGET_ELEMENT_*,uint32_t*);///<检查数据的正确性
+        void (*check_value_validity)(WIDGET_ELEMENT*,uint32_t*);///<检查数据的正确性
     }range;
     
     /* 按键信息 包含系统键 菜单键 键盘服务函数 */
@@ -262,14 +264,6 @@ typedef struct{
     int align;///<对齐方式
     uint32_t max_len;///<最大长度
 }EDIT_ELE_AUTO_LAYOUT_T;
-/** 
-  * @brief 定制菜单键信息结构
-  */
-typedef struct{
-    uint8_t *name;///<模式的名称
-    int data;///<自定义菜单键的数据
-    void (*fun)(int);///<自定义菜单键的功能函数
-}CUSTOM_MENU_KEY_INF;
 /*********************************************************************/
 /** 
   * @brief 范围信息是很多界面者会用到的公共文本控件
@@ -294,6 +288,7 @@ typedef enum {
 extern TEXT_ELE_T com_text_ele_pool[COM_ELE_NUM];
 extern CS_INDEX range_com_ele_table[COM_RANGE_ELE_NUM];
 extern CS_INDEX range_group_com_ele_table[COM_ELE_NUM];
+extern CS_INDEX group_com_ele_table[COM_GRUOP_ELE_NUM];
 extern void init_com_text_ele_dis_inf(MYUSER_WINDOW_T* win);
 extern void init_group_com_text_ele_dis_inf(MYUSER_WINDOW_T* win);
 /*********************************************************************/
@@ -341,7 +336,7 @@ typedef struct{
 
 COM_UI_EXT CS_LIST 				windows_list;///<窗口链表
 COM_UI_EXT MYUSER_WINDOW_T      *g_cur_win;///<当前窗口指针
-COM_UI_EXT _WIDGET_ELEMENT_     *g_cur_edit_ele;///<当前编辑对象
+COM_UI_EXT WIDGET_ELEMENT     *g_cur_edit_ele;///<当前编辑对象
 COM_UI_EXT TEXT_ELE_T           *g_cur_text_ele;///<当前文本对象
 COM_UI_EXT CUSTOM_MSG_T 	    g_custom_msg;///<用户自定义消息实体变量
 COM_UI_EXT volatile UI_FLAG     ui_flag;///<界面使用全局标记
@@ -356,7 +351,7 @@ extern void init_create_win_all_ele(MYUSER_WINDOW_T* win);
 extern void create_user_dialog(MYUSER_WINDOW_T* win_info, CS_LIST *list_head, WM_HWIN hWin);
 extern void set_user_window_handle(WM_HWIN hWin);
 extern void set_cur_window(MYUSER_WINDOW_T* win_info);
-extern void set_cur_edit_ele(_WIDGET_ELEMENT_ *node);
+extern void set_cur_edit_ele(WIDGET_ELEMENT *node);
 extern void show_user_window(MYUSER_WINDOW_T* win_info);
 extern void back_win(int id);
 extern MYUSER_WINDOW_T * get_user_window_info(WM_HWIN hWin);
@@ -380,6 +375,8 @@ extern void set_global_fun_key_dispose(void (*fun)(uint32_t));
 extern void set_com_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str[]);
 extern void set_group_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t *str);
 extern void draw_group_inf_area(void);
+extern void update_group_inf(MYUSER_WINDOW_T* win);
+extern void delete_win_all_ele(MYUSER_WINDOW_T* win);
 
 #endif //__COM_UI_INFO_H__
 

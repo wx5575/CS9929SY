@@ -46,7 +46,7 @@ EDIT_ELE_AUTO_LAYOUT_T _7_file_edit_ele_auto_layout_inf=
     FONT, GUI_BLACK, GUI_INVALID_COLOR, GUI_TA_CENTER | GUI_TA_VCENTER,20/*max_len*/
 };
 
-void _7_init_file_save_win_edit_ele_pos(_WIDGET_ELEMENT_ *pool)
+void _7_init_file_save_win_edit_ele_pos(WIDGET_ELEMENT *pool)
 {
     CONFIGURABLE_PROPERTY inf;
     

@@ -181,19 +181,19 @@ WM_HWIN create_u_flash_1_image(WM_HWIN hWin, uint16_t x, uint16_t y)
     return handle;
 }
 
-void set_u_flash_1_ok_image(WM_HWIN hWin)
+void set_usb_disk_1_ok_image(WM_HWIN hWin)
 {
     IMAGE_SetGIF(hWin, U_OK_GIF, sizeof(U_OK_GIF));
 }
-void set_u_flash_1_ng_image(WM_HWIN hWin)
+void set_usb_disk_1_ng_image(WM_HWIN hWin)
 {
     IMAGE_SetGIF(hWin, U_NG_GIF, sizeof(U_NG_GIF));
 }
-void set_u_flash_2_ok_image(WM_HWIN hWin)
+void set_usb_disk_2_ok_image(WM_HWIN hWin)
 {
     IMAGE_SetGIF(hWin, U_OK_GIF, sizeof(U_OK_GIF));
 }
-void set_u_flash_2_ng_image(WM_HWIN hWin)
+void set_usb_disk_2_ng_image(WM_HWIN hWin)
 {
     IMAGE_SetGIF(hWin, U_NG_GIF, sizeof(U_NG_GIF));
 }

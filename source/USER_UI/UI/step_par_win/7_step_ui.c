@@ -37,7 +37,7 @@ WM_HWIN _7_create_step_listview(WM_HWIN hWin)
 	int32_t i = 0;
 	uint8_t buf[20] = {0};
     
-	list_h = LISTVIEW_CreateEx(0, 0, 690, 455, hWin, WM_CF_MEMDEV_ON_REDRAW | WM_CF_SHOW, 0, id_base++);
+	list_h = LISTVIEW_CreateEx(0, 30, 690, 425, hWin, WM_CF_MEMDEV_ON_REDRAW | WM_CF_SHOW, 0, id_base++);
 	hScrollbar = SCROLLBAR_CreateAttached(list_h, SCROLLBAR_CF_VERTICAL);
 	
 	LISTVIEW_SetFont(list_h, &GUI_Fonthz_24);

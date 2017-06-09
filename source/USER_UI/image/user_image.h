@@ -15,10 +15,10 @@ extern WM_HWIN create_u_flash_1_image(WM_HWIN hWin, uint16_t x, uint16_t y);
 extern WM_HWIN create_u_flash_2_image(WM_HWIN hWin, uint16_t x, uint16_t y);
 extern WM_HWIN create_key_lock_image(WM_HWIN hWin, uint16_t x, uint16_t y);
 
-extern void set_u_flash_1_ok_image(WM_HWIN hWin);
-extern void set_u_flash_1_ng_image(WM_HWIN hWin);
-extern void set_u_flash_2_ok_image(WM_HWIN hWin);
-extern void set_u_flash_2_ng_image(WM_HWIN hWin);
+extern void set_usb_disk_1_ok_image(WM_HWIN hWin);
+extern void set_usb_disk_1_ng_image(WM_HWIN hWin);
+extern void set_usb_disk_2_ok_image(WM_HWIN hWin);
+extern void set_usb_disk_2_ng_image(WM_HWIN hWin);
 extern void set_key_lock_image(WM_HWIN hWin);
 extern void set_key_unlock_image(WM_HWIN hWin);
 

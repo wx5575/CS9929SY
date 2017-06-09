@@ -32,7 +32,7 @@
 
 
 static LISTVIEW_Handle list_h;
-static void _cbInsertCard(WM_MESSAGE* pMsg);
+static void step_win_cb(WM_MESSAGE* pMsg);
 static void update_menu_key_inf(WM_HMEM hWin);
 static void dis_all_steps(void);
 static void update_cur_row_menu_key_st(WM_HWIN hWin);
@@ -47,33 +47,109 @@ static WIDGET_POS_SIZE_T* step_win_pos_size_pool[SCREEN_NUM]=
     &_7_step_windows,/*7寸屏*/
 };
 
+static void init_create_step_edit_win_com_ele(MYUSER_WINDOW_T* win);
 static MYUSER_WINDOW_T step_windows =
 {
     {"步骤参数","Step Par."},
-    _cbInsertCard, update_menu_key_inf,
-	0,0, 0,
+    step_win_cb, update_menu_key_inf,
+    {0},
+    {0},
+    {
+        com_text_ele_pool,ARRAY_SIZE(com_text_ele_pool),
+        (CS_INDEX*)group_com_ele_table,ARRAY_SIZE(group_com_ele_table),
+        init_create_step_edit_win_com_ele,
+    },
 };
 
+static void step_exist_f1_cb(KEY_MESSAGE *key_msg);
+static void step_exist_f2_cb(KEY_MESSAGE *key_msg);
+static void step_exist_f3_cb(KEY_MESSAGE *key_msg);
+static void step_exist_f4_cb(KEY_MESSAGE *key_msg);
+static void step_exist_f5_cb(KEY_MESSAGE *key_msg);
+static void step_exist_f6_cb(KEY_MESSAGE *key_msg);
 /* 步骤存在 */
 static MENU_KEY_INFO_T 	step_exist_menu_key_info[] =
 {
-    {"", F_KEY_NEW      , KEY_F1 & _KEY_UP,	new_one_step},//f1
-    {"", F_KEY_DETAIL   , KEY_F2 & _KEY_UP,	create_step_edit_ui},//f2
-    {"", F_KEY_DEL		, KEY_F3 & _KEY_UP,	0},//f3
-    {"", F_KEY_FORWARD  , KEY_F4 & _KEY_UP,	0},//f4
-    {"", F_KEY_BACKWARD , KEY_F5 & _KEY_UP,	0},//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win},//f6
+    {"", F_KEY_NEW      , KEY_F1 & _KEY_UP, step_exist_f1_cb },//f1
+    {"", F_KEY_DETAIL   , KEY_F2 & _KEY_UP, step_exist_f2_cb },//f2
+    {"", F_KEY_DEL		, KEY_F3 & _KEY_UP, step_exist_f3_cb },//f3
+    {"", F_KEY_FORWARD  , KEY_F4 & _KEY_UP, step_exist_f4_cb },//f4
+    {"", F_KEY_BACKWARD , KEY_F5 & _KEY_UP, step_exist_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, step_exist_f6_cb },//f6
 };
+
+static void step_exist_f1_cb(KEY_MESSAGE *key_msg)
+{
+    new_one_step(key_msg->user_data);
+}
+static void step_exist_f2_cb(KEY_MESSAGE *key_msg)
+{
+    create_step_edit_ui(key_msg->user_data);
+}
+static void step_exist_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void step_exist_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void step_exist_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void step_exist_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+static void step_no_exist_f1_cb(KEY_MESSAGE *key_msg);
+static void step_no_exist_f2_cb(KEY_MESSAGE *key_msg);
+static void step_no_exist_f3_cb(KEY_MESSAGE *key_msg);
+static void step_no_exist_f4_cb(KEY_MESSAGE *key_msg);
+static void step_no_exist_f5_cb(KEY_MESSAGE *key_msg);
+static void step_no_exist_f6_cb(KEY_MESSAGE *key_msg);
 /* 步骤不存在 */
 static MENU_KEY_INFO_T 	step_no_exist_menu_key_info[] =
 {
-    {"", F_KEY_NEW      , KEY_F1 & _KEY_UP,	new_one_step},//f1
-    {"", F_KEY_NULL		, KEY_F2 & _KEY_UP,	0},//f2
-    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP,	0},//f3
-    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP,	0},//f4
-    {"", F_KEY_NULL     , KEY_F5 & _KEY_UP, 0},//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win},//f6
+    {"", F_KEY_NEW      , KEY_F1 & _KEY_UP, step_no_exist_f1_cb	},//f1
+    {"", F_KEY_NULL		, KEY_F2 & _KEY_UP, step_no_exist_f2_cb },//f2
+    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP, step_no_exist_f3_cb },//f3
+    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP, step_no_exist_f4_cb },//f4
+    {"", F_KEY_NULL     , KEY_F5 & _KEY_UP, step_no_exist_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, step_no_exist_f6_cb	},//f6
 };
+static void step_no_exist_f1_cb(KEY_MESSAGE *key_msg)
+{
+    new_one_step(key_msg->user_data);
+}
+static void step_no_exist_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void step_no_exist_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void step_no_exist_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void step_no_exist_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void step_no_exist_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+
+
+/**
+  * @brief  初始化并创建窗口中的公共文本对象
+  * @param  [in] win 用户窗口信息
+  * @retval 无
+  */
+static void init_create_step_edit_win_com_ele(MYUSER_WINDOW_T* win)
+{
+    init_window_com_ele_list(win);//初始化窗口文本对象链表
+    init_com_text_ele_dis_inf(win);//初始化公共文本对象的显示信息
+    init_group_com_text_ele_dis_inf(win);//初始化记忆组对象的显示信息
+    update_group_inf(win);
+    init_window_com_text_ele(win);//初始化创建窗口中的公共文本对象
+}
 static void new_one_step(int hwin)
 {
     uint8_t mode;
@@ -195,38 +271,6 @@ static void _PaintFrame(void)
 	GUI_ClearRectEx(&r);
 }
 
-//static void new_file_name(TEST_FILE *file)
-//{
-//	uint8_t list_buf[5][20] = {0};
-//	uint16_t total_row = 0;
-//	int32_t i = 0;
-//	
-//	total_row = LISTVIEW_GetNumRows(list_h);
-//	sprintf((char *)list_buf[0], "%02d", total_row+1/*file->num*/);
-//	sprintf((char *)list_buf[1], "%s", file->name);
-//	sprintf((char *)list_buf[2], "%s", work_mode_pool[file->work_mode%2]);
-//	sprintf((char *)list_buf[3], "%d", file->total_steps);
-//	sprintf((char *)list_buf[4], "%s", get_time_str(0));
-//	
-//	LISTVIEW_AddRow(list_h, 0);
-//	
-//	for(i = 0; i < 5; i++)
-//	{
-//		LISTVIEW_SetItemText(list_h, i, total_row, (const char*)list_buf[i]);
-//	}
-//}
-
-//static void update_file_dis(void)
-//{
-//	int32_t i = 0;
-//	
-//	for(i = 1; i < MAX_FILES; i++)
-//	{
-//		file_pool[i].num = i;
-//		dis_one_file_info(&file_pool[i]);
-//	}
-//}
-
 static WM_HWIN create_step_listview(WM_HWIN hWin)
 {
     WM_HWIN handle = 0;
@@ -320,25 +364,31 @@ static void init_step_win_listview(WM_HWIN hWin)
     list_h = create_step_listview(hWin);
     dis_all_steps();
 }
-static void direct_key_up(int data)
+static void direct_key_up_cb(KEY_MESSAGE *key_msg)
 {
+    uint32_t data = key_msg->user_data;
+    
 	LISTVIEW_DecSel(list_h);
     update_cur_row_menu_key_st(data);
     update_g_cur_step();
+    update_group_inf(g_cur_win);
 }
 
-static void direct_key_down(int data)
+static void direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
+    uint32_t data = key_msg->user_data;
+    
 	LISTVIEW_IncSel(list_h);
     update_cur_row_menu_key_st(data);
     update_g_cur_step();
+    update_group_inf(g_cur_win);
 }
 
 static FUNCTION_KEY_INFO_T 	sys_key_pool[]={
-	{KEY_UP		, direct_key_up		},
-	{KEY_DOWN	, direct_key_down 	},
-	{CODE_LEFT	, direct_key_down	 },
-	{CODE_RIGH	, direct_key_up      },
+	{KEY_UP		, direct_key_up_cb      },
+	{KEY_DOWN	, direct_key_down_cb 	},
+	{CODE_LEFT	, direct_key_down_cb    },
+	{CODE_RIGH	, direct_key_up_cb      },
 };
 
 static void update_sys_key_inf(WM_HWIN hWin)
@@ -435,10 +485,9 @@ static void update_key_inf(WM_HWIN hWin)
 //    }
 //}
 
-static void _cbInsertCard(WM_MESSAGE* pMsg)
+static void step_win_cb(WM_MESSAGE* pMsg)
 {
-//    static CUSTOM_MSG_T msg;
-    
+	MYUSER_WINDOW_T* win;
 	WM_HWIN hWin = pMsg->hWin;
 	
 	switch (pMsg->MsgId)
@@ -456,10 +505,15 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
 			break;
 		}
 		case WM_CREATE:
+            set_user_window_handle(hWin);
+			win = get_user_window_info(hWin);
 			WM_SetFocus(hWin);/* 设置聚焦 */
 			init_step_win_listview(hWin);
+            
+            init_create_win_all_ele(win);
             update_key_inf(hWin);
             update_g_cur_step();
+            update_group_inf(g_cur_win);
             break;
 		case WM_TIMER:
 			break;
@@ -467,6 +521,7 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
             break;
 		case WM_PAINT:
 			_PaintFrame();
+            draw_group_inf_area();
 			break;
 		case WM_NOTIFY_PARENT:
 			break;

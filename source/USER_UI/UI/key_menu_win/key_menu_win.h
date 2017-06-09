@@ -85,18 +85,22 @@ typedef struct{
 
 #define MENU_KEY_NUM			7 /* 按键个数 */
 
-/** 按键回调函数指针 */
-typedef void (*KEY_CB_FUN)(int);
-
 /** 功能按键结构 */
 typedef struct{
 	uint32_t key_value;///<键值
 	KEY_CB_FUN key_up_dispose_fun;///<处理函数
+    KEY_MESSAGE msg;///<按键消息
 	MENU_KEY_ST_ENUM en;///<按键使能
-	int user_data;///<传递给键盘处理函数的用户数据
-    int custom_data;///<用户定制数据，用于在定制菜单信息时使用
 }FUNCTION_KEY_INFO_T;
 
+/** 
+  * @brief 定制菜单键信息结构
+  */
+typedef struct{
+    uint8_t *name;///<模式的名称
+    int data;///<自定义菜单键的数据
+    KEY_CB_FUN fun;///<自定义菜单键的功能函数
+}CUSTOM_MENU_KEY_INF;
 /** 菜单键的配置信息 */
 typedef struct{
 	uint8_t *name;///<按键名称

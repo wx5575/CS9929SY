@@ -10,10 +10,10 @@
 #ifndef __7_SYS_MANAGE_WIN_H__
 #define __7_SYS_MANAGE_WIN_H__
 
-extern WIDGET_POS_SIZE_T _7_sys_windows;
-extern UI_ELE_DISPLAY_INFO_T _7_sys_ui_ele_dis_info_pool[];
+extern WIDGET_POS_SIZE_T        _7_sys_windows;
+extern UI_ELE_DISPLAY_INFO_T    _7_sys_ui_ele_dis_info_pool[];
 
-extern TEXT_ELE_AUTO_LAYOUT_T _7_sys_auto_layout_inf;
+extern TEXT_ELE_AUTO_LAYOUT_T   _7_sys_auto_layout_inf;
 
 
 #endif //__7_SYS_MANAGE_WIN_H__

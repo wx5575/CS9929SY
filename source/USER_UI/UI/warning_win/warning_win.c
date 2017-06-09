@@ -26,7 +26,7 @@
 static void menu_key_cancle(int hWin);
 static void menu_key_ok(int hWin);
 static MYUSER_WINDOW_T warning_windows;
-static void WarningUIcb(WM_MESSAGE * pMsg);
+static void warning_win_cb(WM_MESSAGE * pMsg);
 
 
 static WARNING_INF warning_inf=
@@ -35,17 +35,43 @@ static WARNING_INF warning_inf=
     {"确定要继续吗?","Are you sure you want to continue?"},
 };
 
+static void warning_win_f1_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f2_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f3_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f4_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f5_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f6_cb(KEY_MESSAGE *key_msg);
 /** 当前使用界面对应的菜单键信息与响应函数 */
 MENU_KEY_INFO_T 	cur_menu_key_info_[] =
 {
-    {"", F_KEY_NULL     , KEY_F1 & _KEY_UP, 0                       },//f3
-    {"", F_KEY_NULL     , KEY_F2 & _KEY_UP, 0                       },//f3
-    {"", F_KEY_NULL     , KEY_F3 & _KEY_UP, 0                       },//f3
-    {"", F_KEY_NULL     , KEY_F4 & _KEY_UP, 0                       },//f4
-    {"", F_KEY_OK       , KEY_F5 & _KEY_UP, menu_key_ok             },//f5
-    {"", F_KEY_CANCLE   , KEY_F6 & _KEY_UP, menu_key_cancle         },//f6
+    {"", F_KEY_NULL     , KEY_F1 & _KEY_UP, warning_win_f1_cb },//f3
+    {"", F_KEY_NULL     , KEY_F2 & _KEY_UP, warning_win_f2_cb },//f3
+    {"", F_KEY_NULL     , KEY_F3 & _KEY_UP, warning_win_f3_cb },//f3
+    {"", F_KEY_NULL     , KEY_F4 & _KEY_UP, warning_win_f4_cb },//f4
+    {"", F_KEY_OK       , KEY_F5 & _KEY_UP, warning_win_f5_cb },//f5
+    {"", F_KEY_CANCLE   , KEY_F6 & _KEY_UP, warning_win_f6_cb },//f6
 };
 
+static void warning_win_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void warning_win_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void warning_win_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void warning_win_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void warning_win_f5_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_ok(key_msg->user_data);
+}
+static void warning_win_f6_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_cancle(key_msg->user_data);
+}
 TEXT_ELE_T warning_ui_ele_pool[]=
 {
 	{{"内容","CONTENT"}, WARNING_UI_CONTENT},
@@ -94,7 +120,7 @@ static void menu_key_cancle(int hWin)
 static MYUSER_WINDOW_T warning_windows=
 {
     {"警告","WARNING"},
-    WarningUIcb,update_warning_ui_menu_key_inf,
+    warning_win_cb,update_warning_ui_menu_key_inf,
 	{
         warning_ui_ele_pool,COUNT_ARRAY_SIZE(warning_ui_ele_pool),
         (CS_INDEX*)warning_ui_ele_buf,COUNT_ARRAY_SIZE(warning_ui_ele_buf)
@@ -164,7 +190,7 @@ static void TUIcb(WM_MESSAGE * pMsg)
   * @param  [in] pMsg 回调函数指针
   * @retval 无
   */
-static void WarningUIcb(WM_MESSAGE * pMsg)
+static void warning_win_cb(WM_MESSAGE * pMsg)
 {
 	MYUSER_WINDOW_T* win;
 	WM_HWIN hWin = pMsg->hWin;

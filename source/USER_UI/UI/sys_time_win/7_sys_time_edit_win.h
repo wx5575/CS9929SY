@@ -11,7 +11,7 @@
 #define __7_SYS_TIME_EDIT_WIN_H__
 
 
-extern WIDGET_POS_SIZE_T _7_sys_time_windows;
+extern WIDGET_POS_SIZE_T    _7_sys_time_windows;
 
 #endif //__7_SYS_TIME_EDIT_WIN_H__
 

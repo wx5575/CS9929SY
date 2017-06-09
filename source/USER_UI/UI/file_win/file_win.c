@@ -37,7 +37,7 @@ static FUNCTION_KEY_INFO_T 	sys_key_pool[];
 
 void pop_warning_dialog(int hWin);
 void into_save_file_dialog(int hWin);
-static void _cbInsertCard(WM_MESSAGE* pMsg);
+static void file_win_cb(WM_MESSAGE* pMsg);
 static void update_menu_key_inf(WM_HMEM hWin);
 
 static WIDGET_POS_SIZE_T* file_win_pos_size_pool[SCREEN_NUM]=
@@ -50,32 +50,89 @@ static WIDGET_POS_SIZE_T* file_win_pos_size_pool[SCREEN_NUM]=
 MYUSER_WINDOW_T FileWindows=
 {
     {"File_window"},
-    _cbInsertCard,update_menu_key_inf,
+    file_win_cb,update_menu_key_inf,
 	0,0, 0,
 };
 
 
+static void file_exist_f1_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f2_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f3_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f4_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f5_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f6_cb(KEY_MESSAGE *key_msg);
 /* 文件存在的按键菜单 */
 static MENU_KEY_INFO_T 	file_exist_menu_key_info[] =
 {
-    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP,	into_save_file_dialog },//f1
-    {"", F_KEY_READ		, KEY_F2 & _KEY_UP,	0},//f2
-    {"", F_KEY_EDIT		, KEY_F3 & _KEY_UP,	create_edit_file_dialog	},//f3
-    {"", F_KEY_DEL		, KEY_F4 & _KEY_UP,	0},//f4
-    {"", F_KEY_NULL		, KEY_F5 & _KEY_UP,	0},//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win    			},//f6
+    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP, file_exist_f1_cb },//f1
+    {"", F_KEY_READ		, KEY_F2 & _KEY_UP, file_exist_f2_cb },//f2
+    {"", F_KEY_EDIT		, KEY_F3 & _KEY_UP, file_exist_f3_cb },//f3
+    {"", F_KEY_DEL		, KEY_F4 & _KEY_UP, file_exist_f4_cb },//f4
+    {"", F_KEY_NULL		, KEY_F5 & _KEY_UP, file_exist_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, file_exist_f6_cb },//f6
 };
 
+static void file_exist_f1_cb(KEY_MESSAGE *key_msg)
+{
+    into_save_file_dialog(key_msg->user_data);
+}
+static void file_exist_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void file_exist_f3_cb(KEY_MESSAGE *key_msg)
+{
+    create_edit_file_dialog(key_msg->user_data);
+}
+static void file_exist_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void file_exist_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void file_exist_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+
+static void file_no_exist_f1_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f2_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f3_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f4_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f5_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f6_cb(KEY_MESSAGE *key_msg);
 /* 文件不存在的按键菜单 */
 static MENU_KEY_INFO_T 	file_no_exist_menu_key_info[] =
 {
-    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP,	create_save_file_dialog },//f1
-    {"", F_KEY_NEW		, KEY_F2 & _KEY_UP,	create_new_file_dialog  },//f2
-    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP,	0},//f3
-    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP,	0},//f4
-    {"", F_KEY_NULL     , KEY_F5 & _KEY_UP,	0},//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win    			},//f6
+    {"", F_KEY_SAVE		, KEY_F1 & _KEY_UP, file_no_exist_f1_cb },//f1
+    {"", F_KEY_NEW		, KEY_F2 & _KEY_UP, file_no_exist_f2_cb },//f2
+    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP, file_no_exist_f3_cb },//f3
+    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP, file_no_exist_f4_cb },//f4
+    {"", F_KEY_NULL     , KEY_F5 & _KEY_UP, file_no_exist_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, file_no_exist_f6_cb },//f6
 };
+
+static void file_no_exist_f1_cb(KEY_MESSAGE *key_msg)
+{
+    create_save_file_dialog(key_msg->user_data);
+}
+static void file_no_exist_f2_cb(KEY_MESSAGE *key_msg)
+{
+    create_new_file_dialog(key_msg->user_data);
+}
+static void file_no_exist_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void file_no_exist_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void file_no_exist_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void file_no_exist_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+
 static void pop_warning_dialog_for_save_file(int hWin)
 {
     const uint16_t WAR_WIN_TX = 10;//警告文本的X坐标
@@ -263,29 +320,29 @@ static WM_HWIN create_file_listview(WM_HWIN hWin)
     return handle;
 }
 
-static void _create_dialog_(WM_HWIN hWin)
+static void create_init_file_listview(WM_HWIN hWin)
 {
     list_h = create_file_listview(hWin);
 	update_file_dis();
 }
 
-static void direct_key_up(int data)
+static void direct_key_up_cb(KEY_MESSAGE *key_msg)
 {
 	LISTVIEW_DecSel(list_h);
-    update_cur_row_menu_key_st(data);
+    update_cur_row_menu_key_st(key_msg->user_data);
 }
 
-static void direct_key_down(int data)
+static void direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
 	LISTVIEW_IncSel(list_h);
-    update_cur_row_menu_key_st(data);
+    update_cur_row_menu_key_st(key_msg->user_data);
 }
 
 static FUNCTION_KEY_INFO_T 	sys_key_pool[]={
-	{KEY_UP		, direct_key_up		},
-	{KEY_DOWN	, direct_key_down 	},
-	{CODE_LEFT	, direct_key_down   },
-	{CODE_RIGH	, direct_key_up	    },
+	{KEY_UP		, direct_key_up_cb		},
+	{KEY_DOWN	, direct_key_down_cb 	},
+	{CODE_LEFT	, direct_key_down_cb   },
+	{CODE_RIGH	, direct_key_up_cb	    },
 };
 
 static void update_sys_key_inf(WM_HWIN hWin)
@@ -382,8 +439,9 @@ static void dispose_child_win_msg(CUSTOM_MSG_T * msg, WM_HWIN hWin)
     }
 }
 
-static void _cbInsertCard(WM_MESSAGE* pMsg)
+static void file_win_cb(WM_MESSAGE* pMsg)
 {
+	MYUSER_WINDOW_T* win;
     static CUSTOM_MSG_T msg;
 	WM_HWIN hWin = pMsg->hWin;
     
@@ -399,8 +457,11 @@ static void _cbInsertCard(WM_MESSAGE* pMsg)
 			break;
 		}
 		case WM_CREATE:
+            set_user_window_handle(hWin);
+			win = get_user_window_info(hWin);
 			WM_SetFocus(hWin);/* 设置聚焦 */
-			_create_dialog_(hWin);
+			create_init_file_listview(hWin);//创建并初始化文件表控件
+            init_create_win_all_ele(win);//初始化并创建窗口中所有控件
             update_key_inf(hWin);
             break;
 		case WM_TIMER:

@@ -34,7 +34,7 @@
 #include "password_win/password_win.h"
 #include "restore_setting_win/restore_setting_win.h"
 
-static void cb_sys_windows(WM_MESSAGE* pMsg);
+static void sys_win_cb(WM_MESSAGE* pMsg);
 static void update_key_inf(WM_HMEM hWin);
 static FUNCTION_KEY_INFO_T 	sys_key_pool[];
 
@@ -78,7 +78,7 @@ static TEXT_ELE_T sys_ui_ele_pool[]=
 static MYUSER_WINDOW_T sys_windows=
 {
     {"sys_windows"},
-    cb_sys_windows, update_key_inf,
+    sys_win_cb, update_key_inf,
 	{
         sys_ui_ele_pool, ARRAY_SIZE(sys_ui_ele_pool),
         (CS_INDEX*)sys_ui_index,ARRAY_SIZE(sys_ui_index)
@@ -86,16 +86,44 @@ static MYUSER_WINDOW_T sys_windows=
 };
 
 static void into_sub_set_win(int hWin);
+
+static void sys_win_f1_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f2_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f3_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f4_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f5_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f6_cb(KEY_MESSAGE *key_msg);
 /* 系统界面下按键菜单 */
 static MENU_KEY_INFO_T 	sys_menu_key_info[] =
 {
-    {"", F_KEY_NULL		, KEY_F1 & _KEY_UP,	0 },//f1
-    {"", F_KEY_NULL		, KEY_F2 & _KEY_UP,	0 },//f2
-    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP,	0 },//f3
-    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP,	0 },//f4
-    {"", F_KEY_OK		, KEY_F5 & _KEY_UP,	into_sub_set_win },//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	back_win },//f6
+    {"", F_KEY_NULL		, KEY_F1 & _KEY_UP, sys_win_f1_cb },//f1
+    {"", F_KEY_NULL		, KEY_F2 & _KEY_UP, sys_win_f2_cb },//f2
+    {"", F_KEY_NULL		, KEY_F3 & _KEY_UP, sys_win_f3_cb },//f3
+    {"", F_KEY_NULL		, KEY_F4 & _KEY_UP, sys_win_f4_cb },//f4
+    {"", F_KEY_OK		, KEY_F5 & _KEY_UP, sys_win_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, sys_win_f6_cb },//f6
 };
+
+static void sys_win_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void sys_win_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void sys_win_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void sys_win_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void sys_win_f5_cb(KEY_MESSAGE *key_msg)
+{
+    into_sub_set_win(key_msg->user_data);
+}
+static void sys_win_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
 static void into_sub_set_win(int hWin)
 {
     switch(g_cur_text_ele->index)
@@ -131,12 +159,7 @@ static void _PaintFrame(void)
 	GUI_ClearRectEx(&r);
 }
 
-static void _create_dialog_(WM_HWIN hWin)
-{
-    
-}
-
-static void direct_key_up(int data)
+static void direct_key_up_cb(KEY_MESSAGE *key_msg)
 {
     dis_select_text_ele(g_cur_text_ele);
     
@@ -148,7 +171,7 @@ static void direct_key_up(int data)
     select_text_ele(g_cur_text_ele);
 }
 
-static void direct_key_down(int data)
+static void direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
     dis_select_text_ele(g_cur_text_ele);
     
@@ -161,10 +184,10 @@ static void direct_key_down(int data)
 }
 
 static FUNCTION_KEY_INFO_T 	sys_key_pool[]={
-	{KEY_UP		, direct_key_up		},
-	{KEY_DOWN	, direct_key_down 	},
-	{CODE_LEFT	, direct_key_down   },
-	{CODE_RIGH	, direct_key_up     },
+	{KEY_UP		, direct_key_up_cb		},
+	{KEY_DOWN	, direct_key_down_cb 	},
+	{CODE_LEFT	, direct_key_down_cb   },
+	{CODE_RIGH	, direct_key_up_cb     },
 };
 
 static void update_sys_key_inf(WM_HWIN hWin)
@@ -178,7 +201,7 @@ static void update_key_inf(WM_HWIN hWin)
     update_sys_key_inf(hWin);
 }
 
-static void cb_sys_windows(WM_MESSAGE* pMsg)
+static void sys_win_cb(WM_MESSAGE* pMsg)
 {
 	MYUSER_WINDOW_T* win;
 	WM_HWIN hWin = pMsg->hWin;
@@ -194,7 +217,6 @@ static void cb_sys_windows(WM_MESSAGE* pMsg)
             set_user_window_handle(hWin);
 			win = get_user_window_info(hWin);
 			WM_SetFocus(hWin);/* 设置聚焦 */
-			_create_dialog_(hWin);
             update_key_inf(hWin);
             init_window_text_ele_list(win);
             init_window_text_ele_dis_inf(win, &_7_sys_auto_layout_inf);//初始化窗口文本对象链表

@@ -46,11 +46,11 @@
 #define TRANS1    0xEE000000
 #define TRANS2    0xFF000000
 
-static void _cbCallback(WM_MESSAGE * pMsg);
-static void direct_key_up(int data);
-static void direct_key_down(int data);
-static void direct_key_left(int data);
-static void direct_key_right(int data);
+static void sys_time_edit_win_cb(WM_MESSAGE * pMsg);
+static void direct_key_up_cb(KEY_MESSAGE *key_msg);
+static void direct_key_down_cb(KEY_MESSAGE *key_msg);
+static void direct_key_left_cb(KEY_MESSAGE *key_msg);
+static void direct_key_right_cb(KEY_MESSAGE *key_msg);
 static void menu_key_ok(int hWin);
 void init_day_wheel(uint16_t days);
 static void sel_cur_time_list_wheel(void);
@@ -306,29 +306,55 @@ static WIDGET_POS_SIZE_T* sys_time_win_pos_size_pool[SCREEN_NUM]=
     &_7_sys_time_windows,/*7寸屏*/
 };
 
+static void sys_time_f1_cb(KEY_MESSAGE *key_msg);
+static void sys_time_f2_cb(KEY_MESSAGE *key_msg);
+static void sys_time_f3_cb(KEY_MESSAGE *key_msg);
+static void sys_time_f4_cb(KEY_MESSAGE *key_msg);
+static void sys_time_f5_cb(KEY_MESSAGE *key_msg);
+static void sys_time_f6_cb(KEY_MESSAGE *key_msg);
  MENU_KEY_INFO_T 	sys_time_key_info[] =
 {
-    {"" , F_KEY_NULL    , KEY_F1 & _KEY_UP, 0 },//f1
-    {"" , F_KEY_NULL    , KEY_F2 & _KEY_UP, 0 },//f2
-    {"" , F_KEY_NULL    , KEY_F3 & _KEY_UP, 0 },//f3
-    {"" , F_KEY_NULL    , KEY_F4 & _KEY_UP, 0 },//f4
-    {"" , F_KEY_OK      , KEY_F5 & _KEY_UP, menu_key_ok },//f5 
-    {"" , F_KEY_BACK    , KEY_F6 & _KEY_UP, back_win},//f6
+    {"" , F_KEY_NULL    , KEY_F1 & _KEY_UP, sys_time_f1_cb },//f1
+    {"" , F_KEY_NULL    , KEY_F2 & _KEY_UP, sys_time_f2_cb },//f2
+    {"" , F_KEY_NULL    , KEY_F3 & _KEY_UP, sys_time_f3_cb },//f3
+    {"" , F_KEY_NULL    , KEY_F4 & _KEY_UP, sys_time_f4_cb },//f4
+    {"" , F_KEY_OK      , KEY_F5 & _KEY_UP, sys_time_f5_cb },//f5
+    {"" , F_KEY_BACK    , KEY_F6 & _KEY_UP, sys_time_f6_cb },//f6
 };
 
+static void sys_time_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void sys_time_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void sys_time_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void sys_time_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void sys_time_f5_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_ok(key_msg->user_data);
+}
+static void sys_time_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
 static FUNCTION_KEY_INFO_T syst_time_key_pool[]={
-	{KEY_UP		, direct_key_up     },
-	{KEY_DOWN	, direct_key_down   },
-	{KEY_LEFT	, direct_key_left   },
-	{KEY_RIGHT	, direct_key_right  },
+	{KEY_UP		, direct_key_up_cb     },
+	{KEY_DOWN	, direct_key_down_cb   },
+	{KEY_LEFT	, direct_key_left_cb   },
+	{KEY_RIGHT	, direct_key_right_cb  },
     
-	{KEY_UP     & _KEY_LONG, direct_key_up     },
-	{KEY_DOWN	& _KEY_LONG, direct_key_down   },
-	{KEY_LEFT	& _KEY_LONG, direct_key_left   },
-	{KEY_RIGHT	& _KEY_LONG, direct_key_right  },
+	{KEY_UP     & _KEY_LONG, direct_key_up_cb     },
+	{KEY_DOWN	& _KEY_LONG, direct_key_down_cb   },
+	{KEY_LEFT	& _KEY_LONG, direct_key_left_cb   },
+	{KEY_RIGHT	& _KEY_LONG, direct_key_right_cb  },
     
-	{CODE_LEFT	, direct_key_down   },
-	{CODE_RIGH	, direct_key_up     },
+	{CODE_LEFT	, direct_key_down_cb   },
+	{CODE_RIGH	, direct_key_up_cb     },
 };
 
 void env_langulag_sys_key(int data)
@@ -345,7 +371,7 @@ static void update_menu_key_inf(WM_HMEM hWin)
 static MYUSER_WINDOW_T sys_time_window=
 {
     {"系统时间","System Time"},
-    _cbCallback,update_menu_key_inf,
+    sys_time_edit_win_cb,update_menu_key_inf,
     {0},
     {0},
     {
@@ -414,7 +440,7 @@ static void check_day_legality(void)
     days = get_days_of_month(year, month);
     init_day_wheel(days);
 }
-static void direct_key_up(int data)
+static void direct_key_up_cb(KEY_MESSAGE *key_msg)
 {
     int32_t i = 0;
     uint32_t size = 0;
@@ -451,7 +477,7 @@ static void direct_key_up(int data)
     }
 }
 
-static void direct_key_down(int data)
+static void direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
     int32_t i = 0;
     WM_HMEM hWin;
@@ -507,7 +533,7 @@ static void unsel_cur_time_list_wheel(void)
     
     LISTWHEEL_SetTextColor(hWin, LISTWHEEL_CI_SEL, color);
 }
-static void direct_key_left(int data)
+static void direct_key_left_cb(KEY_MESSAGE *key_msg)
 {
     uint32_t size = 0;
     
@@ -521,7 +547,7 @@ static void direct_key_left(int data)
     }
 }
 
-static void direct_key_right(int data)
+static void direct_key_right_cb(KEY_MESSAGE *key_msg)
 {
     uint32_t size = 0;
     
@@ -939,7 +965,7 @@ void del_all_mem_device(void)
   * @param  [in] pMsg 窗口消息指针
   * @retval 无
   */
-static void _cbCallback(WM_MESSAGE * pMsg)
+static void sys_time_edit_win_cb(WM_MESSAGE * pMsg)
 {
 	MYUSER_WINDOW_T* win;
     WM_HWIN hWin = pMsg->hWin;

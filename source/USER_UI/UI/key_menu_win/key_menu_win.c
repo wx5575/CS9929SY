@@ -287,8 +287,8 @@ void unregister_system_key_fun(FUNCTION_KEY_INFO_T info[], uint32_t n)
 	for(i = 0; i < n; i++)
 	{
         fun.fun = NULL;
-        fun.user_data = 0;
-        fun.en = 1;
+        fun.msg.user_data = 0;
+        fun.en = MENU_KEY_DIS;
         
         register_key_dispose_fun(info[i].key_value, &fun);
 	}
@@ -306,10 +306,10 @@ void register_system_key_fun(FUNCTION_KEY_INFO_T info[], uint32_t n, int data)
 	
 	for(i = 0; i < n; i++)
 	{
-        info[i].user_data = data;
+        info[i].msg.user_data = data;
         
         fun.fun = info[i].key_up_dispose_fun;
-        fun.user_data = info[i].user_data;
+        fun.msg.user_data = info[i].msg.user_data;
         fun.en = info[i].en;
         
         register_key_dispose_fun(info[i].key_value, &fun);
@@ -376,10 +376,9 @@ void init_menu_key_info(MENU_KEY_INFO_T * info, uint32_t n, int data)
             continue;
         }
         
-        info[i].fun_key.user_data = data;
+        info[i].fun_key.msg.user_data = data;
         fun.fun = info[i].fun_key.key_up_dispose_fun;
-        fun.user_data = info[i].fun_key.user_data;
-        fun.custom_data = info[i].fun_key.custom_data;
+        memcpy(&fun.msg, &info[i].fun_key.msg, sizeof(fun.msg));
         fun.en = info[i].fun_key.en;
         
         set_menu_function_status(info[i].fun_key.key_value, info[i].fun_key.en);

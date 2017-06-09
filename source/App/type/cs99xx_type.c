@@ -963,6 +963,11 @@ void *get_defined_mode_table(void)
 {
     return defined_mode_inf.mode_buf;
 }
+
+void *get_defined_mode_flag(void)
+{
+    return defined_mode_inf.flag;
+}
 uint16_t get_defined_mode_num(void)
 {
     return defined_mode_inf.kinds;
