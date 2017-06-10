@@ -46,6 +46,9 @@
 #define TRANS1    0xEE000000
 #define TRANS2    0xFF000000
 
+#define START_YEAR      2014 ///<年设置开始年份
+#define END_YEAR        2050 ///<年设置结束年份
+
 static void sys_time_edit_win_cb(WM_MESSAGE * pMsg);
 static void direct_key_up_cb(KEY_MESSAGE *key_msg);
 static void direct_key_down_cb(KEY_MESSAGE *key_msg);
@@ -57,20 +60,19 @@ static void sel_cur_time_list_wheel(void);
 
 
 typedef struct {
-    WM_HWIN hWin;
-    GUI_MEMDEV_Handle hMemOverlay;
-    GUI_MEMDEV_Handle hMemRBorder;
-    GUI_MEMDEV_Handle hMemLBorder;
-    const GUI_FONT GUI_UNI_PTR * pFont;
+    WM_HWIN hWin;///<wheel句柄
+    GUI_MEMDEV_Handle hMemOverlay;///<wheel覆盖层句柄
+    GUI_MEMDEV_Handle hMemRBorder;///<wheel右border句柄
+    GUI_MEMDEV_Handle hMemLBorder;///<wheel左border句柄
+    const GUI_FONT GUI_UNI_PTR * pFont;///<字体
     GUI_COLOR font_color_sel;///<字体颜色选中的
     GUI_COLOR font_color_unsel;///<背景颜色未选中的
 }WHEEL;
 
-typedef uint32_t (*INIT_FUN)(int);
 typedef struct{
     uint8_t *notice[2];
-    INIT_FUN init_fun;
-    WHEEL wheel;
+    uint32_t (*init_fun)(int);
+		WHEEL wheel;
     uint16_t x;
     uint16_t y;
     uint16_t w;
@@ -81,8 +83,31 @@ typedef struct{
 }SYS_TIME_T;
 SYS_TIME_T *g_cur_sys_time;
 
-#define START_YEAR      2014
-#define END_YEAR        2050
+SYS_TIME_T sys_time_t[]=
+{
+    {{"年","Year"    },init_listwheel_year_string},//年
+    {{"月","Month"   },init_listwheel_month_string},//月
+    {{"日","Day"     },init_listwheel_day_string},//日
+    {{"时","Hour"    },init_listwheel_hour_string},//时
+    {{"分","Minute"  },init_listwheel_minute_string},//分
+    {{"秒","Second"  },init_listwheel_second_string},//秒
+};
+enum{
+    SYS_T_YEAY,
+    SYS_T_MONTH,
+    SYS_T_DAY,
+    SYS_T_HOUR,
+    SYS_T_MINUTE,
+    SYS_T_SECOND,
+};
+
+static WIDGET_POS_SIZE_T* sys_time_win_pos_size_pool[SCREEN_NUM]=
+{
+    &_7_sys_time_windows,/*4.3寸屏*/
+    &_7_sys_time_windows,/*5.6寸屏*/
+    &_7_sys_time_windows,/*7寸屏*/
+};
+
 uint32_t init_listwheel_year_string(int hWin)
 {
     uint32_t size = END_YEAR - START_YEAR + 1;
@@ -280,31 +305,6 @@ uint32_t init_listwheel_second_string(int hWin)
     
     return 60;
 }
-
-SYS_TIME_T sys_time_t[]=
-{
-    {{"年","Year"    },init_listwheel_year_string},//年
-    {{"月","Month"   },init_listwheel_month_string},//月
-    {{"日","Day"     },init_listwheel_day_string},//日
-    {{"时","Hour"    },init_listwheel_hour_string},//时
-    {{"分","Minute"  },init_listwheel_minute_string},//分
-    {{"秒","Second"  },init_listwheel_second_string},//秒
-};
-enum{
-    SYS_T_YEAY,
-    SYS_T_MONTH,
-    SYS_T_DAY,
-    SYS_T_HOUR,
-    SYS_T_MINUTE,
-    SYS_T_SECOND,
-};
-
-static WIDGET_POS_SIZE_T* sys_time_win_pos_size_pool[SCREEN_NUM]=
-{
-    &_7_sys_time_windows,/*4.3寸屏*/
-    &_7_sys_time_windows,/*5.6寸屏*/
-    &_7_sys_time_windows,/*7寸屏*/
-};
 
 static void sys_time_f1_cb(KEY_MESSAGE *key_msg);
 static void sys_time_f2_cb(KEY_MESSAGE *key_msg);
