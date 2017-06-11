@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    file_ui_com.c
+  * @file    file_win.c
   * @author  王鑫
   * @version V1.0.0
   * @date    2017.4.18
@@ -26,7 +26,7 @@
 #include "UI_COM/com_ui_info.h"
 #include "KEY_MENU_WIN/key_menu_win.h"
 #include "WARNING_WIN/warning_win.h"
-#include "7_file_ui.h"
+#include "7_file_win.h"
 #include "file_win.h"
 
 /* Private typedef -----------------------------------------------------------*/

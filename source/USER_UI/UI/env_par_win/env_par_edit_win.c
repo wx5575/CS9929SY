@@ -30,7 +30,7 @@
 #include "7_env_par_edit_win.h"
 #include "env_par_edit_win.h"
 
-void env_par_edit_win_cb(WM_MESSAGE * pMsg);
+static void env_par_edit_win_cb(WM_MESSAGE * pMsg);
 static FUNCTION_KEY_INFO_T sys_key_pool[];
 extern WIDGET_ELEMENT save_file_ele_pool[];
 static void direct_key_up_cb(KEY_MESSAGE *key_msg);
@@ -38,7 +38,6 @@ static void direct_key_down_cb(KEY_MESSAGE *key_msg);
 static void direct_key_left_cb(KEY_MESSAGE *key_msg);
 static void direct_key_right_cb(KEY_MESSAGE *key_msg);
 static void menu_key_ok(int);
-//static void menu_key_backspace(int p);
 
 MYUSER_WINDOW_T* get_save_file_win_struct_addr(void);
 extern EDIT_ELE_DISPLAY_INF save_file_ele_pos_pool[];
