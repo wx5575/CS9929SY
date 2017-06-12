@@ -1354,6 +1354,16 @@
           <GroupName>STEP_PAR_WIN</GroupName>
           <Files>
             <File>
+              <FileName>7_step_edit_win.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\USER_UI\UI\step_par_win\7_step_edit_win.c</FilePath>
+            </File>
+            <File>
+              <FileName>step_edit_win.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\USER_UI\UI\step_par_win\step_edit_win.c</FilePath>
+            </File>
+            <File>
               <FileName>7_step_ui.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\USER_UI\UI\step_par_win\7_step_ui.c</FilePath>

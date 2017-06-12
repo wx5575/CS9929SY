@@ -1031,6 +1031,31 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>CH376</GroupName>
+          <Files>
+            <File>
+              <FileName>CH376_USB_UI.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\HARDWARE\CH376\src\CH376_USB_UI.C</FilePath>
+            </File>
+            <File>
+              <FileName>FILE_SYS.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\HARDWARE\CH376\src\FILE_SYS.C</FilePath>
+            </File>
+            <File>
+              <FileName>HAL_BASE.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\HARDWARE\CH376\src\HAL_BASE.C</FilePath>
+            </File>
+            <File>
+              <FileName>SPI_SW.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\HARDWARE\CH376\src\SPI_SW.C</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>RA8875</GroupName>
           <Files>
             <File>
@@ -1307,31 +1332,6 @@
               <FileName>warning_win.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\USER_UI\UI\warning_win\warning_win.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>CH376</GroupName>
-          <Files>
-            <File>
-              <FileName>CH376_USB_UI.C</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\HARDWARE\CH376\src\CH376_USB_UI.C</FilePath>
-            </File>
-            <File>
-              <FileName>FILE_SYS.C</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\HARDWARE\CH376\src\FILE_SYS.C</FilePath>
-            </File>
-            <File>
-              <FileName>HAL_BASE.C</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\HARDWARE\CH376\src\HAL_BASE.C</FilePath>
-            </File>
-            <File>
-              <FileName>SPI_SW.C</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\HARDWARE\CH376\src\SPI_SW.C</FilePath>
             </File>
           </Files>
         </Group>
