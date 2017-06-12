@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    file_ui_com.c
+  * @file    file_win.c
   * @author  王鑫
   * @version V1.0.0
   * @date    2017.4.18
@@ -26,19 +26,43 @@
 #include "UI_COM/com_ui_info.h"
 #include "KEY_MENU_WIN/key_menu_win.h"
 #include "WARNING_WIN/warning_win.h"
-#include "7_file_ui.h"
+#include "7_file_win.h"
 #include "file_win.h"
 
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
 
 #define WINDOWS_BAK_COLOR	GUI_BLUE	//窗口背景色
 
+/* Private function prototypes -----------------------------------------------*/
+
+static void into_save_file_dialog(WM_HMEM hWin);
+static void file_win_cb(WM_MESSAGE* pMsg);
+static void file_win_update_fun_key_inf(WM_HMEM hWin);
+
+static void file_exist_f1_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f2_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f3_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f4_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f5_cb(KEY_MESSAGE *key_msg);
+static void file_exist_f6_cb(KEY_MESSAGE *key_msg);
+
+static void file_no_exist_f1_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f2_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f3_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f4_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f5_cb(KEY_MESSAGE *key_msg);
+static void file_no_exist_f6_cb(KEY_MESSAGE *key_msg);
+
+static void file_win_direct_key_up_cb(KEY_MESSAGE *key_msg);
+static void file_win_direct_key_down_cb(KEY_MESSAGE *key_msg);
+
+static void update_cur_row_menu_key_st(WM_HWIN hWin);
+/* Private variables ---------------------------------------------------------*/
+
 static LISTVIEW_Handle list_h;
 static FUNCTION_KEY_INFO_T 	sys_key_pool[];
-
-void pop_warning_dialog(int hWin);
-void into_save_file_dialog(int hWin);
-static void file_win_cb(WM_MESSAGE* pMsg);
-static void update_menu_key_inf(WM_HMEM hWin);
 
 static WIDGET_POS_SIZE_T* file_win_pos_size_pool[SCREEN_NUM]=
 {
@@ -50,17 +74,9 @@ static WIDGET_POS_SIZE_T* file_win_pos_size_pool[SCREEN_NUM]=
 MYUSER_WINDOW_T FileWindows=
 {
     {"File_window"},
-    file_win_cb,update_menu_key_inf,
+    file_win_cb,file_win_update_fun_key_inf,
 	0,0, 0,
 };
-
-
-static void file_exist_f1_cb(KEY_MESSAGE *key_msg);
-static void file_exist_f2_cb(KEY_MESSAGE *key_msg);
-static void file_exist_f3_cb(KEY_MESSAGE *key_msg);
-static void file_exist_f4_cb(KEY_MESSAGE *key_msg);
-static void file_exist_f5_cb(KEY_MESSAGE *key_msg);
-static void file_exist_f6_cb(KEY_MESSAGE *key_msg);
 /* 文件存在的按键菜单 */
 static MENU_KEY_INFO_T 	file_exist_menu_key_info[] =
 {
@@ -72,34 +88,6 @@ static MENU_KEY_INFO_T 	file_exist_menu_key_info[] =
     {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, file_exist_f6_cb },//f6
 };
 
-static void file_exist_f1_cb(KEY_MESSAGE *key_msg)
-{
-    into_save_file_dialog(key_msg->user_data);
-}
-static void file_exist_f2_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void file_exist_f3_cb(KEY_MESSAGE *key_msg)
-{
-    create_edit_file_dialog(key_msg->user_data);
-}
-static void file_exist_f4_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void file_exist_f5_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void file_exist_f6_cb(KEY_MESSAGE *key_msg)
-{
-    back_win(key_msg->user_data);
-}
-
-static void file_no_exist_f1_cb(KEY_MESSAGE *key_msg);
-static void file_no_exist_f2_cb(KEY_MESSAGE *key_msg);
-static void file_no_exist_f3_cb(KEY_MESSAGE *key_msg);
-static void file_no_exist_f4_cb(KEY_MESSAGE *key_msg);
-static void file_no_exist_f5_cb(KEY_MESSAGE *key_msg);
-static void file_no_exist_f6_cb(KEY_MESSAGE *key_msg);
 /* 文件不存在的按键菜单 */
 static MENU_KEY_INFO_T 	file_no_exist_menu_key_info[] =
 {
@@ -111,29 +99,145 @@ static MENU_KEY_INFO_T 	file_no_exist_menu_key_info[] =
     {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, file_no_exist_f6_cb },//f6
 };
 
+static FUNCTION_KEY_INFO_T 	sys_key_pool[]={
+	{KEY_UP		, file_win_direct_key_up_cb		},
+	{KEY_DOWN	, file_win_direct_key_down_cb 	},
+	{CODE_LEFT	, file_win_direct_key_down_cb   },
+	{CODE_RIGH	, file_win_direct_key_up_cb	    },
+};
+/* Private functions ---------------------------------------------------------*/
+/**
+  * @brief  文件存在菜单键f1的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void file_exist_f1_cb(KEY_MESSAGE *key_msg)
+{
+    into_save_file_dialog(key_msg->user_data);
+}
+/**
+  * @brief  文件存在菜单键f2的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void file_exist_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  文件存在菜单键f3的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void file_exist_f3_cb(KEY_MESSAGE *key_msg)
+{
+    create_edit_file_dialog(key_msg->user_data);
+}
+/**
+  * @brief  文件存在菜单键f4的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void file_exist_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  文件存在菜单键f5的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void file_exist_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  文件存在菜单键f6的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void file_exist_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+
+/**
+  * @brief  文件不存在菜单键f1的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void file_no_exist_f1_cb(KEY_MESSAGE *key_msg)
 {
     create_save_file_dialog(key_msg->user_data);
 }
+/**
+  * @brief  文件不存在菜单键f2的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void file_no_exist_f2_cb(KEY_MESSAGE *key_msg)
 {
     create_new_file_dialog(key_msg->user_data);
 }
+/**
+  * @brief  文件不存在菜单键f3的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void file_no_exist_f3_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  文件不存在菜单键f4的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void file_no_exist_f4_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  文件不存在菜单键f5的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void file_no_exist_f5_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  文件不存在菜单键f6的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void file_no_exist_f6_cb(KEY_MESSAGE *key_msg)
 {
     back_win(key_msg->user_data);
 }
 
-static void pop_warning_dialog_for_save_file(int hWin)
+/**
+  * @brief  向上方向键回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void file_win_direct_key_up_cb(KEY_MESSAGE *key_msg)
+{
+	LISTVIEW_DecSel(list_h);
+    update_cur_row_menu_key_st(key_msg->user_data);
+}
+/**
+  * @brief  向下方向键回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void file_win_direct_key_down_cb(KEY_MESSAGE *key_msg)
+{
+	LISTVIEW_IncSel(list_h);
+    update_cur_row_menu_key_st(key_msg->user_data);
+}
+
+
+/**
+  * @brief  在保存文件时弹出的警告框
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void pop_warning_dialog_for_save_file(WM_HWIN hWin)
 {
     const uint16_t WAR_WIN_TX = 10;//警告文本的X坐标
     const uint16_t WAR_WIN_TY = 20;//警告文本的Y坐标
@@ -164,7 +268,12 @@ static void pop_warning_dialog_for_save_file(int hWin)
     set_warning_ui_inf(&w_inf);
     create_warning_dialog(hWin);
 }
-static void into_save_file_dialog(int hWin)
+/**
+  * @brief  进入保存文件的对话框
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void into_save_file_dialog(WM_HWIN hWin)
 {
     int row = 0;
     
@@ -181,26 +290,11 @@ static void into_save_file_dialog(int hWin)
         create_save_file_dialog(hWin);
     }
 }
-//static void pop_warning_dialog(int hWin)
-//{
-//    int row = 0;
-//    
-//	row = LISTVIEW_GetSel(list_h);
-//	
-//	/* 文件存在 */
-//	if(CS_TRUE == is_file_exist(row + 1))
-//	{
-//        
-//    }
-//	/* 文件不存在 */
-//	else
-//	{
-//        
-//    }
-//    
-//    create_warning_dialog(hWin);
-//}
-
+/**
+  * @brief  更新当前行的菜单键，对于文件存在与否会有不同的菜单键
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
 static void update_cur_row_menu_key_st(WM_HWIN hWin)
 {
     int row = 0;
@@ -225,12 +319,22 @@ static void update_cur_row_menu_key_st(WM_HWIN hWin)
 	init_menu_key_info(info, size, hWin);//刷新菜单键显示
 }
 
-static void update_menu_key_inf(WM_HMEM hWin)
+/**
+  * @brief  更新功能键信息
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void file_win_update_fun_key_inf(WM_HMEM hWin)
 {
     update_cur_row_menu_key_st(hWin);
 }
 
-static void _PaintFrame(void) 
+/**
+  * @brief  文件窗口重绘函数
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void file_win_paint_frame(void) 
 {
 	GUI_RECT r;
 	WM_GetClientRect(&r);
@@ -238,6 +342,11 @@ static void _PaintFrame(void)
 	GUI_ClearRectEx(&r);
 }
 
+/**
+  * @brief  显示出一个文件的信息到文件列表
+  * @param  [in] file 文件信息
+  * @retval 无
+  */
 static void dis_one_file_info(TEST_FILE *file)
 {
 	uint8_t list_buf[5][20] = {0};
@@ -269,27 +378,11 @@ static void dis_one_file_info(TEST_FILE *file)
 	}
 }
 
-//static void new_file_name(TEST_FILE *file)
-//{
-//	uint8_t list_buf[5][20] = {0};
-//	uint16_t total_row = 0;
-//	int32_t i = 0;
-//	
-//	total_row = LISTVIEW_GetNumRows(list_h);
-//	sprintf((char *)list_buf[0], "%02d", total_row+1/*file->num*/);
-//	sprintf((char *)list_buf[1], "%s", file->name);
-//	sprintf((char *)list_buf[2], "%s", work_mode_pool[file->work_mode%2]);
-//	sprintf((char *)list_buf[3], "%d", file->total);
-//	sprintf((char *)list_buf[4], "%s", get_time_str(0));
-//	
-//	LISTVIEW_AddRow(list_h, 0);
-//	
-//	for(i = 0; i < 5; i++)
-//	{
-//		LISTVIEW_SetItemText(list_h, i, total_row, (const char*)list_buf[i]);
-//	}
-//}
-
+/**
+  * @brief  更新文件列表的内容
+  * @param  无
+  * @retval 无
+  */
 static void update_file_dis(void)
 {
 	int32_t i = 0;
@@ -301,6 +394,11 @@ static void update_file_dis(void)
 	}
 }
 
+/**
+  * @brief  创建文件listview控件
+  * @param  [in] hWin 窗口句柄
+  * @retval 窗口句柄
+  */
 static WM_HWIN create_file_listview(WM_HWIN hWin)
 {
     WM_HWIN handle = 0;
@@ -320,41 +418,35 @@ static WM_HWIN create_file_listview(WM_HWIN hWin)
     return handle;
 }
 
+
+/**
+  * @brief  创建并初始化文件listview控件
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
 static void create_init_file_listview(WM_HWIN hWin)
 {
     list_h = create_file_listview(hWin);
 	update_file_dis();
 }
 
-static void direct_key_up_cb(KEY_MESSAGE *key_msg)
-{
-	LISTVIEW_DecSel(list_h);
-    update_cur_row_menu_key_st(key_msg->user_data);
-}
 
-static void direct_key_down_cb(KEY_MESSAGE *key_msg)
+/**
+  * @brief  更新按键信息
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void file_win_update_key_inf(WM_HWIN hWin)
 {
-	LISTVIEW_IncSel(list_h);
-    update_cur_row_menu_key_st(key_msg->user_data);
-}
-
-static FUNCTION_KEY_INFO_T 	sys_key_pool[]={
-	{KEY_UP		, direct_key_up_cb		},
-	{KEY_DOWN	, direct_key_down_cb 	},
-	{CODE_LEFT	, direct_key_down_cb   },
-	{CODE_RIGH	, direct_key_up_cb	    },
-};
-
-static void update_sys_key_inf(WM_HWIN hWin)
-{
+    file_win_update_fun_key_inf(hWin);
     register_system_key_fun(sys_key_pool, ARRAY_SIZE(sys_key_pool), hWin);
 }
-
-static void update_key_inf(WM_HWIN hWin)
-{
-    update_menu_key_inf(hWin);
-    update_sys_key_inf(hWin);
-}
+/**
+  * @brief  处理子窗口消息
+  * @param  [in] msg 定制用户消息
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
 static void dispose_child_win_msg(CUSTOM_MSG_T * msg, WM_HWIN hWin)
 {
     uint8_t flag = 0;
@@ -435,10 +527,15 @@ static void dispose_child_win_msg(CUSTOM_MSG_T * msg, WM_HWIN hWin)
     
     if(0 == flag)
     {
-        update_key_inf(hWin);
+        file_win_update_key_inf(hWin);
     }
 }
 
+/**
+  * @brief  文件管理窗口回调函数
+  * @param  [in] pMsg 窗口消息
+  * @retval 无
+  */
 static void file_win_cb(WM_MESSAGE* pMsg)
 {
 	MYUSER_WINDOW_T* win;
@@ -462,14 +559,14 @@ static void file_win_cb(WM_MESSAGE* pMsg)
 			WM_SetFocus(hWin);/* 设置聚焦 */
 			create_init_file_listview(hWin);//创建并初始化文件表控件
             init_create_win_all_ele(win);//初始化并创建窗口中所有控件
-            update_key_inf(hWin);
+            file_win_update_key_inf(hWin);
             break;
 		case WM_TIMER:
 			break;
 		 case WM_KEY:
             break;
 		case WM_PAINT:
-			_PaintFrame();
+			file_win_paint_frame();
 			break;
 		case WM_NOTIFY_PARENT:
 			break;
@@ -478,6 +575,12 @@ static void file_win_cb(WM_MESSAGE* pMsg)
 	}
 }
 
+/* Public functions ---------------------------------------------------------*/
+/**
+  * @brief  创建文件管理窗口
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
 void create_file_win(int hWin)
 {
     init_window_size(&FileWindows, file_win_pos_size_pool[sys_par.screem_size]);

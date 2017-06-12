@@ -28,13 +28,30 @@ static void menu_key_ok(int hWin);
 static MYUSER_WINDOW_T warning_windows;
 static void warning_win_cb(WM_MESSAGE * pMsg);
 
-
+/**
+  * @brief  警告框使用的初始化文本，在创建警告框前由父窗口进行初始化
+	*/
 static WARNING_INF warning_inf=
 {
-    {"警告","Warning"},
-    {"确定要继续吗?","Are you sure you want to continue?"},
+    {"警告","Warning"},///<标题
+    {"确定要继续吗?","Are you sure you want to continue?"},///<内容
+};
+/**
+  * @brief  警告框使用的文本对象定义
+	*/
+static TEXT_ELE_T warning_ui_ele_pool[]=
+{
+	{{"内容","CONTENT"}, WARNING_UI_CONTENT},
 };
 
+/**
+  * @brief  警告对话框显示的文本索引表
+  */
+static CS_INDEX warning_ui_ele_buf[] =
+{
+	WARNING_UI_CONTENT,//内容
+};
+/******************* 菜单键信息 *********************************/
 static void warning_win_f1_cb(KEY_MESSAGE *key_msg);
 static void warning_win_f2_cb(KEY_MESSAGE *key_msg);
 static void warning_win_f3_cb(KEY_MESSAGE *key_msg);
@@ -51,32 +68,62 @@ MENU_KEY_INFO_T 	cur_menu_key_info_[] =
     {"", F_KEY_OK       , KEY_F5 & _KEY_UP, warning_win_f5_cb },//f5
     {"", F_KEY_CANCLE   , KEY_F6 & _KEY_UP, warning_win_f6_cb },//f6
 };
-
+/**
+  * @brief  f1键回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
 static void warning_win_f1_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  f2键回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
 static void warning_win_f2_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  f3键回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
 static void warning_win_f3_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  f4键回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
 static void warning_win_f4_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  f5键回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
 static void warning_win_f5_cb(KEY_MESSAGE *key_msg)
 {
-    menu_key_ok(key_msg->user_data);
+    menu_key_ok(key_msg->user_data);//确定键按下
 }
+/**
+  * @brief  f6键回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
 static void warning_win_f6_cb(KEY_MESSAGE *key_msg)
 {
-    menu_key_cancle(key_msg->user_data);
+    menu_key_cancle(key_msg->user_data);//取消键按下
 }
-TEXT_ELE_T warning_ui_ele_pool[]=
-{
-	{{"内容","CONTENT"}, WARNING_UI_CONTENT},
-};
-
+/*************************************************************/
+/**
+  * @brief  设置警告界面显示人警告内容
+  * @param  [in] warning 警告信息
+  * @retval 无
+  */
 void set_warning_ui_inf(WARNING_INF *warning)
 {
     memcpy(&warning_inf, warning, sizeof(WARNING_INF));
@@ -87,14 +134,7 @@ void set_warning_ui_inf(WARNING_INF *warning)
     memcpy(&warning_ui_ele_pool[WARNING_UI_CONTENT], &warning_inf.content, sizeof(TEXT_ELE_T));
     
     warning_ui_ele_pool[WARNING_UI_CONTENT].index = WARNING_UI_CONTENT;
-    
-    memcpy(&warning_inf, warning, sizeof(warning_inf));
 }
-/** 警告对话框显示的文本索引表 */
-static CS_INDEX warning_ui_ele_buf[] =
-{
-	WARNING_UI_CONTENT,//内容
-};
 
 static void update_warning_ui_menu_key_inf(WM_HMEM hWin)
 {

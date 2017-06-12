@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    file_ui_com.c
+  * @file    sys_manage_win.c
   * @author  王鑫
   * @version V1.0.0
-  * @date    2017.4.18
-  * @brief   文件管理界面
+  * @date    2017.5.18
+  * @brief   系统管理界面
   ******************************************************************************
   */
 
@@ -34,17 +34,10 @@
 #include "password_win/password_win.h"
 #include "restore_setting_win/restore_setting_win.h"
 
-static void sys_win_cb(WM_MESSAGE* pMsg);
-static void update_key_inf(WM_HMEM hWin);
-static FUNCTION_KEY_INFO_T 	sys_key_pool[];
-
-static WIDGET_POS_SIZE_T* sys_win_pos_size_pool[SCREEN_NUM]=
-{
-    &_7_sys_windows,/*4.3寸屏*/
-    &_7_sys_windows,/*5.6寸屏*/
-    &_7_sys_windows,/*7寸屏*/
-};
-
+/* Private typedef -----------------------------------------------------------*/
+/**
+  * @brief  系统窗口文本控件索引枚举定义
+  */
 typedef enum{
     SYS_UI_ENV_PAR,///<环境参数
     SYS_UI_TIME,
@@ -53,9 +46,40 @@ typedef enum{
     SYS_UI_MODULE,///<终统模块管理
     SYS_UI_RE_FACT_SETTING,///<恢复出厂设置
     SYS_UI_END,
-}SYS_UI_INDEX;
+}SYS_WIN_TEXT_INDEX_ENUM;
+/* Private define ------------------------------------------------------------*/
 
-static CS_INDEX sys_ui_index[]=
+/* Private macro -------------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+static void sys_manage_win_cb(WM_MESSAGE* pMsg);
+static void update_sys_fun_key_inf(WM_HMEM hWin);
+static FUNCTION_KEY_INFO_T 	sys_win_sys_key_pool[];
+static void update_sys_fun_key_inf(WM_HWIN hWin);
+static void into_sub_set_win(int hWin);
+
+static void sys_win_f1_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f2_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f3_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f4_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f5_cb(KEY_MESSAGE *key_msg);
+static void sys_win_f6_cb(KEY_MESSAGE *key_msg);
+static void sys_win_direct_key_down_cb(KEY_MESSAGE *key_msg);
+static void sys_win_direct_key_up_cb(KEY_MESSAGE *key_msg);
+/* Private variables ---------------------------------------------------------*/
+
+/**
+  * @brief  系统窗口位置尺寸，与屏幕尺寸相关的数组
+  */
+static WIDGET_POS_SIZE_T* sys_win_pos_size_pool[SCREEN_NUM]=
+{
+    &_7_sys_windows,/*4.3寸屏*/
+    &_7_sys_windows,/*5.6寸屏*/
+    &_7_sys_windows,/*7寸屏*/
+};
+/**
+  * @brief  系统窗口文本索引表
+  */
+static CS_INDEX sys_win_text_index_table[]=
 {
     SYS_UI_ENV_PAR,// 环境参数
     SYS_UI_TIME,
@@ -65,7 +89,9 @@ static CS_INDEX sys_ui_index[]=
     SYS_UI_RE_FACT_SETTING,// 恢复出厂设置
     SYS_UI_END,
 };
-
+/**
+  * @brief  系统窗口文本控件池
+  */
 static TEXT_ELE_T sys_ui_ele_pool[]=
 {
     {{"环境参数"    ,"Env. Par."         }, SYS_UI_ENV_PAR        },
@@ -75,26 +101,11 @@ static TEXT_ELE_T sys_ui_ele_pool[]=
     {{"模块管理"    ,"Module Management" }, SYS_UI_MODULE         },
     {{"恢复出厂设置","Rest.Fact.Settings"}, SYS_UI_RE_FACT_SETTING},
 };
-static MYUSER_WINDOW_T sys_windows=
-{
-    {"sys_windows"},
-    sys_win_cb, update_key_inf,
-	{
-        sys_ui_ele_pool, ARRAY_SIZE(sys_ui_ele_pool),
-        (CS_INDEX*)sys_ui_index,ARRAY_SIZE(sys_ui_index)
-    },
-};
 
-static void into_sub_set_win(int hWin);
-
-static void sys_win_f1_cb(KEY_MESSAGE *key_msg);
-static void sys_win_f2_cb(KEY_MESSAGE *key_msg);
-static void sys_win_f3_cb(KEY_MESSAGE *key_msg);
-static void sys_win_f4_cb(KEY_MESSAGE *key_msg);
-static void sys_win_f5_cb(KEY_MESSAGE *key_msg);
-static void sys_win_f6_cb(KEY_MESSAGE *key_msg);
-/* 系统界面下按键菜单 */
-static MENU_KEY_INFO_T 	sys_menu_key_info[] =
+/**
+  * @brief  系统窗口菜单键信息初始化数组
+  */
+static MENU_KEY_INFO_T 	sys_manage_menu_key_inf[] =
 {
     {"", F_KEY_NULL		, KEY_F1 & _KEY_UP, sys_win_f1_cb },//f1
     {"", F_KEY_NULL		, KEY_F2 & _KEY_UP, sys_win_f2_cb },//f2
@@ -103,27 +114,120 @@ static MENU_KEY_INFO_T 	sys_menu_key_info[] =
     {"", F_KEY_OK		, KEY_F5 & _KEY_UP, sys_win_f5_cb },//f5
     {"", F_KEY_BACK		, KEY_F6 & _KEY_UP, sys_win_f6_cb },//f6
 };
+/**
+  * @brief  系统窗口功能键信息初始化数组
+  */
+static FUNCTION_KEY_INFO_T 	sys_win_sys_key_pool[]={
+	{KEY_UP		, sys_win_direct_key_up_cb		},
+	{KEY_DOWN	, sys_win_direct_key_down_cb 	},
+	{CODE_LEFT	, sys_win_direct_key_down_cb   },
+	{CODE_RIGH	, sys_win_direct_key_up_cb     },
+};
+/**
+  * @brief  系统窗口结构定义
+  */
+static MYUSER_WINDOW_T sys_windows=
+{
+    {"系统管理", "SysManage"},
+    sys_manage_win_cb, update_sys_fun_key_inf,
+	{
+        sys_ui_ele_pool, ARRAY_SIZE(sys_ui_ele_pool),
+        (CS_INDEX*)sys_win_text_index_table,ARRAY_SIZE(sys_win_text_index_table)
+    },
+};
 
+/* Private functions ---------------------------------------------------------*/
+
+/**
+  * @brief  菜单键f1的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void sys_win_f1_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  菜单键f2的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void sys_win_f2_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  菜单键f3的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void sys_win_f3_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  菜单键f4的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void sys_win_f4_cb(KEY_MESSAGE *key_msg)
 {
 }
+/**
+  * @brief  菜单键f5的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void sys_win_f5_cb(KEY_MESSAGE *key_msg)
 {
     into_sub_set_win(key_msg->user_data);
 }
+/**
+  * @brief  菜单键f6的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
 static void sys_win_f6_cb(KEY_MESSAGE *key_msg)
 {
     back_win(key_msg->user_data);
 }
+
+/**
+  * @brief  向上键的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void sys_win_direct_key_up_cb(KEY_MESSAGE *key_msg)
+{
+    dis_select_text_ele(g_cur_text_ele);
+    
+    if(&g_cur_win->text.list_head != g_cur_text_ele->list.prev)
+    {
+        g_cur_text_ele = list_entry(g_cur_text_ele->list.prev, TEXT_ELE_T, list);
+    }
+    
+    select_text_ele(g_cur_text_ele);
+}
+
+/**
+  * @brief  向下键的回调函数
+  * @param  [in] key_msg 按键信息
+  * @retval 无
+  */
+static void sys_win_direct_key_down_cb(KEY_MESSAGE *key_msg)
+{
+    dis_select_text_ele(g_cur_text_ele);
+    
+    if(&g_cur_win->text.list_head != g_cur_text_ele->list.next)
+    {
+        g_cur_text_ele = list_entry(g_cur_text_ele->list.next, TEXT_ELE_T, list);
+    }
+    
+    select_text_ele(g_cur_text_ele);
+}
+
+/**
+  * @brief  进入子设置窗口
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
 static void into_sub_set_win(int hWin)
 {
     switch(g_cur_text_ele->index)
@@ -146,62 +250,36 @@ static void into_sub_set_win(int hWin)
             break;
     }
 }
-static void update_menu_key_inf(WM_HMEM hWin)
-{
-	init_menu_key_info(sys_menu_key_info, ARRAY_SIZE(sys_menu_key_info), hWin);//刷新菜单键显示
-}
 
-static void _PaintFrame(void) 
+/**
+  * @brief  系统管理窗口重绘
+  * @param  无
+  * @retval 无
+  */
+static void sys_manage_win_paint_frame(void) 
 {
 	GUI_RECT r;
 	WM_GetClientRect(&r);
 	GUI_SetBkColor(WINDOWS_BAK_COLOR);
 	GUI_ClearRectEx(&r);
 }
-
-static void direct_key_up_cb(KEY_MESSAGE *key_msg)
+/**
+  * @brief  更新系统功能键信息
+  * @param  hWin 窗口句柄
+  * @retval 无
+  */
+static void update_sys_fun_key_inf(WM_HWIN hWin)
 {
-    dis_select_text_ele(g_cur_text_ele);
-    
-    if(&g_cur_win->text.list_head != g_cur_text_ele->list.prev)
-    {
-        g_cur_text_ele = list_entry(g_cur_text_ele->list.prev, TEXT_ELE_T, list);
-    }
-    
-    select_text_ele(g_cur_text_ele);
+    init_menu_key_info(sys_manage_menu_key_inf, ARRAY_SIZE(sys_manage_menu_key_inf), hWin);//刷新菜单键显示
+    register_system_key_fun(sys_win_sys_key_pool, ARRAY_SIZE(sys_win_sys_key_pool), hWin);
 }
 
-static void direct_key_down_cb(KEY_MESSAGE *key_msg)
-{
-    dis_select_text_ele(g_cur_text_ele);
-    
-    if(&g_cur_win->text.list_head != g_cur_text_ele->list.next)
-    {
-        g_cur_text_ele = list_entry(g_cur_text_ele->list.next, TEXT_ELE_T, list);
-    }
-    
-    select_text_ele(g_cur_text_ele);
-}
-
-static FUNCTION_KEY_INFO_T 	sys_key_pool[]={
-	{KEY_UP		, direct_key_up_cb		},
-	{KEY_DOWN	, direct_key_down_cb 	},
-	{CODE_LEFT	, direct_key_down_cb   },
-	{CODE_RIGH	, direct_key_up_cb     },
-};
-
-static void update_sys_key_inf(WM_HWIN hWin)
-{
-    register_system_key_fun(sys_key_pool, ARRAY_SIZE(sys_key_pool), hWin);
-}
-
-static void update_key_inf(WM_HWIN hWin)
-{
-    update_menu_key_inf(hWin);
-    update_sys_key_inf(hWin);
-}
-
-static void sys_win_cb(WM_MESSAGE* pMsg)
+/**
+  * @brief  系统管理窗口回调函数
+  * @param  pMsg 窗口消息
+  * @retval 无
+  */
+static void sys_manage_win_cb(WM_MESSAGE* pMsg)
 {
 	MYUSER_WINDOW_T* win;
 	WM_HWIN hWin = pMsg->hWin;
@@ -210,14 +288,14 @@ static void sys_win_cb(WM_MESSAGE* pMsg)
 	{
 		case CM_CHILD_W_MSG:
         {
-            update_key_inf(hWin);
+            update_sys_fun_key_inf(hWin);
             break;
         }
 		case WM_CREATE:
             set_user_window_handle(hWin);
 			win = get_user_window_info(hWin);
 			WM_SetFocus(hWin);/* 设置聚焦 */
-            update_key_inf(hWin);
+            update_sys_fun_key_inf(hWin);
             init_window_text_ele_list(win);
             init_window_text_ele_dis_inf(win, &_7_sys_auto_layout_inf);//初始化窗口文本对象链表
 			init_window_text_ele(win);
@@ -230,7 +308,7 @@ static void sys_win_cb(WM_MESSAGE* pMsg)
 		 case WM_KEY:
             break;
 		case WM_PAINT:
-			_PaintFrame();
+			sys_manage_win_paint_frame();
 			break;
 		case WM_NOTIFY_PARENT:
 			break;
@@ -239,6 +317,12 @@ static void sys_win_cb(WM_MESSAGE* pMsg)
 	}
 }
 
+/* Public functions ---------------------------------------------------------*/
+/**
+  * @brief  创建系统管理窗口
+  * @param  hWin 父窗口句柄
+  * @retval 无
+  */
 void create_sys_manager_win(int hWin)
 {
     init_window_size(&sys_windows, sys_win_pos_size_pool[sys_par.screem_size]);

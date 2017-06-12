@@ -4,7 +4,7 @@
   * @author  王鑫
   * @version V1.0.0
   * @date    2017.5.11
-  * @brief   菜单键界面
+  * @brief   7寸屏系统管理界面布局
   ******************************************************************************
   */
 
@@ -26,8 +26,10 @@
 
 #define SYS_UI_WIDTH     690
 #define SYS_UI_HEIGHT    455
-
-WIDGET_POS_SIZE_T _7_sys_windows=
+/**
+  * @brief  7寸屏系统窗口位置尺寸数据结构定义
+  */
+WIDGET_POS_SIZE_T   _7_sys_windows=
 {
 	0/*x*/,0/*y*/,SYS_UI_WIDTH/*width*/,SYS_UI_HEIGHT/*height*/,
 };
@@ -36,8 +38,10 @@ WIDGET_POS_SIZE_T _7_sys_windows=
 #define SYS_BASE_Y      100
 #define SYS_ELE_W       200
 
-/* 界面控件自动布局结构 */
-TEXT_ELE_AUTO_LAYOUT_T _7_sys_auto_layout_inf=
+/**
+  * @brief  7寸屏系统窗口文本控件自动布局结构定义
+  */
+TEXT_ELE_AUTO_LAYOUT_T      _7_sys_auto_layout_inf=
 {
    SYS_BASE_X/*base_x*/,SYS_BASE_Y/*base_y*/,SYS_ELE_W/*width*/,30/*height*/,
     10/*rows*/,1/*column*/,30/*row_spacing*/,0/*column_spacing*/,

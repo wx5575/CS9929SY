@@ -12,11 +12,8 @@
 
 
 
+extern WIDGET_POS_SIZE_T        _7_file_edit_windows;
 extern EDIT_ELE_AUTO_LAYOUT_T   _7_file_edit_ele_auto_layout_inf;
-extern WIDGET_ELEMENT           save_file_ele_pool[];
-extern EDIT_ELE_DISPLAY_INF     save_file_ele_pos_pool[];
-
-extern void _7_init_file_save_win_edit_ele_pos(WIDGET_ELEMENT *pool);
 
 #endif //__7_FILE_UI_SAVE_H__
 
