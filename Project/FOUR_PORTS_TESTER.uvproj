@@ -144,7 +144,7 @@
             <UsePdscDebugDescription>0</UsePdscDebugDescription>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>6</TargetSelection>
+          <TargetSelection>7</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -1249,19 +1249,19 @@
               <FilePath>..\source\USER_UI\UI\file_win\file_edit_win.c</FilePath>
             </File>
             <File>
-              <FileName>file_win.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\USER_UI\UI\file_win\file_win.c</FilePath>
-            </File>
-            <File>
-              <FileName>7_file_win.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\USER_UI\UI\file_win\7_file_win.c</FilePath>
-            </File>
-            <File>
               <FileName>7_file_edit_win.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\USER_UI\UI\file_win\7_file_edit_win.c</FilePath>
+            </File>
+            <File>
+              <FileName>7_file_manage_win.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\USER_UI\UI\file_win\7_file_manage_win.c</FilePath>
+            </File>
+            <File>
+              <FileName>file_manage_win.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\USER_UI\UI\file_win\file_manage_win.c</FilePath>
             </File>
           </Files>
         </Group>
