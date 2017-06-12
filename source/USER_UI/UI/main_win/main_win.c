@@ -23,7 +23,7 @@
 #include "image/logo.h"
 #include "image/user_image.h"
 #include "sys_win/sys_manage_win.h"
-#include "file_win/file_win.h"
+#include "file_win/file_manage_win.h"
 #include "test_win/test_win.h"
 #include "FILE_SYS.H"
 #include "cs99xx_usb_manager.h"

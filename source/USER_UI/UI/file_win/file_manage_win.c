@@ -26,8 +26,8 @@
 #include "UI_COM/com_ui_info.h"
 #include "KEY_MENU_WIN/key_menu_win.h"
 #include "WARNING_WIN/warning_win.h"
-#include "7_file_win.h"
-#include "file_win.h"
+#include "7_file_manage_win.h"
+#include "file_manage_win.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
