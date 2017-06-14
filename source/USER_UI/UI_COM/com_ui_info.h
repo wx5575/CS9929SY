@@ -4,7 +4,7 @@
   * @author  王鑫
   * @version V1.0.0
   * @date    2017.4.18
-  * @brief   测试界面文本控件对应文本数组中的索引枚举定义
+  * @brief   提供公共界面服务接口
   ******************************************************************************
   */
 #ifndef __COM_UI_INFO_H__
@@ -35,7 +35,7 @@
 /** 
   * @brief 编辑控件结构
   */
-typedef struct WIDGET_ELEMENT_  WIDGET_ELEMENT;
+typedef struct EDIT_ELE_T_   EDIT_ELE_T;
 
 /** 
   * @brief 用户窗口结构
@@ -166,7 +166,7 @@ typedef struct{
 /** 
   * @brief 编辑控件结构 包含3个子控件 名称+编辑控件+单位信息
   */
-struct WIDGET_ELEMENT_{
+struct EDIT_ELE_T_{
 	uint8_t *name[LANGUAGE_NUM];///< 名称
 	CS_INDEX index;///< 通过枚举索引
 	uint8_t *value[10];///< 默认值
@@ -203,14 +203,14 @@ struct WIDGET_ELEMENT_{
         uint32_t high;///< 上限
         uint32_t low;///< 下限 
         uint8_t *notice[LANGUAGE_NUM];///< 提示信息包含中英文
-        void (*check_value_validity)(WIDGET_ELEMENT*,uint32_t*);///<检查数据的正确性
+        void (*check_value_validity)(EDIT_ELE_T*,uint32_t*);///<检查数据的正确性
     }range;
     
     /* 按键信息 包含系统键 菜单键 键盘服务函数 */
     struct{
-        void (*fun_sys_key)();///< 方向键信息更新函数
-        void (*fun_menu_key)();//菜单键更新函数
-        void (*fun_key)();///< 设置该变量的键盘服务函数
+        void (*fun_sys_key)(WM_HMEM);///< 方向键信息更新函数
+        void (*fun_menu_key)(WM_HMEM);//菜单键更新函数
+        void (*fun_key)(uint32_t);///< 设置该变量的键盘服务函数
     }key_inf;
     
     EDIT_ELE_DISPLAY_INF dis;///<显示相关的配置信息
@@ -256,8 +256,8 @@ typedef struct{
     uint16_t height;///<控件的高度
     uint8_t rows;///<最大行数
     uint8_t columns;///<最大列数
-    uint8_t row_spacing;///<行距
-    uint8_t column_spacing;///<列距
+    uint16_t row_spacing;///<行距
+    uint16_t column_spacing;///<列距
     const GUI_FONT *font;///<字体
     GUI_COLOR font_color;///<字体颜色
     GUI_COLOR back_color;///<背景颜色
@@ -320,13 +320,7 @@ typedef struct{
 	int msg;///<命令
 	int user_data;///<用户数据
 }CUSTOM_MSG_T;
-/** 
-  * @brief 用户界面使用的全局标记
-  */
-typedef struct{
-    uint8_t shift_flag;///< SHIFT键按下标记
-    uint8_t key_lock_flag;///< SHIFT键按下标记
-}UI_FLAG;
+
 
 #ifdef   COM_UI_GLOBALS
 #define  COM_UI_EXT
@@ -336,10 +330,9 @@ typedef struct{
 
 COM_UI_EXT CS_LIST 				windows_list;///<窗口链表
 COM_UI_EXT MYUSER_WINDOW_T      *g_cur_win;///<当前窗口指针
-COM_UI_EXT WIDGET_ELEMENT     *g_cur_edit_ele;///<当前编辑对象
+COM_UI_EXT EDIT_ELE_T     *g_cur_edit_ele;///<当前编辑对象
 COM_UI_EXT TEXT_ELE_T           *g_cur_text_ele;///<当前文本对象
 COM_UI_EXT CUSTOM_MSG_T 	    g_custom_msg;///<用户自定义消息实体变量
-COM_UI_EXT volatile UI_FLAG     ui_flag;///<界面使用全局标记
 COM_UI_EXT uint32_t             id_base;///<全局控件ID变量
 
 extern void init_window_text_ele(MYUSER_WINDOW_T* win);
@@ -351,7 +344,7 @@ extern void init_create_win_all_ele(MYUSER_WINDOW_T* win);
 extern void create_user_dialog(MYUSER_WINDOW_T* win_info, CS_LIST *list_head, WM_HWIN hWin);
 extern void set_user_window_handle(WM_HWIN hWin);
 extern void set_cur_window(MYUSER_WINDOW_T* win_info);
-extern void set_cur_edit_ele(WIDGET_ELEMENT *node);
+extern void set_cur_edit_ele(EDIT_ELE_T *node);
 extern void show_user_window(MYUSER_WINDOW_T* win_info);
 extern void back_win(int id);
 extern MYUSER_WINDOW_T * get_user_window_info(WM_HWIN hWin);
@@ -377,6 +370,7 @@ extern void set_group_text_ele_inf(CS_INDEX index, MYUSER_WINDOW_T* win, uint8_t
 extern void draw_group_inf_area(void);
 extern void update_group_inf(MYUSER_WINDOW_T* win);
 extern void delete_win_all_ele(MYUSER_WINDOW_T* win);
+extern void delete_win_com_ele(MYUSER_WINDOW_T* win);
 
 #endif //__COM_UI_INFO_H__
 

@@ -14,7 +14,7 @@ extern WIDGET_POS_SIZE_T        _7_password_windows;
 extern TEXT_ELE_AUTO_LAYOUT_T   _7_pwd_text_ele_auto_layout_inf;
 extern EDIT_ELE_AUTO_LAYOUT_T   _7_pwd_edit_ele_auto_layout_inf;
 
-extern void _7_init_password_win_edit_ele_pos(WIDGET_ELEMENT *pool);
+extern void _7_init_password_win_edit_ele_pos(EDIT_ELE_T *pool);
 extern void _7_init_pwd_ui_text_ele_pos(TEXT_ELE_T *pool);
 
 #endif //__7_PASSWORD_WIN_H__

@@ -47,7 +47,9 @@ WIDGET_POS_SIZE_T _7_key_menu_windows=
 #define KEY_UP_COLOR    0x804000 //GUI_LIGHTGRAY//GUI_LIGHTBLUE //
 #define KEY_EN_COLOR    KEY_UP_COLOR
 
-/* 界面控件自动布局结构 */
+/**
+  * @brief  7寸屏按键菜单窗口界面控件自动布局结构
+  */
 TEXT_ELE_AUTO_LAYOUT_T _7_key_menu_auto_layout_inf=
 {
    MK_B_X/*base_x*/,MK_B_Y/*base_y*/,MK_W/*width*/,MK_H/*height*/,

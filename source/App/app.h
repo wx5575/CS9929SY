@@ -43,8 +43,6 @@ APP_EXT 	OS_MUTEX    MemMutex; /* 访问memory的互斥互斥访问 */
 APP_EXT     FRESULT fs_result;
 APP_EXT     FATFS fs_struct;
 
-APP_EXT		void (*scan_key_custom_fun)();
-APP_EXT		void (*scan_direct_key_fun)();
 //任务控制块
 APP_EXT	OS_TCB StartTaskTCB;
 APP_EXT	OS_TCB ScanKeyTaskTCB;

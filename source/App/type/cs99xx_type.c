@@ -627,7 +627,7 @@ uint32_t define_fail_mode_kinds(const uint8_t *fail_mode_buf[], uint8_t *flag)
     return 0;
 }
 
-uint32_t defined_cur_kinds(uint8_t mode, const uint8_t *gear[], uint8_t *flag)
+uint32_t defined_cur_kinds(uint8_t mode, const uint8_t *gear[], uint8_t *flag, uint16_t *kind)
 {
 	uint32_t kinds = 0;
     uint16_t temp_gear = 0;
@@ -741,6 +741,12 @@ uint32_t defined_cur_kinds(uint8_t mode, const uint8_t *gear[], uint8_t *flag)
 			break;
 		}
 	}
+    
+    if(kind != NULL)
+    {
+        *kind = kinds;
+    }
+    
 	return kinds;
 }
 
@@ -949,21 +955,64 @@ uint16_t define_modes(const uint8_t **mode_buf, uint8_t *flag, uint16_t *kinds)
 	return k;
 }
 typedef struct{
-    const uint8_t *mode_buf[MODE_END];///<模式对应的字符串
+    const uint8_t *buf[MODE_END];///<模式对应的字符串
     uint8_t flag[MODE_END];///<模式对应的宏索引
     uint16_t kinds;///<模式的各类
-}DEFINED_MODE_INF;
+}DEFINED_MODE_INF,DEFINED_RANGE_INF;
 static DEFINED_MODE_INF defined_mode_inf;
 
 static void init_defined_mode_inf(DEFINED_MODE_INF *inf)
 {
-    define_modes(inf->mode_buf, inf->flag, &inf->kinds);
+    define_modes(inf->buf, inf->flag, &inf->kinds);
 }
 void *get_defined_mode_table(void)
 {
-    return defined_mode_inf.mode_buf;
+    return defined_mode_inf.buf;
+}
+static DEFINED_RANGE_INF acw_range_inf;
+static DEFINED_RANGE_INF dcw_range_inf;
+
+static void init_defined_range_inf(uint8_t mode, DEFINED_RANGE_INF *inf)
+{
+    defined_cur_kinds(mode, inf->buf, inf->flag, &inf->kinds);
+}
+void *get_defined_range_table(uint8_t mode)
+{
+    switch(mode)
+    {
+        case ACW:
+            return acw_range_inf.buf;
+        case DCW:
+            return dcw_range_inf.buf;
+    }
+    
+    return 0;
 }
 
+void *get_defined_range_flag(uint8_t mode)
+{
+    switch(mode)
+    {
+        case ACW:
+            return acw_range_inf.flag;
+        case DCW:
+            return dcw_range_inf.flag;
+    }
+    
+    return 0;
+}
+uint16_t get_defined_range_num(uint8_t mode)
+{
+    switch(mode)
+    {
+        case ACW:
+            return acw_range_inf.kinds;
+        case DCW:
+            return dcw_range_inf.kinds;
+    }
+    
+    return 0;
+}
 void *get_defined_mode_flag(void)
 {
     return defined_mode_inf.flag;
@@ -1019,6 +1068,7 @@ uint32_t define_interface_config(uint8_t *flag)
     
     return kinds;
 }
+
 uint8_t get_acw_max_gear(void)
 {
     if(type_spe.acw_gear & _AC_2A)
@@ -1210,6 +1260,8 @@ int32_t check_type(void)
     init_other_speciality();//调用config后的其余初始化
     init_custom_type();//仅仅改变名称的定制机初始化
     init_defined_mode_inf(&defined_mode_inf);
+    init_defined_range_inf(ACW, &acw_range_inf);
+    init_defined_range_inf(DCW, &dcw_range_inf);
     
     return 0;
 }

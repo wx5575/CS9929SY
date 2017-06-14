@@ -7,28 +7,28 @@
   * @brief   文件保存界面
   ******************************************************************************
   */
-#include "main_win.h"
+/* Includes ------------------------------------------------------------------*/
+
 #include "stm32f4xx.h"
-#include "keyboard.h"
-#include "rtc_config.h"
 #include "GUI.H"
 #include "WM.h"
-#include "fonts.h"
-#include "app.h"
-#include "scan_keyboard.h"
 #include "IMAGE.H"
-#include "UI_COM/com_ui_info.h"
-#include "7_main_win.h"
-#include "key_menu_win/key_menu_win.h"
-#include "image/logo.h"
-#include "image/user_image.h"
-#include "sys_win/sys_manage_win.h"
-#include "file_win/file_manage_win.h"
-#include "test_win/test_win.h"
 #include "FILE_SYS.H"
+#include "image/user_image.h"
+#include "image/logo.h"
+#include "UI_COM/com_ui_info.h"
+#include "key_menu_win/key_menu_win.h"
+#include "sys_win/sys_manage_win.h"
+#include "file_win/file_win.h"
+#include "test_win/test_win.h"
 #include "cs99xx_usb_manager.h"
 #include "step_par_win/step_win.h"
 #include "result_win/result_win.h"
+#include "key_server.h"
+#include "keyboard.h"
+#include "rtc_config.h"
+#include "7_main_win.h"
+#include "main_win.h"
 
 static	WM_HWIN progbar_handle;///<进度条
 static	WM_HWIN timer_handle;///<定时器句柄
@@ -184,7 +184,9 @@ static void update_main_ui_menu_key_inf(WM_HMEM hWin)
 
 void update_shift_bmp(void)
 {
-    if(ui_flag.shift_flag)
+    uint8_t flag = get_shift_status();
+    
+    if(flag)
     {
         set_capital_letter_image(KEY_CAPITAL_SMALL_handle);
     }
@@ -200,13 +202,17 @@ void update_shift_bmp(void)
   */
 static void sys_shift_key_fun_cb(KEY_MESSAGE *key_msg)
 {
-    ui_flag.shift_flag = !ui_flag.shift_flag;
+    uint8_t flag = get_shift_status();
+    
+    set_shift_status(!flag);
     update_shift_bmp();
 }
 
 void update_unlock_bmp(void)
 {
-    if(ui_flag.key_lock_flag)
+    uint8_t flag = get_key_lock_flag();
+    
+    if(flag)
     {
         set_key_lock_image(KEY_LOCK_handle);
     }
@@ -222,7 +228,9 @@ void update_unlock_bmp(void)
   */
 static void sys_unlock_key_fun_cb(KEY_MESSAGE *key_msg)
 {
-    ui_flag.key_lock_flag = !ui_flag.key_lock_flag;
+    uint8_t flag = get_key_lock_flag();
+    
+    set_key_lock_flag(!flag);
     update_unlock_bmp();
 }
 
@@ -370,12 +378,6 @@ static void main_win_cb(WM_MESSAGE * pMsg)
 		case WM_PAINT:
 			_PaintFrame();
             draw_main_win_status_bar();
-			
-            /* 唤醒按键扫描任务 */
-			{
-				OS_ERR	err;
-				OSTaskResume(&ScanKeyTaskTCB, &err);
-			}
 			break;
 		case WM_TIMER:
 		{

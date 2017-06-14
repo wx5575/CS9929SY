@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    7_sys_manage_win.c
+  * @file    7_restore_setting_win.c
   * @author  王鑫
   * @version V1.0.0
   * @date    2017.5.11
-  * @brief   菜单键界面
+  * @brief   7寸屏恢复出厂设置窗口布局信息定义
   ******************************************************************************
   */
 
@@ -25,7 +25,9 @@
 
 #define RES_SET_WIN_W   350
 #define RES_SET_WIN_H   200
-
+/**
+  * @brief  7寸屏恢复出厂设置窗口的位置尺寸信息
+  */
 WIDGET_POS_SIZE_T _7_restore_setting_windows=
 {
 	80/*x*/, 50/*y*/, RES_SET_WIN_W/*width*/, RES_SET_WIN_H/*height*/,
@@ -38,7 +40,9 @@ WIDGET_POS_SIZE_T _7_restore_setting_windows=
 #define RES_SET_ELE_T_W       RES_SET_WIN_W - RES_SET_BASE_T_X * 2
 #define RES_SET_ELE_T_H       RES_SET_WIN_H - RES_SET_BASE_T_Y - 10
 
-/* 密码界面文本对象自动布局结构 */
+/**
+  * @brief  7寸屏恢复出厂设置窗口文本对象自动布局结构
+  */
 TEXT_ELE_AUTO_LAYOUT_T _7_restore_setting_text_ele_auto_layout_inf=
 {
    RES_SET_BASE_T_X/*base_x*/,RES_SET_BASE_T_Y/*base_y*/,

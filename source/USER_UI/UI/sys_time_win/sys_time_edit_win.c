@@ -1235,7 +1235,6 @@ static void sys_time_edit_win_cb(WM_MESSAGE * pMsg)
     }
 }
 /* Public functions ---------------------------------------------------------*/
-
 /**
   * @brief  创建对话框用来设置系统时间
   * @param  [in] hWin 窗口句柄

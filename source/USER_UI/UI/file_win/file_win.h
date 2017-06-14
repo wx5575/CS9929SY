@@ -1,17 +1,18 @@
 /**
   ******************************************************************************
-  * @file    step_edit_win.h
+  * @file    file_win.h
   * @author  王鑫
   * @version V1.0.0
-  * @date    2017.6.13
-  * @brief   步骤编辑窗口
+  * @date    2017.4.18
+  * @brief   7寸屏的第1种布局
   ******************************************************************************
   */
-#ifndef __STEP_EDIT_WIN_H__
-#define __STEP_EDIT_WIN_H__
 
-extern void create_step_edit_win(int hWin);
+#ifndef __FILE_WIN_H__
+#define __FILE_WIN_H__
 
-#endif //__STEP_EDIT_WIN_H__
+extern void create_file_win(int hWin);
+
+#endif //__FILE_WIN_H__
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

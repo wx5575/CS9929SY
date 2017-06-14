@@ -1,12 +1,13 @@
 /**
   ******************************************************************************
-  * @file    com_ui_info.c
+  * @file    com_ui_info.h
   * @author  王鑫
   * @version V1.0.0
   * @date    2017.4.18
-  * @brief   这个文件定义了文本控件操作的函数
+  * @brief   提供公共界面服务接口
   ******************************************************************************
   */
+  
 /* Private macro -------------------------------------------------------------*/
 #define COM_UI_GLOBALS
 
@@ -143,11 +144,11 @@ void init_window_edit_ele_dis_inf(MYUSER_WINDOW_T *win, EDIT_ELE_AUTO_LAYOUT_T* 
 	CS_LIST *list = &win->edit.list_head;
     EDIT_ELE_DISPLAY_INF *dis;
 	CS_LIST* t_node = NULL;
-	WIDGET_ELEMENT *node = NULL;
+	EDIT_ELE_T *node = NULL;
 	
     list_for_each(t_node, list)
     {
-        node = list_entry( t_node, WIDGET_ELEMENT, e_list );
+        node = list_entry( t_node, EDIT_ELE_T, e_list );
         
         dis = &node->dis;
         
@@ -183,10 +184,15 @@ void init_window_edit_ele_dis_inf(MYUSER_WINDOW_T *win, EDIT_ELE_AUTO_LAYOUT_T* 
         
         ++row;
         
-        if(row > inf->rows)
+        if(row >= inf->rows)
         {
             row = 0;
             column++;
+            
+            if(column >= inf->columns)
+            {
+                return;
+            }
         }
     }
 }
@@ -201,14 +207,24 @@ void init_window_com_ele_list(MYUSER_WINDOW_T *win)
 	uint32_t n = win->com.index_size;
 	CS_LIST *list = &win->com.list_head;
 	CS_LIST *new_node = NULL;
-    uint32_t index = 0;
+    CS_INDEX index = 0;
+    uint32_t temp = 0;
 	TEXT_ELE_T *text_pool = NULL;
+    CS_ERR err;
 	
 	list_init(list);//初始化文本链表
 	
 	for(i = 0; i < n; i++)
 	{
-        index = win->com.index_pool[i];
+        temp = win->com.index_pool[i];
+        
+        index = get_text_ele_index_in_pool(temp, &win->com, &err);
+        
+        if(err != CS_ERR_NONE)
+        {
+            continue;
+        }
+        
         text_pool = win->com.pool;
 		new_node = &text_pool[index].list;
 		list_add_tail(new_node, list);
@@ -222,11 +238,11 @@ void init_window_com_ele_list(MYUSER_WINDOW_T *win)
 static void update_win_edit_ele_text(CS_LIST *list)
 {
     CS_LIST *t_node;
-    WIDGET_ELEMENT *node;
+    EDIT_ELE_T *node;
     
 	list_for_each(t_node, list)
 	{
-		node = list_entry( t_node, WIDGET_ELEMENT, e_list );
+		node = list_entry( t_node, EDIT_ELE_T, e_list );
         
         TEXT_SetText(node->dis.name.handle, (const char *)node->name[SYS_LANGUAGE]);
 	}
@@ -625,12 +641,12 @@ static void delete_text_list_node(CS_LIST *list_head)
   */
 static void delete_edit_list_node(CS_LIST *list_head)
 {
-    WIDGET_ELEMENT *node;
+    EDIT_ELE_T *node;
     CS_LIST *index;
     
 	list_for_each( index, list_head )
 	{
-		node = list_entry( index, WIDGET_ELEMENT, e_list );
+		node = list_entry( index, EDIT_ELE_T, e_list );
         
 		if(node->dis.name.handle != 0)
 		{
@@ -661,11 +677,20 @@ void delete_win_all_ele(MYUSER_WINDOW_T* win)
     delete_edit_list_node(&win->edit.list_head);
 }
 /**
+  * @brief  删除窗口中所有的公共文本对象
+  * @param  [in] win 窗口信息
+  * @retval 无
+  */
+void delete_win_com_ele(MYUSER_WINDOW_T* win)
+{
+    delete_text_list_node(&win->com.list_head);
+}
+/**
   * @brief  设置全局当前编辑对象指针
   * @param  [in] node 编辑对象地址
   * @retval 无
   */
-void set_cur_edit_ele(WIDGET_ELEMENT *node)
+void set_cur_edit_ele(EDIT_ELE_T *node)
 {
     CPU_SR_ALLOC();
     
@@ -721,7 +746,11 @@ static void show_user_window(MYUSER_WINDOW_T* win_info)
     }
     
     WM_ShowWindow(win_info->handle);
-	win_info->init_key_fun(win_info->handle);//初始化按键
+    
+    if(NULL != win_info->init_key_fun)
+    {
+        win_info->init_key_fun(win_info->handle);//初始化按键
+    }
 }
 /**
   * @brief  返回上一级窗口,返回上级窗口要做的操作是1.删除当前窗口 2.显示新的当前窗口
@@ -1156,10 +1185,7 @@ void send_no_par_msg_to_parent(WM_HWIN hwin, int id)
 		WM_SendMessageNoPara(hParent, id);
 }
 /*********************************************************************/
-/**
-  * @brief  全局的功能键处理函数指针
-  */
-void (*global_fun_key_dispose)(uint32_t key_value);
+
 /**
   * @brief  设置全局的功能键处理函数指针
   * @param  [in] fun 功能键处理函数的指针

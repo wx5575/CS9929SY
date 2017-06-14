@@ -1,33 +1,41 @@
 /**
   ******************************************************************************
-  * @file    scan_keyboard.c
+  * @file    warning_win.c
   * @author  王鑫
   * @version V1.0.0
   * @date    2017.4.18
-  * @brief   按键扫描
+  * @brief   警告框窗口
   ******************************************************************************
   */
 
 
-#include "warning_win.h"
 #include "stm32f4xx.h"
-#include "keyboard.h"
-#include "rtc_config.h"
 #include "GUI.H"
-#include "WM.h"
-#include "fonts.h"
-#include "app.h"
-#include "scan_keyboard.h"
-#include "IMAGE.H"
 #include "UI_COM/com_ui_info.h"
 #include "string.h"
+#include "keyboard.h"
 #include "7_warning_win.h"
+#include "warning_win.h"
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
 
 static void menu_key_cancle(int hWin);
 static void menu_key_ok(int hWin);
 static MYUSER_WINDOW_T warning_windows;
 static void warning_win_cb(WM_MESSAGE * pMsg);
 
+static void warning_win_f1_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f2_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f3_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f4_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f5_cb(KEY_MESSAGE *key_msg);
+static void warning_win_f6_cb(KEY_MESSAGE *key_msg);
+
+static void update_warning_ui_menu_key_inf(WM_HMEM hWin);
+/* Private variables ---------------------------------------------------------*/
 /**
   * @brief  警告框使用的初始化文本，在创建警告框前由父窗口进行初始化
 	*/
@@ -51,13 +59,6 @@ static CS_INDEX warning_ui_ele_buf[] =
 {
 	WARNING_UI_CONTENT,//内容
 };
-/******************* 菜单键信息 *********************************/
-static void warning_win_f1_cb(KEY_MESSAGE *key_msg);
-static void warning_win_f2_cb(KEY_MESSAGE *key_msg);
-static void warning_win_f3_cb(KEY_MESSAGE *key_msg);
-static void warning_win_f4_cb(KEY_MESSAGE *key_msg);
-static void warning_win_f5_cb(KEY_MESSAGE *key_msg);
-static void warning_win_f6_cb(KEY_MESSAGE *key_msg);
 /** 当前使用界面对应的菜单键信息与响应函数 */
 MENU_KEY_INFO_T 	cur_menu_key_info_[] =
 {
@@ -68,6 +69,21 @@ MENU_KEY_INFO_T 	cur_menu_key_info_[] =
     {"", F_KEY_OK       , KEY_F5 & _KEY_UP, warning_win_f5_cb },//f5
     {"", F_KEY_CANCLE   , KEY_F6 & _KEY_UP, warning_win_f6_cb },//f6
 };
+/**
+  * @brief  主窗口结构体初始化
+  */
+static MYUSER_WINDOW_T warning_windows=
+{
+    {"警告","WARNING"},
+    warning_win_cb,update_warning_ui_menu_key_inf,
+	{
+        warning_ui_ele_pool,COUNT_ARRAY_SIZE(warning_ui_ele_pool),
+        (CS_INDEX*)warning_ui_ele_buf,COUNT_ARRAY_SIZE(warning_ui_ele_buf)
+    },
+};
+/* Private functions ---------------------------------------------------------*/
+
+
 /**
   * @brief  f1键回调函数
   * @param  [in] key_msg 按键消息
@@ -118,29 +134,22 @@ static void warning_win_f6_cb(KEY_MESSAGE *key_msg)
 {
     menu_key_cancle(key_msg->user_data);//取消键按下
 }
-/*************************************************************/
+
 /**
-  * @brief  设置警告界面显示人警告内容
-  * @param  [in] warning 警告信息
+  * @brief  更新警告框窗口菜单键信息
+  * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-void set_warning_ui_inf(WARNING_INF *warning)
-{
-    memcpy(&warning_inf, warning, sizeof(WARNING_INF));
-    
-    warning_windows.win_name[CHINESE] = warning_inf.title.text[CHINESE];
-    warning_windows.win_name[ENGLISH] = warning_inf.title.text[ENGLISH];
-    memcpy(&warning_windows.pos_size, &warning->win_pos_size, sizeof(warning->win_pos_size));
-    memcpy(&warning_ui_ele_pool[WARNING_UI_CONTENT], &warning_inf.content, sizeof(TEXT_ELE_T));
-    
-    warning_ui_ele_pool[WARNING_UI_CONTENT].index = WARNING_UI_CONTENT;
-}
-
 static void update_warning_ui_menu_key_inf(WM_HMEM hWin)
 {
 	init_menu_key_info(cur_menu_key_info_, ARRAY_SIZE(cur_menu_key_info_), hWin);
 }
 
+/**
+  * @brief  当按下确认键时会调用这个函数，来关闭警告框并向父窗口发送确认消息
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
 static void menu_key_ok(int hWin)
 {
 	g_custom_msg.msg = CM_DIALOG_RETURN_OK;
@@ -149,69 +158,33 @@ static void menu_key_ok(int hWin)
 //     unregister_system_key_fun(sys_key_pool, ARRAY_SIZE(sys_key_pool));
     back_win(hWin);//关闭对话框
 }
+/**
+  * @brief  当按下取消键时会调用这个函数，来关闭警告框并向父窗口发送取消消息
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
 static void menu_key_cancle(int hWin)
 {
 	g_custom_msg.msg = CM_DIALOG_RETURN_CANCLE;
     back_win(hWin);//关闭对话框
 }
-/**
-  * @brief  主窗口结构体初始化
-  */
-static MYUSER_WINDOW_T warning_windows=
-{
-    {"警告","WARNING"},
-    warning_win_cb,update_warning_ui_menu_key_inf,
-	{
-        warning_ui_ele_pool,COUNT_ARRAY_SIZE(warning_ui_ele_pool),
-        (CS_INDEX*)warning_ui_ele_buf,COUNT_ARRAY_SIZE(warning_ui_ele_buf)
-    },
-};
-
-void init_warning_content(void)
-{
-    warning_windows.win_name[CHINESE] = warning_inf.title.text[CHINESE];
-    warning_windows.win_name[ENGLISH] = warning_inf.title.text[ENGLISH];
-    
-//    warning_ui_ele_pool[WARNING_UI_NOTICE].text[CHINESE] = warning_inf.gist[CHINESE];
-//    warning_ui_ele_pool[WARNING_UI_NOTICE].text[ENGLISH] = warning_inf.gist[ENGLISH];
-//    warning_ui_ele_pool[WARNING_UI_CONTENT].text[CHINESE] = warning_inf.content[CHINESE];
-//    warning_ui_ele_pool[WARNING_UI_CONTENT].text[ENGLISH] = warning_inf.content[ENGLISH];
-}
-///**
-//  * @brief  重绘背景
-//  * @param  无
-//  * @retval 无
-//  */
-//static void _PaintFrame(void) 
-//{
-//    GUI_RECT r;
-//    WM_GetClientRect(&r);
-//    GUI_SetBkColor(warning_ui_ele_pool[WARNING_UI_CONTENT].dis_info.back_color);
-//    GUI_ClearRectEx(&r);
-//    
-//}
 
 /**
-  * @brief  根据屏幕尺寸初始化界面的文本对象位置尺寸信息
+  * @brief  初始化警告框的内容显示
   * @param  无
   * @retval 无
   */
-static void init_warning_ui_text_ele_pos_inf(void)
+static void init_warning_content(void)
 {
-    switch(sys_par.screem_size)
-    {
-    case SCREEN_4_3INCH:
-        break;
-    case SCREEN_6_5INCH:
-        break;
-    default:
-    case SCREEN_7INCH:
-//        _7_init_warning_win_text_ele_pos(warning_ui_ele_pool);
-        break;
-    }
+    warning_windows.win_name[CHINESE] = warning_inf.title.text[CHINESE];
+    warning_windows.win_name[ENGLISH] = warning_inf.title.text[ENGLISH];
 }
-
-static void TUIcb(WM_MESSAGE * pMsg)
+/**
+  * @brief  文本回调函数，用来绑定定时器，实现自动关闭警告框
+  * @param  [in] pMsg 回调函数指针
+  * @retval 无
+  */
+static void text_ele_cb(WM_MESSAGE * pMsg)
 {
 	WM_HWIN hWin = pMsg->hWin;
     
@@ -248,7 +221,6 @@ static void warning_win_cb(WM_MESSAGE * pMsg)
             
             init_dialog(win);
             update_warning_ui_menu_key_inf(hWin);
-            init_warning_ui_text_ele_pos_inf();
             init_window_text_ele_list(win);//初始化窗口文本对象链表
 			init_window_text_ele(win);
             
@@ -259,14 +231,13 @@ static void warning_win_cb(WM_MESSAGE * pMsg)
                 WM_HWIN handle;
                 
                 handle = TEXT_CreateEx(0, 0, 1, 1, hWin, WM_CF_HIDE, 0, ++id_base, "");
-                WM_SetCallback(handle, TUIcb);//设置控件回调函数
+                WM_SetCallback(handle, text_ele_cb);//设置控件回调函数
                 WM_CreateTimer(handle, 0, warning_inf.dly_auto_close, 0);//挂靠定时器
             }
             
 			break;
         }
 		case WM_PAINT:
-// 			_PaintFrame();
 			break;
 		case WM_DELETE:
 		{
@@ -278,14 +249,34 @@ static void warning_win_cb(WM_MESSAGE * pMsg)
             back_win(hWin);//关闭对话框
 			break;
 		}
-		case WM_KEY:
-			break;
 		default:
 			WM_DefaultProc(pMsg);
 			break;
 	}
 }
 
+/* Public functions ---------------------------------------------------------*/
+/**
+  * @brief  设置警告界面显示人警告内容
+  * @param  [in] warning 警告信息
+  * @retval 无
+  */
+void set_warning_ui_inf(WARNING_INF *warning)
+{
+    memcpy(&warning_inf, warning, sizeof(WARNING_INF));
+    
+    warning_windows.win_name[CHINESE] = warning_inf.title.text[CHINESE];
+    warning_windows.win_name[ENGLISH] = warning_inf.title.text[ENGLISH];
+    memcpy(&warning_windows.pos_size, &warning->win_pos_size, sizeof(warning->win_pos_size));
+    memcpy(&warning_ui_ele_pool[WARNING_UI_CONTENT], &warning_inf.content, sizeof(TEXT_ELE_T));
+    
+    warning_ui_ele_pool[WARNING_UI_CONTENT].index = WARNING_UI_CONTENT;
+}
+/**
+  * @brief  创建警告对话框
+  * @param  [in] hWin 窗口句柄，作为创建窗口的父窗口句柄
+  * @retval 无
+  */
 void create_warning_dialog(int hWin)
 {
     init_warning_content();

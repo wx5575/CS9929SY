@@ -144,7 +144,7 @@
             <UsePdscDebugDescription>0</UsePdscDebugDescription>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>6</TargetSelection>
+          <TargetSelection>7</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -476,9 +476,9 @@
               <FilePath>..\source\HARDWARE\SPI_FLASH\spi_flash.c</FilePath>
             </File>
             <File>
-              <FileName>board_support_package.c</FileName>
+              <FileName>board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\HARDWARE\board_support_package.c</FilePath>
+              <FilePath>..\source\HARDWARE\board.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1054,11 +1054,6 @@
           <GroupName>CH376</GroupName>
           <Files>
             <File>
-              <FileName>warning_win.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\USER_UI\UI\warning_win\warning_win.c</FilePath>
-            </File>
-            <File>
               <FileName>CH376_USB_UI.C</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\HARDWARE\CH376\src\CH376_USB_UI.C</FilePath>
@@ -1159,11 +1154,6 @@
               <FilePath>..\source\App\CS99XX\cs99xx_struct.c</FilePath>
             </File>
             <File>
-              <FileName>scan_keyboard.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\App\CS99XX\scan_keyboard.c</FilePath>
-            </File>
-            <File>
               <FileName>cs99xx_flash_manage.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\App\CS99XX\cs99xx_flash_manage.c</FilePath>
@@ -1177,6 +1167,16 @@
               <FileName>cs99xx_usb_manager.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\App\CS99XX\cs99xx_usb_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>key_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\App\CS99XX\key_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>key_fun_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\App\CS99XX\key_fun_manage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1333,6 +1333,11 @@
               <FileType>1</FileType>
               <FilePath>..\source\USER_UI\UI\warning_win\7_warning_win.c</FilePath>
             </File>
+            <File>
+              <FileName>warning_win.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\USER_UI\UI\warning_win\warning_win.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1417,6 +1422,16 @@
               <FileName>result_win.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\USER_UI\UI\result_win\result_win.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>DOCUMENT</GroupName>
+          <Files>
+            <File>
+              <FileName>templet.c.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\Document\templet.c.txt</FilePath>
             </File>
           </Files>
         </Group>

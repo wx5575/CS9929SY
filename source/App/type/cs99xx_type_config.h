@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright(c) 2014,南京长盛仪器
  * All rights reserved
  * 文件名称：cs99xx_type_config.h
@@ -2045,7 +2045,7 @@ void config_CS9929A(void)
     
     type_spe.acw_vol_range = ACW_5kV;// ACW_10kV;// ACW_20kV;// 
     type_spe.acw_hz = _AC_50HZ | _AC_60HZ /*| _AC_100HZ | _AC_150HZ | _AC_200HZ| _AC_250HZ |_AC_300HZ |  _AC_350HZ | _AC_400HZ */;
-    type_spe.acw_gear = /*_AC_200uA | */_AC_2mA | _AC_20mA;
+    type_spe.acw_gear = /**/_AC_200uA | _AC_2mA | _AC_20mA;
     
     type_spe.dcw_vol_range = DCW_6kV;// DCW_10kV;// DCW_20kV;// 
     type_spe.dcw_gear = /*_DC_2uA | _DC_20uA | _DC_200uA |*/ _DC_2mA | _DC_10mA;

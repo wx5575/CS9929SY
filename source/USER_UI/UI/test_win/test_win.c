@@ -9,31 +9,20 @@
   */
 #include "stm32f4xx.h"
 #include "keyboard.h"
-#include "rtc_config.h"
-#include "fonts.h"
-#include "app.h"
-#include "scan_keyboard.h"
 #include "UI_COM/com_ui_info.h"
 #include "test_win.h"
 #include "7_test_ui_layout_1.h"
 
 
-extern void draw_composition_7_1(void);
-static	WM_HWIN timer_handle;///<定时器句柄
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
 
 static void update_menu_key_inf(WM_HMEM hWin);
 static void test_win_cb(WM_MESSAGE * pMsg);
 
-extern WIDGET_POS_SIZE_T _7_test_windows;
-
-static WIDGET_POS_SIZE_T* test_win_pos_size_pool[SCREEN_NUM]=
-{
-    &_7_test_windows,/*4.3寸屏*/
-    &_7_test_windows,/*5.6寸屏*/
-    &_7_test_windows,/*7寸屏*/
-};
-
-void change_key_menu(int id);
+static void change_key_menu(int id);
 static void test_win_f0_cb(KEY_MESSAGE *key_msg);
 static void test_win_f1_cb(KEY_MESSAGE *key_msg);
 static void test_win_f2_cb(KEY_MESSAGE *key_msg);
@@ -41,40 +30,6 @@ static void test_win_f3_cb(KEY_MESSAGE *key_msg);
 static void test_win_f4_cb(KEY_MESSAGE *key_msg);
 static void test_win_f5_cb(KEY_MESSAGE *key_msg);
 static void test_win_f6_cb(KEY_MESSAGE *key_msg);
-/* 测试界面下的按键菜单 */
-static MENU_KEY_INFO_T test_ui_menu_key_pool[]=
-{
-    {"", F_KEY_DISPLAY	, KEY_F0 & _KEY_UP,	test_win_f0_cb },//f0
-    {"", F_KEY_MODE		, KEY_F1 & _KEY_UP,	test_win_f1_cb },//f1
-    {"", F_KEY_VOL	    , KEY_F2 & _KEY_UP,	test_win_f2_cb },//f2
-    {"", F_KEY_RANGE    , KEY_F3 & _KEY_UP,	test_win_f3_cb },//f3
-    {"", F_KEY_TIME	    , KEY_F4 & _KEY_UP,	test_win_f4_cb },//f4
-    {"", F_KEY_MORE     , KEY_F5 & _KEY_UP,	test_win_f5_cb },//f5
-    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	test_win_f6_cb },//f6
-};
-static void test_win_f0_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f1_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f2_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f3_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f4_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f5_cb(KEY_MESSAGE *key_msg)
-{
-    change_key_menu(key_msg->user_data);
-}
-static void test_win_f6_cb(KEY_MESSAGE *key_msg)
-{
-    back_win(key_msg->user_data);
-}
 
 static void test_win_f1_1_cb(KEY_MESSAGE *key_msg);
 static void test_win_f2_1_cb(KEY_MESSAGE *key_msg);
@@ -85,6 +40,39 @@ static void test_win_f1_2_cb(KEY_MESSAGE *key_msg);
 static void test_win_f2_2_cb(KEY_MESSAGE *key_msg);
 static void test_win_f3_2_cb(KEY_MESSAGE *key_msg);
 static void test_win_f4_2_cb(KEY_MESSAGE *key_msg);
+
+/* Private variables ---------------------------------------------------------*/
+/**
+  * @brief  定时器句柄
+  */
+static	WM_HWIN timer_handle;
+/**
+  * @brief  测试界面的位置尺寸信息，根据不同屏幕进行初始化
+  */
+static WIDGET_POS_SIZE_T* test_win_pos_size_pool[SCREEN_NUM]=
+{
+    &_7_test_windows,/*4.3寸屏*/
+    &_7_test_windows,/*5.6寸屏*/
+    &_7_test_windows,/*7寸屏*/
+};
+
+/**
+  * @brief  测试界面下的菜单按键初始化数组
+  */
+static MENU_KEY_INFO_T test_ui_menu_key_pool[]=
+{
+    {"", F_KEY_DISPLAY	, KEY_F0 & _KEY_UP,	test_win_f0_cb },//f0
+    {"", F_KEY_MODE		, KEY_F1 & _KEY_UP,	test_win_f1_cb },//f1
+    {"", F_KEY_VOL	    , KEY_F2 & _KEY_UP,	test_win_f2_cb },//f2
+    {"", F_KEY_RANGE    , KEY_F3 & _KEY_UP,	test_win_f3_cb },//f3
+    {"", F_KEY_TIME	    , KEY_F4 & _KEY_UP,	test_win_f4_cb },//f4
+    {"", F_KEY_MORE     , KEY_F5 & _KEY_UP,	test_win_f5_cb },//f5
+    {"", F_KEY_BACK		, KEY_F6 & _KEY_UP,	test_win_f6_cb },//f6
+};
+
+/**
+  * @brief  测试界面下ACW设置参数的菜单按键初始化数组
+  */
 static MENU_KEY_INFO_T test_ui_acw_menu_pool[][4]=
 {
     {
@@ -101,108 +89,10 @@ static MENU_KEY_INFO_T test_ui_acw_menu_pool[][4]=
     },
 };
 
-static void test_win_f1_1_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f2_1_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f3_1_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f4_1_cb(KEY_MESSAGE *key_msg)
-{
-}
 
-static void test_win_f1_2_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f2_2_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f3_2_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void test_win_f4_2_cb(KEY_MESSAGE *key_msg)
-{
-}
-void change_key_menu(int id)
-{
-    static int i = 0;
-    uint8_t n = ARRAY_SIZE(test_ui_acw_menu_pool);
-    init_menu_key_info(test_ui_acw_menu_pool[i], ARRAY_SIZE(test_ui_acw_menu_pool[i]), id);
-//     init_menu_key_info(test_ui_acw_menu_pool[i]);
-    i = (i+1) % n;
-}
-
-// static uint16_t acw_menu_opt[][7]=
-// {
-//     {F_KEY_DISPLAY,F_KEY_MODE,F_KEY_VOL,F_KEY_RANGE,F_KEY_TIME,F_KEY_MORE,F_KEY_BACK,},
-//     {F_KEY_DISPLAY,F_KEY_MODE,F_KEY_NULL,F_KEY_NULL,F_KEY_NULL,F_KEY_MORE,F_KEY_BACK,},
-// };
-
-
-MENU_KEY_INFO_T* get_menu_key_opt_addr(uint32_t opt);
-
-// void register_acw_page1_menu_key_inf(void)
-// {
-//     int32_t i = 0;
-//     
-//     for(i = 0; i < 7; i++)
-//     {
-//         test_ui_menu_key_inf[i] = get_menu_key_opt_addr(acw_menu_opt[1][i]);
-//     }
-// }
-
-int32_t get_menu_key_inf_index(uint32_t opt)
-{
-    int32_t i = 0;
-    uint32_t size = ARRAY_SIZE(test_ui_menu_key_pool);
-    
-    for(i = 0; i < size; i++)
-    {
-        if(test_ui_menu_key_pool[i].index == opt)
-        {
-            return i;
-        }
-    }
-    
-    return -1;
-}
-
-MENU_KEY_INFO_T* get_menu_key_opt_addr(uint32_t opt)
-{
-    int32_t i = 0;
-    uint32_t size = ARRAY_SIZE(test_ui_menu_key_pool);
-    
-    for(i = 0; i < size; i++)
-    {
-        if(test_ui_menu_key_pool[i].index == opt)
-        {
-            return &test_ui_menu_key_pool[i];
-        }
-    }
-    
-    return NULL;
-}
-
-// void init_test_ui_menu_key_array(void)
-// {
-//     uint32_t i = 0;
-//     int32_t index = 0;
-//     
-//     index = get_menu_key_inf_index(0);
-//     
-//     if(-1 == index)
-//     {
-//         return;
-//     }
-//     
-//     test_ui_menu_key_inf[i++] = get_menu_key_opt_addr(F_KEY_DISPLAY);
-// }
-
-
-/** 测试界面显示的文本索引表 */
+/**
+  * @brief  测试界面显示的文本索引表
+  */
 static CS_INDEX test_ui_ele_buf[] =
 {
 	TEST_UI_FILE_NAME,
@@ -242,20 +132,10 @@ static CS_INDEX test_ui_ele_buf[] =
 	TEST_UI_ROAD04_TIME,
 };
 
-static void update_menu_key_inf(WM_HMEM hWin)
-{
-//     register_acw_page1_menu_key_inf();
-    
-//  	set_menu_key_struct_info(test_ui_menu_key_inf[0], hWin, 7);
-// 	init_menu_key_info(test_ui_menu_key_inf[0]);
-//  	set_menu_key_struct_info(test_ui_menu_key_pool, hWin, 7);
-	init_menu_key_info(test_ui_menu_key_pool, 7, hWin);
-    GUI_Delay(1);//调用这个函数可以刷新界面
-}
 /**
   * @brief 界面文本对象数组
   */
-TEXT_ELE_T test_ui_ele_pool[]=
+static TEXT_ELE_T test_ui_ele_pool[]=
 {
 	{{"文件名:", "FileName:"}, TEST_UI_FILE_NAME    },
 	{{"DEFAULT", "DEFAULT"  }, TEST_UI_CUR_FILE_NAME},
@@ -352,7 +232,7 @@ TEXT_ELE_T test_ui_ele_pool[]=
 	{{"2.000mA","2.000mA"   }, TEST_UI_RES1_CUR      },
 	{{"123.4s" ,"123.4s"    }, TEST_UI_RES1_TIME     },
 	{{"上限报警","High Fail"}, TEST_UI_RES1_RESULT   },
-	                                                 
+    
 	{{"0001"   ,"0001"      }, TEST_UI_RES2_NUM      },
 	{{"5.000kV","5.000kV"   }, TEST_UI_RES2_VOL      },
 	{{"2.000mA","2.000mA"   }, TEST_UI_RES2_CUR      },
@@ -372,7 +252,7 @@ TEXT_ELE_T test_ui_ele_pool[]=
 /**
   * @brief  测试窗口结构体初始化
   */
-MYUSER_WINDOW_T test_windows=
+static MYUSER_WINDOW_T test_windows=
 {
     {0},
     test_win_cb, update_menu_key_inf,
@@ -381,6 +261,116 @@ MYUSER_WINDOW_T test_windows=
         (CS_INDEX*)test_ui_ele_buf,COUNT_ARRAY_SIZE(test_ui_ele_buf)
     },
 };
+
+/* Private functions ---------------------------------------------------------*/
+/**
+  * @brief  设置测试界面功能键F0回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void test_win_f0_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  设置测试界面功能键F1回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void test_win_f1_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  设置测试界面功能键F2回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void test_win_f2_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  设置测试界面功能键F3回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void test_win_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  设置测试界面功能键F4回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void test_win_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  设置测试界面功能键F5回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void test_win_f5_cb(KEY_MESSAGE *key_msg)
+{
+    change_key_menu(key_msg->user_data);
+}
+/**
+  * @brief  设置测试界面功能键F6回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void test_win_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+
+static void test_win_f1_1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f2_1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f3_1_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f4_1_cb(KEY_MESSAGE *key_msg)
+{
+}
+
+static void test_win_f1_2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f2_2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f3_2_cb(KEY_MESSAGE *key_msg)
+{
+}
+static void test_win_f4_2_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  改变菜单按键信息
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void change_key_menu(int id)
+{
+    static int i = 0;
+    uint8_t n = ARRAY_SIZE(test_ui_acw_menu_pool);
+    init_menu_key_info(test_ui_acw_menu_pool[i], ARRAY_SIZE(test_ui_acw_menu_pool[i]), id);
+//     init_menu_key_info(test_ui_acw_menu_pool[i]);
+    i = (i+1) % n;
+}
+
+
+/**
+  * @brief  更新菜单键信息
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void update_menu_key_inf(WM_HMEM hWin)
+{
+	init_menu_key_info(test_ui_menu_key_pool, 7, hWin);
+}
 
 /**
   * @brief  设置测试界面窗口句柄
@@ -416,7 +406,7 @@ static void init_test_ui_text_ele_pos_inf(void)
   * @param  无
   * @retval 无
   */
-static void _PaintFrame(void) 
+static void test_win_paint_frame(void) 
 {
 	GUI_RECT r;
 	WM_GetClientRect(&r);
@@ -473,7 +463,7 @@ static void test_win_cb(WM_MESSAGE* pMsg)
         case WM_KEY:
             break;
 		case WM_PAINT:
-			_PaintFrame();
+			test_win_paint_frame();
             draw_group_inf_area();
 			draw_composition_7_1();
 			break;
@@ -483,10 +473,11 @@ static void test_win_cb(WM_MESSAGE* pMsg)
 			WM_DefaultProc(pMsg);
 	}
 }
+/* Public functions ---------------------------------------------------------*/
 
 /**
-  * @brief  7寸屏布局1的入口
-  * @param  [in] hWin窗口
+  * @brief  创建测试窗口
+  * @param  [in] hWin 父窗口句柄
   * @retval 无
   */
 void create_test_win(int hWin)

@@ -36,13 +36,13 @@
 
 static void file_edit_win_cb(WM_MESSAGE * pMsg);
 static FUNCTION_KEY_INFO_T file_edit_sys_key_pool[];
-extern WIDGET_ELEMENT edit_file_ele_pool[];
+extern EDIT_ELE_T edit_file_ele_pool[];
 static void file_edit_direct_key_up_cb(KEY_MESSAGE *key_msg);
 static void file_edit_direct_key_down_cb(KEY_MESSAGE *key_msg);
 static void file_edit_direct_key_left_cb(KEY_MESSAGE *key_msg);
 static void file_edit_direct_key_right_cb(KEY_MESSAGE *key_msg);
-static void menu_key_ok(int);
-static void menu_key_cancle(int);
+static void menu_key_ok(WM_HWIN);
+static void menu_key_cancle(WM_HWIN);
 
 static void edit_name_f1_cb(KEY_MESSAGE *key_msg);
 static void edit_name_f2_cb(KEY_MESSAGE *key_msg);
@@ -69,17 +69,17 @@ static void edit_pass_time_f4_cb(KEY_MESSAGE *key_msg);
 static void init_create_file_edit_win_com_ele(MYUSER_WINDOW_T* win);
 static void init_create_file_edit_win_edit_ele(MYUSER_WINDOW_T* win);
 
-static void fname_sys_key(int data);
-static void fwmode_sys_key(int data);
-static void fpasstime_sys_key(int data);
-static void fbeeptime_sys_key(int data);
-static void fname_menu_key(int data);
-static void fwmode_menu_key(int data);
-static void fpasstime_menu_key(int data);
-static void fbeeptime_menu_key(int data);
+static void fname_sys_key(WM_HWIN data);
+static void fwmode_sys_key(WM_HWIN data);
+static void fpasstime_sys_key(WM_HWIN data);
+static void fbeeptime_sys_key(WM_HWIN data);
+static void fname_menu_key(WM_HWIN data);
+static void fwmode_menu_key(WM_HWIN data);
+static void fpasstime_menu_key(WM_HWIN data);
+static void fbeeptime_menu_key(WM_HWIN data);
 
-static void set_fwmode_n(int hWin);
-static void set_fwmode_g(int hWin);
+static void set_fwmode_n(WM_HWIN hWin);
+static void set_fwmode_g(WM_HWIN hWin);
 /* Private variables ---------------------------------------------------------*/
 
 /**
@@ -151,7 +151,7 @@ static FUNCTION_KEY_INFO_T file_edit_sys_key_pool[]=
 /**
   * @brief  文件编辑窗口的编辑对象初始化数组
   */
-static WIDGET_ELEMENT edit_file_ele_pool[]=
+static EDIT_ELE_T edit_file_ele_pool[]=
 {
     {
         {"文 件 名:","FileName:"}, /* 名称 */
@@ -256,7 +256,7 @@ static MYUSER_WINDOW_T save_file_window=
 /**
   * @brief  文件新建窗口的数据结构定义
   */
-static MYUSER_WINDOW_T NewFileWindows=
+static MYUSER_WINDOW_T new_file_window=
 {
     {"新建文件","New File"},
     file_edit_win_cb,NULL,
@@ -467,7 +467,7 @@ static void file_edit_direct_key_up_cb(KEY_MESSAGE *key_msg)
     dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
     if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.prev)
     {
-        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, WIDGET_ELEMENT, e_list);
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, EDIT_ELE_T, e_list);
     }
     select_edit_ele(g_cur_edit_ele);
 }
@@ -482,7 +482,7 @@ static void file_edit_direct_key_down_cb(KEY_MESSAGE *key_msg)
     dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
     if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.next)
     {
-        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, WIDGET_ELEMENT, e_list);
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, EDIT_ELE_T, e_list);
     }
     select_edit_ele(g_cur_edit_ele);
 }
@@ -514,7 +514,7 @@ static void file_edit_direct_key_right_cb(KEY_MESSAGE *key_msg)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void fname_sys_key(int hWin)
+static void fname_sys_key(WM_HWIN hWin)
 {
     register_system_key_fun(file_edit_sys_key_pool, ARRAY_SIZE(file_edit_sys_key_pool), hWin);
 }
@@ -523,7 +523,7 @@ static void fname_sys_key(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void fwmode_sys_key(int hWin)
+static void fwmode_sys_key(WM_HWIN hWin)
 {
     register_system_key_fun(file_edit_sys_key_pool, ARRAY_SIZE(file_edit_sys_key_pool), hWin);
 }
@@ -532,7 +532,7 @@ static void fwmode_sys_key(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void fpasstime_sys_key(int hWin)
+static void fpasstime_sys_key(WM_HWIN hWin)
 {
     register_system_key_fun(file_edit_sys_key_pool, ARRAY_SIZE(file_edit_sys_key_pool), hWin);
 }
@@ -541,7 +541,7 @@ static void fpasstime_sys_key(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void fbeeptime_sys_key(int hWin)
+static void fbeeptime_sys_key(WM_HWIN hWin)
 {
     register_system_key_fun(file_edit_sys_key_pool, ARRAY_SIZE(file_edit_sys_key_pool), hWin);
 }
@@ -550,7 +550,7 @@ static void fbeeptime_sys_key(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void fname_menu_key(int hWin)
+static void fname_menu_key(WM_HWIN hWin)
 {
     MENU_KEY_INFO_T * info = fname_menu_key_info;
     uint32_t size = ARRAY_SIZE(fname_menu_key_info);
@@ -565,7 +565,7 @@ static void fname_menu_key(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void fwmode_menu_key(int hWin)
+static void fwmode_menu_key(WM_HWIN hWin)
 {
     MENU_KEY_INFO_T * info = fwmode_menu_key_info;
     uint32_t size = ARRAY_SIZE(fwmode_menu_key_info);
@@ -580,7 +580,7 @@ static void fwmode_menu_key(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void fpasstime_menu_key(int hWin)
+static void fpasstime_menu_key(WM_HWIN hWin)
 {
     MENU_KEY_INFO_T * info = fpasst_menu_key_info;
     uint32_t size = ARRAY_SIZE(fpasst_menu_key_info);
@@ -593,7 +593,7 @@ static void fpasstime_menu_key(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void fbeeptime_menu_key(int hWin)
+static void fbeeptime_menu_key(WM_HWIN hWin)
 {
     MENU_KEY_INFO_T * info = fbeept_menu_key_info;
     uint32_t size = ARRAY_SIZE(fbeept_menu_key_info);
@@ -606,7 +606,7 @@ static void fbeeptime_menu_key(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void set_fwmode_n(int hWin)
+static void set_fwmode_n(WM_HWIN hWin)
 {
     DROPDOWN_SetSel(g_cur_edit_ele->dis.edit.handle, N_MODE);
 }
@@ -615,7 +615,7 @@ static void set_fwmode_n(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void set_fwmode_g(int hWin)
+static void set_fwmode_g(WM_HWIN hWin)
 {
     DROPDOWN_SetSel(g_cur_edit_ele->dis.edit.handle, G_MODE);
 }
@@ -625,7 +625,7 @@ static void set_fwmode_g(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void menu_key_ok(int hWin)
+static void menu_key_ok(WM_HWIN hWin)
 {
 	g_custom_msg.msg = CM_DIALOG_RETURN_OK;
 	g_custom_msg.user_data = (int)&global_file;
@@ -638,7 +638,7 @@ static void menu_key_ok(int hWin)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-static void menu_key_cancle(int hWin)
+static void menu_key_cancle(WM_HWIN hWin)
 {
 	g_custom_msg.msg = CM_DIALOG_RETURN_CANCLE;
     back_win(hWin);//关闭对话框
@@ -692,7 +692,6 @@ static void init_create_file_edit_win_com_ele(MYUSER_WINDOW_T* win)
 static void file_edit_win_cb(WM_MESSAGE * pMsg)
 {
 	MYUSER_WINDOW_T* win;
-    int NCode, Id;
     WM_HWIN hWin = pMsg->hWin;
     
     switch(pMsg->MsgId)
@@ -718,37 +717,6 @@ static void file_edit_win_cb(WM_MESSAGE * pMsg)
 			send_msg_to_parent(hWin, CM_CHILD_W_MSG, (int)&g_custom_msg);
 			break;
 		}
-        case WM_KEY:
-        {
-            switch (((WM_KEY_INFO*)(pMsg->Data.p))->Key)
-            {
-                case GUI_KEY_ESCAPE:
-                    GUI_EndDialog(hWin, 1);
-                    break;
-                case GUI_KEY_ENTER:
-                    GUI_EndDialog(hWin, 0);
-                    break;
-            }
-            break;
-        }
-        case WM_NOTIFY_PARENT:
-        {
-            Id = WM_GetId(pMsg->hWinSrc);
-            NCode = pMsg->Data.v;
-            
-            switch (Id)
-            {
-                case GUI_ID_OK:
-                    if(NCode==WM_NOTIFICATION_RELEASED)
-						GUI_EndDialog(hWin, 0);
-                    break;
-                case GUI_ID_CANCEL:
-                    if(NCode == WM_NOTIFICATION_RELEASED)
-                        GUI_EndDialog(hWin, 0);
-                    break;
-            }
-            break;
-        }
         default:
             WM_DefaultProc(pMsg);
     }
@@ -764,7 +732,7 @@ void create_save_file_dialog(int hWin)
 {
     set_custom_msg_id(CM_FILE_UI_SAVE);
     init_window_size(&save_file_window, file_edit_win_pos_size_pool[sys_par.screem_size]);
-    create_user_dialog(&save_file_window, &windows_list, hWin);//创建主界面
+    create_user_dialog(&save_file_window, &windows_list, g_cur_win->handle);//创建主界面
 }
 /**
   * @brief  创建对话框用来新建文件
@@ -774,8 +742,8 @@ void create_save_file_dialog(int hWin)
 void create_new_file_dialog(int hWin)
 {
     set_custom_msg_id(CM_FILE_UI_NEW);
-    init_window_size(&NewFileWindows, file_edit_win_pos_size_pool[sys_par.screem_size]);
-    create_user_dialog(&NewFileWindows, &windows_list, hWin);//创建主界面
+    init_window_size(&new_file_window, file_edit_win_pos_size_pool[sys_par.screem_size]);
+    create_user_dialog(&new_file_window, &windows_list, g_cur_win->handle);//创建主界面
 }
 
 /**
@@ -787,7 +755,7 @@ void create_edit_file_dialog(int hWin)
 {
     set_custom_msg_id(CM_FILE_UI_EDIT);
     init_window_size(&edit_file_windows, file_edit_win_pos_size_pool[sys_par.screem_size]);
-    create_user_dialog(&edit_file_windows, &windows_list, hWin);//创建主界面
+    create_user_dialog(&edit_file_windows, &windows_list, g_cur_win->handle);//创建主界面
 }
 
 

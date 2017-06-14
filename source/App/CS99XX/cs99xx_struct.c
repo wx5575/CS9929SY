@@ -43,16 +43,16 @@ static uint8_t  const  cs99xx_maptbl[256] = {
 GEAR_STR ac_gear[]=
 {
     {0},//0
-    {"2~A"   , "2.000~A", "0.000~A", CUR_U_uA, 2000, 1, 2000, 0, 3},//2uA
-    {"20~A"  , "20.00~A", "00.00~A", CUR_U_uA, 2000, 1, 2000, 0, 2},//20uA
-    {"200~A" , "200.0~A", "000.0~A", CUR_U_uA, 2000, 1, 2000, 0, 1},//200uA
-    {"2mA"   , "2.000mA", "0.000mA", CUR_U_mA, 2000, 1, 2000, 0, 3},
-    {"10mA"  , "10.00mA", "00.00mA", CUR_U_mA, 1000, 1, 1000, 0, 2},
-    {"20mA"  , "20.00mA", "00.00mA", CUR_U_mA, 2000, 1, 2000, 0, 2},
-    {"50mA"  , "50.00mA", "00.00mA", CUR_U_mA, 5000, 1, 5000, 0, 2},
-    {"100mA" , "100.0mA", "000.0mA", CUR_U_mA, 1000, 1, 1000, 0, 1},
-    {"200mA" , "200.0mA", "000.0mA", CUR_U_mA, 2000, 1, 2000, 0, 1},
-    {"1.25A" , "1.250A" , "1.250A" , CUR_U_A , 1250, 1, 1250, 0, 3},//2A
+    {CUR_2uA_STR   , CUR_U_uA, 2000, 1, 2000, 0, 5, 3},//2uA
+    {CUR_20uA_STR  , CUR_U_uA, 2000, 1, 2000, 0, 5, 2},//20uA
+    {CUR_200uA_STR , CUR_U_uA, 2000, 1, 2000, 0, 5, 1},//200uA
+    {CUR_2mA_STR   , CUR_U_mA, 2000, 1, 2000, 0, 5, 3},
+    {CUR_10mA_STR  , CUR_U_mA, 1000, 1, 1000, 0, 5, 2},
+    {CUR_20mA_STR  , CUR_U_mA, 2000, 1, 2000, 0, 5, 2},
+    {CUR_50mA_STR  , CUR_U_mA, 5000, 1, 5000, 0, 5, 2},
+    {CUR_100mA_STR , CUR_U_mA, 1000, 1, 1000, 0, 5, 1},
+    {CUR_200mA_STR , CUR_U_mA, 2000, 1, 2000, 0, 5, 1},
+    {CUR_2A_STR    , CUR_U_A , 1250, 1, 1250, 0, 5, 3},//2A
 };
 /**
   * @brief  DC档位信息
@@ -60,14 +60,14 @@ GEAR_STR ac_gear[]=
 GEAR_STR dc_gear[]=
 {
     {0},//0
-    {"2~A"   , "2.000~A", "0.000~A", CUR_U_uA, 2000, 1, 2000, 0, 3},//2uA
-    {"20~A"  , "20.00~A", "00.00~A", CUR_U_uA, 2000, 1, 2000, 0, 2},//20uA
-    {"200~A" , "200.0~A", "000.0~A", CUR_U_uA, 2000, 1, 2000, 0, 1},//200uA
-    {"2mA"   , "2.000mA", "0.000mA", CUR_U_mA, 2000, 1, 2000, 0, 3},
-    {"10mA"  , "10.00mA", "00.00mA", CUR_U_mA, 1000, 1, 1000, 0, 2},
-    {"20mA"  , "20.00mA", "00.00mA", CUR_U_mA, 2000, 1, 2000, 0, 2},
-    {"50mA"  , "50.00mA", "00.00mA", CUR_U_mA, 5000, 1, 5000, 0, 2},
-    {"100mA" , "100.0mA", "000.0mA", CUR_U_mA, 1000, 1, 1000, 0, 1},
+    {CUR_2uA_STR   , CUR_U_uA, 2000, 1, 2000, 0, 5, 3},//2uA
+    {CUR_20uA_STR  , CUR_U_uA, 2000, 1, 2000, 0, 5, 2},//20uA
+    {CUR_200uA_STR , CUR_U_uA, 2000, 1, 2000, 0, 5, 1},//200uA
+    {CUR_2mA_STR   , CUR_U_mA, 2000, 1, 2000, 0, 5, 3},
+    {CUR_10mA_STR  , CUR_U_mA, 1000, 1, 1000, 0, 5, 2},
+    {CUR_20mA_STR  , CUR_U_mA, 2000, 1, 2000, 0, 5, 2},
+    {CUR_50mA_STR  , CUR_U_mA, 5000, 1, 5000, 0, 5, 2},
+    {CUR_100mA_STR , CUR_U_mA, 1000, 1, 1000, 0, 5, 1},
 };
 /**
   * @brief  IR档位信息
@@ -75,11 +75,11 @@ GEAR_STR dc_gear[]=
 GEAR_STR ir_gear[]=
 {
     {0},//0
-    {"" , "", "", RES_U_MOHM, 0, 0, 0, 0, 3},//IR_10MOHM
-    {"" , "", "", RES_U_MOHM, 0, 0, 0, 0, 2},//IR_100MOHM
-    {"" , "", "", RES_U_MOHM, 0, 0, 0, 0, 1},//IR_1GOHM
-    {"" , "", "", RES_U_GOHM, 0, 0, 0, 0, 3},//IR_10GOHM
-    {"" , "", "", RES_U_GOHM, 0, 0, 0, 0, 2},//IR_100GOHM
+    {"" , RES_U_MOHM, 0, 0, 0, 0, 5, 3},//IR_10MOHM
+    {"" , RES_U_MOHM, 0, 0, 0, 0, 5, 2},//IR_100MOHM
+    {"" , RES_U_MOHM, 0, 0, 0, 0, 5, 1},//IR_1GOHM
+    {"" , RES_U_GOHM, 0, 0, 0, 0, 5, 3},//IR_10GOHM
+    {"" , RES_U_GOHM, 0, 0, 0, 0, 5, 2},//IR_100GOHM
 };
 /**
   * @brief  默认文件定义
@@ -257,6 +257,15 @@ TEST_FILE* get_file_inf(FILE_NUM file_num, CS_ERR* err)
     return &file_pool[file_num];
 }
 /**
+  * @brief  获取密码的最大长度
+  * @param  无
+  * @retval 密码的最大长度
+  */
+uint8_t pwd_max_len(void)
+{
+    return PWD_MAX_LEN;
+}
+/**
   * @brief  检查系统参数的合法性
   * @param  [out] err 错误码 CS_ERR_NONE ，CS_ERR_DATA_OUT_OF_RANGE 
   * @retval 无
@@ -418,7 +427,7 @@ void init_acw_step(NODE_STEP * p)
 	const uint8_t *l_gear_buf[CUR_KINDS_MAX];
 	uint8_t l_flag[CUR_KINDS_MAX];
 	
-	defined_cur_kinds(ACW, l_gear_buf, l_flag);
+	defined_cur_kinds(ACW, l_gear_buf, l_flag, 0);
 	
 	memset(&l_acw, 0, sizeof l_acw);
 	
@@ -473,7 +482,7 @@ void init_cc_step(NODE_STEP * p)
 	const uint8_t *l_gear_buf[CUR_KINDS_MAX];
 	uint8_t l_flag[CUR_KINDS_MAX];
 	
-	defined_cur_kinds(CC, l_gear_buf, l_flag);
+	defined_cur_kinds(CC, l_gear_buf, l_flag, 0);
 	
 	memset(&l_cc, 0, sizeof l_cc);
 	
@@ -528,7 +537,7 @@ void init_dcw_step(NODE_STEP * p)
 	uint8_t l_flag[CUR_KINDS_MAX];
 	uint8_t l_kinds;
 	
-	l_kinds = defined_cur_kinds(DCW, l_gear_buf, l_flag);
+	l_kinds = defined_cur_kinds(DCW, l_gear_buf, l_flag, 0);
 	memset(&l_dcw, 0, sizeof l_dcw);
 	
 	l_dcw.step = p->one_step.com.step;
@@ -763,6 +772,47 @@ void insert_step(uint16_t pos, uint8_t mode)
 }
 
 /**
+  * @brief  删除一步
+  * @param  [in] step 要删除的步号
+  * @retval 无
+  */
+void del_step(STEP_NUM step)
+{
+    uint16_t l_index = TABLE_VALUE_NULL;
+    uint16_t l_index1 = 0;
+    uint16_t pos = step - 1;
+    
+    if(step > MAX_STEPS)
+    {
+        return;
+    }
+    
+    if(g_cur_file->total == 1)
+    {
+        return;
+    }
+    
+    if(g_cur_step == NULL)
+    {
+        return;
+    }
+    
+    l_index = cur_group_table[pos];
+    l_index1 = l_index / 8;
+    
+    if(l_index == TABLE_VALUE_NULL)
+    {
+        return;
+    }
+    
+    step_used_flag[l_index1] &= ~(1<<(l_index%8));/* 将标志清零 */
+    
+    memcpy(&cur_group_table[pos], &cur_group_table[pos + 1], (g_cur_file->total - step) * 2);
+    cur_group_table[g_cur_file->total - 1] = TABLE_VALUE_NULL;
+    
+    g_cur_file->total--;
+}
+/**
   * @brief  插入一步到指定的位置
   * @param  [in] one 要交换步的第一个步号
   * @param  [in] two 要交换步的第二个步号
@@ -844,7 +894,11 @@ void init_instrument_data(void)
     save_group_info(sys_flag.last_file_num);
     init_sys_par();//初始化系统参数
 }
-
+/**
+  * @brief  初始化步骤链表
+  * @param  无
+  * @retval 无
+  */
 void init_99xx_list(void)
 {
     memset(test_step_buf.test_steps,0,sizeof(NODE_STEP)*STEP_LIST_SIZE);
@@ -852,6 +906,11 @@ void init_99xx_list(void)
     list_init(&list_head_99xx);
 }
 
+/**
+  * @brief  向步骤链表插入一个步骤
+  * @param  [in] n 插入的位置
+  * @retval 无
+  */
 void insert_node(uint8_t n)
 {
     CS_LIST *new_node = NULL;
@@ -861,6 +920,11 @@ void insert_node(uint8_t n)
     list_add_tail(new_node, &list_head_99xx);
 }
 
+/**
+  * @brief  获取当前步的数据结构信息
+  * @param  无
+  * @retval 当前步的数据结构信息
+  */
 NODE_STEP *get_g_cur_step(void)
 {
     if(list_empty(&list_head_99xx))
@@ -870,15 +934,30 @@ NODE_STEP *get_g_cur_step(void)
     
     return list_entry(list_head_99xx.next, NODE_STEP, list);
 }
-int32_t check_test_step_data(NODE_STEP *p, uint16_t size)
+/**
+  * @brief  检查测试步的数据
+  * @param  [in] node 测试步信息
+  * @param  [out] err错误信息
+  * @retval 当前步的数据结构信息
+  */
+void check_test_step_data(NODE_STEP *node, CS_ERR *err)
 {
-    return 0;
+    *err = CS_ERR_NONE;
+    return;
 }
+/**
+  * @brief  加载步骤到测试步链表中
+  * @param  [in] step 加载的起始测试步号
+  * @param  [in] step_num 连续加载的测试步个数
+  * @retval 无
+  */
 void load_steps_to_list(const int16_t step, uint8_t step_num)
 {
     int32_t num = 0;
     uint16_t offset_addr = 0;
     int32_t i = 0;
+    CS_ERR err;
+    static int err_flag = 0;
     
     init_99xx_list();/* 初始化测试步链表 */
     
@@ -916,11 +995,13 @@ void load_steps_to_list(const int16_t step, uint8_t step_num)
         
         if(offset_addr != TABLE_VALUE_NULL && offset_addr < MAX_STEPS)
         {
-            do
-            {
-                read_one_step(&test_step_buf.test_steps[i], g_cur_file->num, step + i);
-            }while(0 > check_test_step_data(&test_step_buf.test_steps[i], 1));
+            read_one_step(&test_step_buf.test_steps[i], g_cur_file->num, step + i);
+            check_test_step_data(&test_step_buf.test_steps[i], &err);
             
+            if(err != CS_ERR_NONE)
+            {
+                err_flag++;
+            }
             /* 计算出读出的步是第几步 并对错误进行修正 */
             test_step_buf.test_steps[i].one_step.com.step = step + i;
         }

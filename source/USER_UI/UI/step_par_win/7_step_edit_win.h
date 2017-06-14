@@ -9,23 +9,7 @@
   ******************************************************************************
   */
 
-#include "stm32f4xx.h"
-#include "keyboard.h"
-#include "rtc_config.h"
-#include "GUI.H"
-#include "WM.h"
-#include "DIALOG.h"
-#include "fonts.h"
-#include "ff.h"
-#include "OS.H"
-#include "app.h"
-#include "cs99xx_struct.h"
-#include "FRAMEWIN.H"
-#include "EDIT.H"
 #include "UI_COM/com_ui_info.h"
-#include "step_edit_win.h"
-#include "ui_com/com_edit_api.h"
-#include "key_menu_win/key_menu_win.h"
 
 
 extern WIDGET_POS_SIZE_T        _7_step_edit_windows;

@@ -481,26 +481,30 @@ typedef struct{
 #define MODEL_KINDS_MAX		(8)	 ///<仪器支持的模式各类最大值
 
 /*************** 参数范围 ************************/
-#define FREQ_HZ_H		(type_spe.freq_h)           ///<频率上限值
-#define FREQ_HZ_L		(type_spe.freq_l)           ///<频率下限值
-#define ACW_VOL_H		(type_spe.acw_vol_h)         ///<ACW电压上限
-#define ACW_VOL_L		(type_spe.acw_vol_l)		 ///<ACW电压下限
-#define ACW_ARC_H		(type_spe.acw_arc_h)        ///<ACW电弧上限值
-#define ACW_ARC_GEAR	(type_spe.acw_arc_gear)     ///<ACW电弧档位
+#define FREQ_HZ_H		        (type_spe.freq_h)           ///<频率上限值
+#define FREQ_HZ_L		        (type_spe.freq_l)           ///<频率下限值
+#define ACW_VOL_H		        (type_spe.acw_vol_h)         ///<ACW电压上限
+#define ACW_VOL_L		        (type_spe.acw_vol_l)		 ///<ACW电压下限
+#define ACW_ARC_H		        (type_spe.acw_arc_h)        ///<ACW电弧上限值
+#define ACW_ARC_GEAR	        (type_spe.acw_arc_gear)     ///<ACW电弧档位
+#define ACW_UPPER_DEFAULT_VAL   500
+#define ACW_LOWER_DEFAULT_VAL   0
+#define DCW_UPPER_DEFAULT_VAL   500
+#define DCW_LOWER_DEFAULT_VAL   0
 
-#define CC_VOL_L		(type_spe.cc_vol_l)		 ///<CC电压下限值
-#define CC_VOL_H		(type_spe.cc_vol_h)     ///<CC电压上限值
-
-#define	DCW_VOL_H		(type_spe.dcw_vol_h)         ///<DCW电压上限值
-#define DCW_VOL_L		(type_spe.dcw_vol_l)         ///<DCW电压下限值
-#define DCW_ARC_H		(type_spe.dcw_arc_h)        ///<DCW电弧上限值
-#define DCW_ARC_GEAR	(type_spe.dcw_arc_gear)     ///<DCW电弧档位
-
-#define IR_VOL_H		(type_spe.ir_vol_h)         ///<IR电压上限值
-#define IR_VOL_L		(type_spe.ir_vol_l)         ///<IR电压下限值
-#define IR_RES_H		(type_spe.ir_res_h)         ///<IR电阻上限值
-#define IR_RES_L		(type_spe.ir_res_l)         ///<IR电阻下限值
-#define IR_RANGE_H      (cur_ir_rang_h)             ///<IR电阻档位上限值
+#define CC_VOL_L		        (type_spe.cc_vol_l)		 ///<CC电压下限值
+#define CC_VOL_H		        (type_spe.cc_vol_h)     ///<CC电压上限值
+        
+#define	DCW_VOL_H		        (type_spe.dcw_vol_h)         ///<DCW电压上限值
+#define DCW_VOL_L		        (type_spe.dcw_vol_l)         ///<DCW电压下限值
+#define DCW_ARC_H		        (type_spe.dcw_arc_h)        ///<DCW电弧上限值
+#define DCW_ARC_GEAR	        (type_spe.dcw_arc_gear)     ///<DCW电弧档位
+        
+#define IR_VOL_H		        (type_spe.ir_vol_h)         ///<IR电压上限值
+#define IR_VOL_L		        (type_spe.ir_vol_l)         ///<IR电压下限值
+#define IR_RES_H		        (type_spe.ir_res_h)         ///<IR电阻上限值
+#define IR_RES_L		        (type_spe.ir_res_l)         ///<IR电阻下限值
+#define IR_RANGE_H              (cur_ir_rang_h)             ///<IR电阻档位上限值
 
 
 #define ONE_DCGR_MAX_CUR        (type_spe.one_dc_module_max_cur) ///<单个直流模块的最大输出电流
@@ -543,7 +547,7 @@ extern void init_default_type(void);
 extern void judge_single_gr(void);
 extern uint8_t get_max_cur_gear(uint8_t mode);
 extern uint32_t defined_hz_kinds(uint8_t mode, const uint8_t** gear_buf, uint8_t *flag);
-extern uint32_t defined_cur_kinds(uint8_t mode, const uint8_t *gear[], uint8_t* flag);
+extern uint32_t defined_cur_kinds(uint8_t mode, const uint8_t *gear[], uint8_t* flag, uint16_t *kind);
 extern uint32_t defined_fail_mode_kinds(const uint8_t *fail_mode_buf[], uint8_t *flag);
 extern uint32_t defined_vol_kinds(uint8_t mode, const uint8_t **gear, uint8_t *flag);
 extern int32_t check_mode(void);
@@ -558,6 +562,9 @@ extern uint8_t get_first_mode(void);
 extern void *get_defined_mode_table(void);
 extern uint16_t get_defined_mode_num(void);
 extern void *get_defined_mode_flag(void);
+extern uint16_t get_defined_range_num(uint8_t mode);
+extern void *get_defined_range_flag(uint8_t mode);
+extern void *get_defined_range_table(uint8_t mode);
 
 #endif //__TYPE_SELECT__
 

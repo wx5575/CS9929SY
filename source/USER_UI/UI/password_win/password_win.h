@@ -27,7 +27,6 @@ typedef enum{
 }PWD_TEXT_INDEX;
 
 void create_password_ui(int hWin);
-uint8_t pwd_max_len(void);
 
 #endif //__PASSWORD_WIN_H__
 

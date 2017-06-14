@@ -16,7 +16,6 @@
 #include "WM.h"
 #include "fonts.h"
 #include "app.h"
-#include "scan_keyboard.h"
 #include "IMAGE.H"
 #include "ui_com/com_ui_info.h"
 #include "7_main_win.h"

@@ -1,11 +1,11 @@
 
 /**
   ******************************************************************************
-  * @file    file_ui_save.c
+  * @file    env_par_edit_win.c
   * @author  王鑫
-  * @version V0.0.1
+  * @version V1.0.0
   * @date    2017.4.18
-  * @brief   文件保存界面
+  * @brief   环境变量编辑窗口
   ******************************************************************************
   */
 
@@ -30,19 +30,38 @@
 #include "7_env_par_edit_win.h"
 #include "env_par_edit_win.h"
 
+/* Private typedef -----------------------------------------------------------*/
+typedef enum{
+    ENV_PAR_LANGUAGE,
+}ENV_PAR_UI_INDEX;
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+
+/* Private function prototypes -----------------------------------------------*/
+
 static void env_par_edit_win_cb(WM_MESSAGE * pMsg);
-static FUNCTION_KEY_INFO_T sys_key_pool[];
-extern WIDGET_ELEMENT save_file_ele_pool[];
-static void direct_key_up_cb(KEY_MESSAGE *key_msg);
-static void direct_key_down_cb(KEY_MESSAGE *key_msg);
-static void direct_key_left_cb(KEY_MESSAGE *key_msg);
-static void direct_key_right_cb(KEY_MESSAGE *key_msg);
-static void menu_key_ok(int);
+static void env_par_direct_key_up_cb(KEY_MESSAGE *key_msg);
+static void env_par_direct_key_down_cb(KEY_MESSAGE *key_msg);
+static void env_par_direct_key_left_cb(KEY_MESSAGE *key_msg);
+static void env_par_direct_key_right_cb(KEY_MESSAGE *key_msg);
+static void menu_key_ok(WM_HMEM hWin);
 
-MYUSER_WINDOW_T* get_save_file_win_struct_addr(void);
-extern EDIT_ELE_DISPLAY_INF save_file_ele_pos_pool[];
-extern MYUSER_WINDOW_T SaveFileWindows;
+static void edit_language_f1_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f2_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f3_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f4_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f5_cb(KEY_MESSAGE *key_msg);
+static void edit_language_f6_cb(KEY_MESSAGE *key_msg);
 
+static void init_create_env_par_win_com_ele(MYUSER_WINDOW_T* win);
+static void init_create_env_par_win_edit_ele(MYUSER_WINDOW_T* win);
+static void reg_env_language_sys_key(WM_HMEM hWin);
+static void env_language_menu_key(WM_HMEM hWin);
+/* Private variables ---------------------------------------------------------*/
+
+/**
+  * @brief  环境变量设置窗口的位置尺寸信息
+  */
 static WIDGET_POS_SIZE_T* env_par_win_pos_size_pool[SCREEN_NUM]=
 {
     &_7_env_par_windows,/*4.3寸屏*/
@@ -50,28 +69,10 @@ static WIDGET_POS_SIZE_T* env_par_win_pos_size_pool[SCREEN_NUM]=
     &_7_env_par_windows,/*7寸屏*/
 };
 
-static void set_env_language_chinese(int hWin)
-{
-    DROPDOWN_SetSel(g_cur_edit_ele->dis.edit.handle, CHINESE);
-    upload_par_to_ram(g_cur_edit_ele);//数据更新到内存
-    update_all_windows_text();
-    init_dialog(g_cur_win);//为了更新对话框名字
-}
-static void set_env_language_english(int hWin)
-{
-    DROPDOWN_SetSel(g_cur_edit_ele->dis.edit.handle, ENGLISH);
-    upload_par_to_ram(g_cur_edit_ele);//数据更新到内存
-    update_all_windows_text();
-    init_dialog(g_cur_win);//为了更新对话框名字
-}
-static void edit_language_f1_cb(KEY_MESSAGE *key_msg);
-static void edit_language_f2_cb(KEY_MESSAGE *key_msg);
-static void edit_language_f3_cb(KEY_MESSAGE *key_msg);
-static void edit_language_f4_cb(KEY_MESSAGE *key_msg);
-static void edit_language_f5_cb(KEY_MESSAGE *key_msg);
-static void edit_language_f6_cb(KEY_MESSAGE *key_msg);
-static MENU_KEY_INFO_T 	env_langulag_key_info[] =
-/* 语言 */
+/**
+  * @brief  编辑语言使用的菜单键初始化信息
+  */
+static MENU_KEY_INFO_T 	env_par_language_menu_key_inf[] =
 {
     {"中文"     , F_KEY_CUSTOM, KEY_F1 & _KEY_UP, edit_language_f1_cb },//f1
     {"English"  , F_KEY_CUSTOM, KEY_F2 & _KEY_UP, edit_language_f2_cb },//f2
@@ -81,53 +82,23 @@ static MENU_KEY_INFO_T 	env_langulag_key_info[] =
     {""         , F_KEY_BACK  , KEY_F6 & _KEY_UP, edit_language_f6_cb },//f4
 };
 
-static void edit_language_f1_cb(KEY_MESSAGE *key_msg)
-{
-    set_env_language_chinese(key_msg->user_data);
-}
-static void edit_language_f2_cb(KEY_MESSAGE *key_msg)
-{
-    set_env_language_english(key_msg->user_data);
-}
-static void edit_language_f3_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void edit_language_f4_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void edit_language_f5_cb(KEY_MESSAGE *key_msg)
-{
-}
-static void edit_language_f6_cb(KEY_MESSAGE *key_msg)
-{
-    menu_key_ok(key_msg->user_data);
-}
-static FUNCTION_KEY_INFO_T sys_key_pool[]={
-	{KEY_UP		, direct_key_up_cb		 },
-	{KEY_DOWN	, direct_key_down_cb	 },
-	{KEY_LEFT	, direct_key_left_cb	 },
-	{KEY_RIGHT	, direct_key_right_cb	 },
+/**
+  * @brief  环境变量窗口系统按键初始化数组
+  */
+static FUNCTION_KEY_INFO_T env_par_sys_key_pool[]={
+	{KEY_UP		, env_par_direct_key_up_cb		 },
+	{KEY_DOWN	, env_par_direct_key_down_cb	 },
+	{KEY_LEFT	, env_par_direct_key_left_cb	 },
+	{KEY_RIGHT	, env_par_direct_key_right_cb	 },
     
-	{CODE_LEFT	, direct_key_up_cb      },
-	{CODE_RIGH	, direct_key_down_cb	 },
+	{CODE_LEFT	, env_par_direct_key_up_cb      },
+	{CODE_RIGH	, env_par_direct_key_down_cb	 },
 };
 
-static void env_langulag_sys_key(int data)
-{
-    register_system_key_fun(sys_key_pool, ARRAY_SIZE(sys_key_pool), data);
-}
-
-static void env_langulag_menu_key()
-{
-    MENU_KEY_INFO_T * info = env_langulag_key_info;
-    uint32_t size = ARRAY_SIZE(env_langulag_key_info);
-    int32_t data = g_cur_edit_ele->dis.edit.handle;
-    
-	init_menu_key_info(info, size, data);
-}
-
-
-WIDGET_ELEMENT env_par_ele_pool[]={
+/**
+  * @brief  环境变量窗口显示的编辑对象池
+  */
+static EDIT_ELE_T env_par_ele_pool[]={
     {
         {"语  言:","Language:"}, /* 名称 */
         ENV_PAR_LANGUAGE,/* 通过枚举索引 */
@@ -137,7 +108,7 @@ WIDGET_ELEMENT env_par_ele_pool[]={
         {ELE_DROPDOWN, E_INT_T},/*类型*/
         {0/*decs*/,20/*lon*/,NULL_U_NULL/*unit*/,},/*format*/
         {0/*heigh*/,0/*low*/,{"Language","Language"}/*notice*/},/*range*/
-        {env_langulag_sys_key,env_langulag_menu_key,keyboard_fun_num,},/*key_inf*/
+        {reg_env_language_sys_key,env_language_menu_key,keyboard_fun_num,},/*key_inf*/
     },
 //     {
 //         {"蜂鸣时间:","BeepTime:"}, /* 名称 */
@@ -165,22 +136,21 @@ WIDGET_ELEMENT env_par_ele_pool[]={
 //     },
 };
 
-
-static void update_menu_key_inf(WM_HMEM hWin)
-{
-}
-
-static ENV_PAR_UI_INDEX env_par_ui_ele_table[]=
+/**
+  * @brief  环境变量窗口显示的编辑对象索引表
+  */
+static CS_INDEX env_par_ui_ele_table[]=
 {
     ENV_PAR_LANGUAGE,
 };
 
-static void init_create_env_par_win_com_ele(MYUSER_WINDOW_T* win);
-static void init_create_env_par_win_edit_ele(MYUSER_WINDOW_T* win);
+/**
+  * @brief  环境变量窗口结构定义
+  */
 static MYUSER_WINDOW_T env_par_window=
 {
     {"环境参数","Env.Par"},
-    env_par_edit_win_cb,update_menu_key_inf,
+    env_par_edit_win_cb,NULL,
     {0},
     {
         env_par_ele_pool,ARRAY_SIZE(env_par_ele_pool),
@@ -194,81 +164,182 @@ static MYUSER_WINDOW_T env_par_window=
     },
 };
 
-static void menu_key_ok(int hWin)
+/* Private functions ---------------------------------------------------------*/
+
+/**
+  * @brief  设置系统语言为中文
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void set_env_language_chinese(WM_HMEM hWin)
 {
+    DROPDOWN_SetSel(g_cur_edit_ele->dis.edit.handle, CHINESE);
     upload_par_to_ram(g_cur_edit_ele);//数据更新到内存
-    save_sys_par();//保存系统参数
-    unregister_system_key_fun(sys_key_pool, ARRAY_SIZE(sys_key_pool));
-    back_win(hWin);//关闭对话框
+    update_all_windows_text();
+    init_dialog(g_cur_win);//为了更新对话框名字
 }
 
-// static void menu_key_cancle(int hWin)
-// {
-//     back_win(hWin);//关闭对话框
-// }
+/**
+  * @brief  设置系统语言为英文
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void set_env_language_english(WM_HMEM hWin)
+{
+    DROPDOWN_SetSel(g_cur_edit_ele->dis.edit.handle, ENGLISH);
+    upload_par_to_ram(g_cur_edit_ele);//数据更新到内存
+    update_all_windows_text();
+    init_dialog(g_cur_win);//为了更新对话框名字
+}
 
-// static void menu_key_backspace(int p)
-// {
-// 	GUI_SendKeyMsg(GUI_KEY_BACKSPACE, 1);
-// }
-
-
-static void direct_key_up_cb(KEY_MESSAGE *key_msg)
+/**
+  * @brief  编辑语言时功能键F1的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_language_f1_cb(KEY_MESSAGE *key_msg)
+{
+    set_env_language_chinese(key_msg->user_data);
+}
+/**
+  * @brief  编辑语言时功能键F2的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_language_f2_cb(KEY_MESSAGE *key_msg)
+{
+    set_env_language_english(key_msg->user_data);
+}
+/**
+  * @brief  编辑语言时功能键F3的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_language_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  编辑语言时功能键F4的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_language_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  编辑语言时功能键F5的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_language_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  编辑语言时功能键F6的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_language_f6_cb(KEY_MESSAGE *key_msg)
+{
+    menu_key_ok(key_msg->user_data);
+}
+/**
+  * @brief  向上键功能键的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void env_par_direct_key_up_cb(KEY_MESSAGE *key_msg)
 {
     dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
     if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.prev)
     {
-        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, WIDGET_ELEMENT, e_list);
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, EDIT_ELE_T, e_list);
     }
     select_edit_ele(g_cur_edit_ele);
 }
-
-static void direct_key_down_cb(KEY_MESSAGE *key_msg)
+/**
+  * @brief  向下键功能键的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void env_par_direct_key_down_cb(KEY_MESSAGE *key_msg)
 {
     dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
     if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.next)
     {
-        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, WIDGET_ELEMENT, e_list);
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, EDIT_ELE_T, e_list);
     }
     select_edit_ele(g_cur_edit_ele);
 }
-
-static void direct_key_left_cb(KEY_MESSAGE *key_msg)
+/**
+  * @brief  向左键功能键的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void env_par_direct_key_left_cb(KEY_MESSAGE *key_msg)
 {
 	GUI_SendKeyMsg(GUI_KEY_LEFT, 1);
 }
-
-static void direct_key_right_cb(KEY_MESSAGE *key_msg)
+/**
+  * @brief  向右键功能键的回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void env_par_direct_key_right_cb(KEY_MESSAGE *key_msg)
 {
 	GUI_SendKeyMsg(GUI_KEY_RIGHT, 1);
 }
 
+/**
+  * @brief  注册编辑语言时功能键
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void reg_env_language_sys_key(WM_HMEM hWin)
+{
+    register_system_key_fun(env_par_sys_key_pool, ARRAY_SIZE(env_par_sys_key_pool), hWin);
+}
+/**
+  * @brief  注册编辑语言时菜单键
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void env_language_menu_key(WM_HMEM hWin)
+{
+    MENU_KEY_INFO_T * info = env_par_language_menu_key_inf;
+    uint32_t size = ARRAY_SIZE(env_par_language_menu_key_inf);
+    int32_t data = g_cur_edit_ele->dis.edit.handle;
+    
+	init_menu_key_info(info, size, data);
+}
+/**
+  * @brief  按下确认键后调用这个函数进行保存数据并返回上级窗口
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void menu_key_ok(WM_HMEM hWin)
+{
+    upload_par_to_ram(g_cur_edit_ele);//数据更新到内存
+    save_sys_par();//保存系统参数
+    unregister_system_key_fun(env_par_sys_key_pool, ARRAY_SIZE(env_par_sys_key_pool));
+    back_win(hWin);//关闭对话框
+}
 
+/**
+  * @brief  设置环境变量参数的编辑对象数据
+  * @param  [in] par 系统参数
+  * @retval 无
+  */
 static void set_env_par_window_ele_data(SYS_PAR *par)
 {
     set_edit_ele_data(&env_par_ele_pool[ENV_PAR_LANGUAGE], &par->language);
 }
 
 /**
-  * @brief  根据屏幕尺寸初始化界面的编辑对象位置尺寸信息
-  * @param  无
+  * @brief  初始化并创建编辑对象
+  * @param  [in] win 窗口结构数据
   * @retval 无
   */
-//static void init_env_par_ui_edit_ele_pos_inf(void)
-//{
-//    switch(sys_par.screem_size)
-//    {
-//    case SCREEN_4_3INCH:
-//        break;
-//    case SCREEN_6_5INCH:
-//        break;
-//    default:
-//    case SCREEN_7INCH:
-//        _7_init_env_par_win_edit_ele_pos(env_par_ele_pool);
-//        break;
-//    }
-//}
-
 static void init_create_env_par_win_edit_ele(MYUSER_WINDOW_T* win)
 {
     set_env_par_window_ele_data(&sys_par);//初始化编辑对象的参数
@@ -280,6 +351,11 @@ static void init_create_env_par_win_edit_ele(MYUSER_WINDOW_T* win)
     init_window_edit_ele(win);//初始化创建编辑对象
 }
 
+/**
+  * @brief  初始化并创建公共文本对象
+  * @param  [in] win 窗口结构数据
+  * @retval 无
+  */
 static void init_create_env_par_win_com_ele(MYUSER_WINDOW_T* win)
 {
     init_window_com_ele_list(win);//初始化窗口文本对象链表
@@ -330,8 +406,10 @@ static void env_par_edit_win_cb(WM_MESSAGE * pMsg)
             WM_DefaultProc(pMsg);
     }
 }
+/* Public functions ---------------------------------------------------------*/
+
 /**
-  * @brief  创建对话框用来保存文件
+  * @brief  创建对话框用来编辑环境变量
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
@@ -340,9 +418,5 @@ void create_env_par_dialog(int hWin)
     init_window_size(&env_par_window, env_par_win_pos_size_pool[sys_par.screem_size]);
     create_user_dialog(&env_par_window, &windows_list, hWin);//创建主界面
 }
-
-
-
-
 
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

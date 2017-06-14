@@ -22,10 +22,11 @@
 #include "tools.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "keyboard.h"
 
 #define SELETED_COLOR	GUI_LIGHTBLUE
 
-static void create_win_edit_ele(WIDGET_ELEMENT *ele, WM_HWIN hParent);
+static void create_win_edit_ele(EDIT_ELE_T *ele, WM_HWIN hParent);
 
 /**
   * @brief  获取编辑对象在控件池中的索引值
@@ -35,7 +36,7 @@ static void create_win_edit_ele(WIDGET_ELEMENT *ele, WM_HWIN hParent);
   * @param  [out] err 成功返回 CS_ERR_NONE, 失败返回 CS_ERR_ELE_INDEX_INVALID
   * @retval CS_INDEX 控件 在控件池中对应的数组下标索引值
   */
-CS_INDEX get_edit_ele_index(WIDGET_ELEMENT *edit_pool, uint32_t pool_size, CS_INDEX index, CS_ERR*err)
+CS_INDEX get_edit_ele_index(EDIT_ELE_T *edit_pool, uint32_t pool_size, CS_INDEX index, CS_ERR*err)
 {
     int32_t i = 0;
     
@@ -61,7 +62,7 @@ CS_INDEX get_edit_ele_index(WIDGET_ELEMENT *edit_pool, uint32_t pool_size, CS_IN
   */
 void init_window_edit_ele_list(MYUSER_WINDOW_T *win)
 {
-    WIDGET_ELEMENT  *edit_pool;
+    EDIT_ELE_T  *edit_pool;
     uint32_t pool_size = 0;
     CS_INDEX *index_pool;
     uint32_t index_size = 0;
@@ -77,6 +78,8 @@ void init_window_edit_ele_list(MYUSER_WINDOW_T *win)
     
     index_pool = win->edit.index_pool;
     index_size = win->edit.index_size;
+    
+    list_init(list_head);
     
     /* 匹配所有的编辑对象并将其添加到编号对象链表中 */
     for(i = 0; i < index_size; i++)
@@ -98,14 +101,14 @@ void init_window_edit_ele_list(MYUSER_WINDOW_T *win)
   */
 void init_window_edit_ele(MYUSER_WINDOW_T* win)
 {
-    WIDGET_ELEMENT *node;
+    EDIT_ELE_T *node;
 	CS_LIST *t_index = NULL;
 	CS_LIST *t_list = &win->edit.list_head;//链表
     
     /* 初始化并创建编辑对象链表中的所有对象 */
 	list_for_each(t_index, t_list)
 	{
-		node = list_entry(t_index, WIDGET_ELEMENT, e_list);
+		node = list_entry(t_index, EDIT_ELE_T, e_list);
         create_win_edit_ele(node, win->handle);
 	}
 }
@@ -115,27 +118,100 @@ void init_window_edit_ele(MYUSER_WINDOW_T* win)
   * @param  [in] data 数据指针
   * @retval 无
   */
-void set_edit_ele_data(WIDGET_ELEMENT *ele, void *data)
+void set_edit_ele_data(EDIT_ELE_T *ele, void *data)
 {
     ele->data.data = data;
 }
 
-uint32_t get_edit_num_value(WIDGET_ELEMENT* ele)
+uint32_t get_edit_ele_value(EDIT_ELE_T* ele, uint8_t *buf)
 {
     WM_HMEM handle = ele->dis.edit.handle;
     uint32_t max_len = ele->dis.edit.max_len + 1;
-    uint8_t buf[20] = {0};
     uint32_t value = 0;
     uint8_t decs = ele->format.decs;
+    uint32_t index = 0;
+    uint8_t t_buf[20] = {0};
     
-    EDIT_GetText(handle, (char*)buf, max_len);
-    
-    value = atof((const char*)buf) * ten_power(decs);
+    switch(ele->type.type)
+    {
+        case ELE_TEXT:
+            break;
+        case ELE_EDIT_NUM:
+            EDIT_GetText(handle, (char*)t_buf, max_len);
+            value = atof((const char*)t_buf) * ten_power(decs);
+            if(buf == NULL)
+            {
+                break;
+            }
+            EDIT_GetText(handle, (char*)buf, max_len);
+            break;
+        case ELE_EDIT_STR:
+            EDIT_GetText(handle, (char*)buf, max_len);
+            
+            break;
+        case ELE_DROPDOWN:
+            DROPDOWN_GetUserData(handle, &value, ele->data.bytes);
+            if(buf == NULL)
+            {
+                break;
+            }
+			index = DROPDOWN_GetSel(handle);
+            DROPDOWN_GetItemText(handle, index, (char*)buf, max_len);
+            break;
+    }
     
     return value;
 }
 
-void set_edit_num_value(WIDGET_ELEMENT* ele, uint32_t value)
+void set_edit_ele_value(EDIT_ELE_T* ele, uint32_t value, uint8_t *buf)
+{
+    WM_HMEM handle = ele->dis.edit.handle;
+    uint8_t decs = ele->format.decs;
+    uint8_t lon = ele->format.lon;
+    uint8_t t_buf[20] = {0};
+    
+    switch(ele->type.type)
+    {
+        case ELE_TEXT:
+            break;
+        case ELE_EDIT_NUM:
+            mysprintf(t_buf, NULL, decs + lon * 10 + 1 * 100, value);
+            EDIT_SetText(handle, (const void*)t_buf);
+            break;
+        case ELE_EDIT_STR:
+            EDIT_SetText(handle, (const void*)buf);
+            break;
+        case ELE_DROPDOWN:
+            DROPDOWN_SetUserData(handle, &value, ele->data.bytes);
+            break;
+    }
+}
+void update_unit_dis(EDIT_ELE_T* ele)
+{
+	const char * pText;//文本
+	WM_HWIN    handle;//句柄
+	int align;/* 对齐方式 */
+	const GUI_FONT * font;// 字体
+	GUI_COLOR	font_color;// 字体颜色
+	GUI_COLOR	back_color;// 背景颜色
+    uint8_t unit = 0;
+	
+	handle = ele->dis.unit.handle;
+	align = ele->dis.unit.align;
+	font = ele->dis.unit.font;
+	back_color = ele->dis.unit.back_color;
+	font_color = ele->dis.unit.font_color;
+	
+    unit = ele->format.unit;
+    pText = (const char *)unit_pool[unit];
+    
+	TEXT_SetTextAlign(handle, align);
+	TEXT_SetFont(handle, font);
+	TEXT_SetBkColor(handle, back_color);
+	TEXT_SetTextColor(handle, font_color);
+	TEXT_SetText(handle, pText);
+}
+void set_edit_num_value(EDIT_ELE_T* ele, uint32_t value)
 {
     WM_HMEM handle = ele->dis.edit.handle;
     uint8_t buf[20] = {0};
@@ -144,15 +220,18 @@ void set_edit_num_value(WIDGET_ELEMENT* ele, uint32_t value)
     
     mysprintf(buf, NULL, decs + lon * 10 + 1 * 100, value);
     EDIT_SetText(handle, (const void*)buf);
+    update_unit_dis(ele);
 }
 
-void default_check_value_validity(WIDGET_ELEMENT* ele, uint32_t *value)
+void default_check_value_validity(EDIT_ELE_T* ele, uint32_t *value)
 {
-    if(*value > ele->range.high)
+    uint32_t val = *value;
+    
+    if(val > ele->range.high)
     {
         *value = ele->range.high;
     }
-    else if(*value < ele->range.low)
+    else if(val < ele->range.low)
     {
         *value = ele->range.low;
     }
@@ -163,7 +242,7 @@ void default_check_value_validity(WIDGET_ELEMENT* ele, uint32_t *value)
   * @param  [in] ele 编辑对象
   * @retval 无
   */
-void upload_par_to_ram(WIDGET_ELEMENT* ele)
+void upload_par_to_ram(EDIT_ELE_T* ele)
 {
 	void *data = ele->data.data;
     uint32_t size = ele->data.bytes;
@@ -187,7 +266,7 @@ void upload_par_to_ram(WIDGET_ELEMENT* ele)
         }
         case ELE_EDIT_NUM:
         {
-            value = get_edit_num_value(ele);
+            value = get_edit_ele_value(ele, NULL);
             
             if(ele->range.check_value_validity != NULL)
             {
@@ -220,6 +299,13 @@ void upload_par_to_ram(WIDGET_ELEMENT* ele)
         {
 			value = DROPDOWN_GetSel(handle);
             DROPDOWN_GetUserData(handle, &value, size);
+            
+            /* 对数据进行检查 */
+            if(ele->range.check_value_validity != NULL)
+            {
+                ele->range.check_value_validity(ele, &value);
+            }
+            
             memcpy(data, (const void*)&value, size);
             break;
         }
@@ -235,7 +321,7 @@ void upload_par_to_ram(WIDGET_ELEMENT* ele)
   * @param  [out] valut 输出编辑对象的数据
   * @retval 无
   */
-void load_par_to_buf(WIDGET_ELEMENT* ele, void *value)
+void load_par_to_buf(EDIT_ELE_T* ele, void *value)
 {
 	void *data = ele->data.data;
     uint32_t size = ele->data.bytes;
@@ -257,8 +343,14 @@ void load_par_to_buf(WIDGET_ELEMENT* ele, void *value)
 	
 	memcpy(value, (const void*)data, size);
 }
-
-CS_INDEX get_data_in_resource_table_index(WIDGET_ELEMENT *ele, uint8_t bytes, int32_t *data)
+/**
+  * @brief  获取数据在编辑对象资源表数组中的索引
+  * @param  [in] ele 编辑对象的信息数组
+  * @param  [in] bytes 资源表数组元素的size
+  * @param  [in] data 要匹配的数据
+  * @retval 索引值
+  */
+CS_INDEX get_data_in_resource_table_index(EDIT_ELE_T *ele, uint8_t bytes, int32_t *data)
 {
     int32_t i = 0;
     uint8_t *p8 = NULL;
@@ -329,7 +421,7 @@ CS_INDEX get_data_in_resource_table_index(WIDGET_ELEMENT *ele, uint8_t bytes, in
   * @param  [in] hParent 父窗口句柄
   * @retval 无
   */
-void create_one_edit_ele(WIDGET_ELEMENT *ele, WM_HWIN hParent)
+void create_one_edit_ele(EDIT_ELE_T *ele, WM_HWIN hParent)
 {
     int32_t i = 0;
 	WM_HWIN hwidget = 0;
@@ -432,7 +524,7 @@ void create_one_edit_ele(WIDGET_ELEMENT *ele, WM_HWIN hParent)
   * @param  [in] hParent 父窗口句柄
   * @retval 无
   */
-void create_one_name_ele(WIDGET_ELEMENT *ele, WM_HWIN hParent)
+void create_one_name_ele(EDIT_ELE_T *ele, WM_HWIN hParent)
 {
 	WM_HWIN hwidget;
 	
@@ -453,7 +545,7 @@ void create_one_name_ele(WIDGET_ELEMENT *ele, WM_HWIN hParent)
   * @param  [in] hParent 父窗口句柄
   * @retval 无
   */
-void create_one_unit_ele(WIDGET_ELEMENT *ele, WM_HWIN hParent)
+void create_one_unit_ele(EDIT_ELE_T *ele, WM_HWIN hParent)
 {
 	WM_HWIN hwidget;
 	
@@ -475,7 +567,7 @@ void create_one_unit_ele(WIDGET_ELEMENT *ele, WM_HWIN hParent)
   * @param  [in] hParent 父窗口句柄
   * @retval 无
   */
-void create_win_edit_ele(WIDGET_ELEMENT *ele, WM_HWIN hParent)
+void create_win_edit_ele(EDIT_ELE_T *ele, WM_HWIN hParent)
 {
     create_one_name_ele(ele, hParent);//创建名称对象
     create_one_edit_ele(ele, hParent);//创建编辑对象
@@ -506,7 +598,7 @@ TEXT_ELE_T *get_cur_win_text_ele_list_head(void)
   * @param  无
   * @retval 无
   */
-WIDGET_ELEMENT *get_cur_win_edit_ele_list_head(void)
+EDIT_ELE_T *get_cur_win_edit_ele_list_head(void)
 {
     if(g_cur_win == NULL)
     {
@@ -518,10 +610,10 @@ WIDGET_ELEMENT *get_cur_win_edit_ele_list_head(void)
         return NULL;
     }
     
-    return list_entry(g_cur_win->edit.list_head.next, WIDGET_ELEMENT, e_list);
+    return list_entry(g_cur_win->edit.list_head.next, EDIT_ELE_T, e_list);
 }
 
-void update_ele_range_text(WIDGET_ELEMENT *ele)
+void update_ele_range_text(EDIT_ELE_T *ele)
 {
     uint8_t*str[2] = {0};//ele->range.notice[SYS_LANGUAGE];
     uint8_t buf[100] = {0};
@@ -566,7 +658,7 @@ void update_ele_range_text(WIDGET_ELEMENT *ele)
   * @param  [in] color 要设置的背景色
   * @retval 无
   */
-static void change_edit_ele_edit_bkcolor(WIDGET_ELEMENT *ele, GUI_COLOR color)
+static void change_edit_ele_edit_bkcolor(EDIT_ELE_T *ele, GUI_COLOR color)
 {
     switch(ele->type.type)
     {
@@ -588,7 +680,7 @@ static void change_edit_ele_edit_bkcolor(WIDGET_ELEMENT *ele, GUI_COLOR color)
   * @param  [in] color 要设置的背景色
   * @retval 无
   */
-static void change_edit_ele_name_bkcolor(WIDGET_ELEMENT *ele, GUI_COLOR color)
+static void change_edit_ele_name_bkcolor(EDIT_ELE_T *ele, GUI_COLOR color)
 {
 	TEXT_SetBkColor(ele->dis.name.handle, color);
 }
@@ -598,7 +690,7 @@ static void change_edit_ele_name_bkcolor(WIDGET_ELEMENT *ele, GUI_COLOR color)
   * @param  [in] color 要设置的背景色
   * @retval 无
   */
-static void change_edit_ele_unit_bkcolor(WIDGET_ELEMENT *ele, GUI_COLOR color)
+static void change_edit_ele_unit_bkcolor(EDIT_ELE_T *ele, GUI_COLOR color)
 {
 	TEXT_SetBkColor(ele->dis.unit.handle, color);
 }
@@ -608,7 +700,7 @@ static void change_edit_ele_unit_bkcolor(WIDGET_ELEMENT *ele, GUI_COLOR color)
   * @param  [in] ele 编辑对象信息
   * @retval 无
   */
-void select_edit_ele(WIDGET_ELEMENT *ele)
+void select_edit_ele(EDIT_ELE_T *ele)
 {
     if(ele == NULL)
     {
@@ -640,7 +732,7 @@ void select_edit_ele(WIDGET_ELEMENT *ele)
   * @param  [in] flag LOAD_TO_RAM表示将数据上载到内存，UNLOAD_TO_RAM表示不上载数据，多设置为LOAD_TO_RAM，在设置密码时用到UNLOAD_TO_RAM
   * @retval 无
   */
-void dis_select_edit_ele(WIDGET_ELEMENT *ele, LOAD_DATA_FLAG flag)
+void dis_select_edit_ele(EDIT_ELE_T *ele, LOAD_DATA_FLAG flag)
 {
     change_edit_ele_name_bkcolor(ele, ele->dis.name.back_color);
     change_edit_ele_edit_bkcolor(ele, ele->dis.edit.back_color);
@@ -716,14 +808,16 @@ void del_a_char_from_edit_str(uint8_t cur)
     uint8_t len;
     uint8_t buf[10];
     
+    if(cur == 0)
+    {
+        return;
+    }
+    
     str = g_cur_edit_ele->data.data;
     len = strlen((const char*)str);
-    strncpy((char*)buf, (const char*)str, sizeof((const char*)buf) - 1);
+    strncpy((char*)buf, (const char*)str, sizeof(buf) - 1);
     
-    if(cur > 0)
-    {
-        str[cur - 1] = 0;
-    }
+    str[cur - 1] = 0;
     
     if(len > cur)
     {
@@ -749,7 +843,7 @@ void add_a_char_into_edit_str(uint8_t ch, uint8_t cur, uint8_t max_len)
         return;
     }
     
-    strncpy((char*)buf, (const char*)str, sizeof((const char*)buf) - 1);
+    strncpy((char*)buf, (const char*)str, sizeof(buf) - 1);
     
     str[cur] = ch;
     str[cur + 1] = 0;
@@ -759,4 +853,54 @@ void add_a_char_into_edit_str(uint8_t ch, uint8_t cur, uint8_t max_len)
         strncat((char*)str, (const char*)&buf[cur], len - cur);
     }
 }
+/**
+  * @brief  初始化菜单键定制信息
+  * @param  [in] cus_inf 菜单定制信息数组
+  * @param  [in] cus_size 菜单定制信息数组元素个数
+  * @param  [in] cus_inf 编辑控件信息
+  * @param  [in] inf 菜单按键信息数组
+  * @param  [in] size 菜单按键信息数组元素个数
+  * @retval 无
+  */
+void init_menu_key_custom_inf(CUSTOM_MENU_KEY_INF *cus_inf,
+                            uint16_t cus_size,
+                            EDIT_ELE_T *edit,
+                            MENU_KEY_INFO_T * inf,
+                            uint16_t size)
+{
+    uint8_t ** table = edit->resource.table;
+    uint16_t num = edit->resource.size;
+    int32_t i = 0;
+    int32_t j = 0;
+    
+    for(i = 0; i < num && i < size; i++)
+    {
+        if(inf[i].index == F_KEY_CUSTOM)
+        {
+            inf[i].name = table[i];
+            
+            /* 匹配定制信息 */
+            for(j = 0; j < cus_size; j++)
+            {
+                /* 如果资源表中的内容与定制信息中的名称一致就初始化数据并退出循环 */
+                if(0 == strncmp((const char*)table[i], (const char*)cus_inf[j].name, 20))
+                {
+                    inf[i].fun_key.key_up_dispose_fun = cus_inf[j].fun;
+                    inf[i].fun_key.msg.custom_data = cus_inf[j].data;
+                    
+                    break;
+                }
+            }
+        }
+    }
+    
+    for(; i < size; i++)
+    {
+        if(inf[i].index == F_KEY_CUSTOM)
+        {
+            inf[i].name = "";
+        }
+    }
+}
+
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/
