@@ -47,9 +47,10 @@ WIDGET_POS_SIZE_T _7_step_edit_windows=
 EDIT_ELE_AUTO_LAYOUT_T  _7_step_par_edit_ele_auto_layout_inf=
 {
     10/*base_x*/,50/*base_y*/,
-    120/*name_w*/,150/*edit_w*/,25/*uint_w*/,30/*height*/,
-    8/*rows*/,2/*column*/,45/*row_spacing*/,320/*column_spacing*/,
-    FONT, GUI_BLACK, GUI_INVALID_COLOR, GUI_TA_CENTER | GUI_TA_VCENTER,20/*max_len*/
+    140/*name_w*/,150/*edit_w*/,35/*uint_w*/,30/*height*/,
+    8/*rows*/,2/*column*/,45/*row_spacing*/,340/*column_spacing*/,
+    FONT, GUI_BLACK, GUI_INVALID_COLOR,
+    GUI_TA_RIGHT | GUI_TA_VCENTER, GUI_TA_CENTER | GUI_TA_VCENTER, GUI_TA_LEFT | GUI_TA_VCENTER,
 };
 
 

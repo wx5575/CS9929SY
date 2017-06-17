@@ -39,7 +39,9 @@ EDIT_ELE_AUTO_LAYOUT_T _7_pwd_edit_ele_auto_layout_inf=
     10/*base_x*/,50/*base_y*/,
     120/*name_w*/,140/*edit_w*/,10/*uint_w*/,30/*height*/,
     3/*rows*/,1/*column*/,50/*row_spacing*/,0/*column_spacing*/,
-    FONT, GUI_BLACK, GUI_INVALID_COLOR, GUI_TA_CENTER | GUI_TA_VCENTER,20
+    FONT, GUI_BLACK, GUI_INVALID_COLOR,
+    GUI_TA_RIGHT | GUI_TA_VCENTER, GUI_TA_CENTER | GUI_TA_VCENTER, GUI_TA_LEFT | GUI_TA_VCENTER,
+    20
 };
 
 #define PWD_BASE_T_X      280

@@ -86,14 +86,14 @@ GEAR_STR ir_gear[]=
   */
 TEST_FILE default_file = 
 {
-	0,
-	"DEFAULT",/* name */
-	N_MODE,	
-	0,
-	10,
-	0,
-	1,
-    0,
+	0,///<文件编号
+	"DEFAULT",///<文件名
+	N_MODE,	///<工作模式 N模式 G模式
+	0,///< 总测试步
+	10,///<蜂鸣时间
+	0,///<PASS时间
+	ARC_CUR_MODE,///<电弧侦测模式
+    0,///<存放日期时间 xxxx.xx.xx xx:xx:xx
 };
 
 /**
@@ -181,6 +181,10 @@ CS_ERR check_file_data(TEST_FILE*file)
     {
         err = CS_ERR_DATE_STR_TOO_LONG;
     }
+    else if(file->arc_mode != ARC_CUR_MODE && file->arc_mode != ARC_GRADE_MODE)
+    {
+        err = CS_ERR_DATA_OUT_OF_RANGE;
+    }
     
     return err;
 }
@@ -192,7 +196,7 @@ CS_ERR check_file_data(TEST_FILE*file)
   */
 void init_file_data(TEST_FILE *file, FILE_NUM file_num)
 {
-    TEST_FILE f={0,"DEFAULT", N_MODE, 0, 0,0,"2017-5-10 17:59:59"};
+    TEST_FILE f = {0,"DEFAULT", N_MODE, 0, 0, 0,ARC_CUR_MODE,"2017-5-10 17:59:59"};
     
     f.num = file_num;
     
@@ -433,11 +437,11 @@ void init_acw_step(NODE_STEP * p)
 	
 	l_acw.step = p->one_step.com.step;
 	l_acw.mode = ACW;
-	l_acw.testing_voltage = ACW_VOL_L;
+	l_acw.output_vol = ACW_VOL_L;
 	l_acw.range = l_flag[0];
 	l_acw.upper_limit = 500;
 	l_acw.lower_limit = 0;
-	l_acw.ac_real_cur = 0;
+	l_acw.real_cur = 0;
 	l_acw.arc_sur = 0;
     
 	if(type_spe.hz_type == HZ_TYPE_GRADE)
@@ -451,11 +455,11 @@ void init_acw_step(NODE_STEP * p)
 	}
 	
 	l_acw.rise_time = type_spe.rise_time_min_value;
-	l_acw.testing_time = 30;
+	l_acw.test_time = 30;
 	l_acw.fall_time = 0;
-	l_acw.interval_time = 0;
-	l_acw.steps_pass = 1;
-	l_acw.steps_cont = 0;
+	l_acw.inter_time = 0;
+	l_acw.step_pass = 1;
+	l_acw.step_con = 0;
 	
 	l_acw.offset_cur = 0;
 	l_acw.offset_real = 0;
@@ -463,8 +467,8 @@ void init_acw_step(NODE_STEP * p)
     
 	if(g_cur_file->work_mode == G_MODE)
 	{
-		l_acw.steps_pass = 0;
-		l_acw.steps_cont = 1;
+		l_acw.step_pass = 0;
+		l_acw.step_con = 1;
 	}
     
     l_acw.port.num = type_spe.port_num;
@@ -488,11 +492,11 @@ void init_cc_step(NODE_STEP * p)
 	
 	l_cc.step = p->one_step.com.step;
 	l_cc.mode = CC;
-	l_cc.testing_voltage = CC_VOL_L;
+	l_cc.output_vol = CC_VOL_L;
 	l_cc.range = l_flag[0];
 	l_cc.upper_limit = 500;//ac_gear[get_cc_max_gear()].high_max;//;
 	l_cc.lower_limit = 50;
-	l_cc.ac_real_cur = 0;
+	l_cc.real_cur = 0;
 	l_cc.cur_intensity = 0;
     
 	if(type_spe.hz_type == HZ_TYPE_GRADE)
@@ -505,11 +509,11 @@ void init_cc_step(NODE_STEP * p)
 	}
 	
 	l_cc.rise_time = 0;
-	l_cc.testing_time = 1;
+	l_cc.test_time = 1;
 	l_cc.fall_time = 0;
-	l_cc.interval_time = 0;
-	l_cc.steps_pass = 1;
-	l_cc.steps_cont = 0;
+	l_cc.inter_time = 0;
+	l_cc.step_pass = 1;
+	l_cc.step_con = 0;
 	
 	l_cc.offset_cur = 0;
 	l_cc.offset_real = 0;
@@ -517,8 +521,8 @@ void init_cc_step(NODE_STEP * p)
     
 	if(g_cur_file->work_mode == G_MODE)
 	{
-		l_cc.steps_pass = 0;
-		l_cc.steps_cont = 1;
+		l_cc.step_pass = 0;
+		l_cc.step_con = 1;
 	}
     
     l_cc.port.num = type_spe.port_num;
@@ -542,7 +546,7 @@ void init_dcw_step(NODE_STEP * p)
 	
 	l_dcw.step = p->one_step.com.step;
 	l_dcw.mode = DCW;
-	l_dcw.testing_voltage = DCW_VOL_L;
+	l_dcw.output_vol = DCW_VOL_L;
 	l_dcw.range = l_flag[l_kinds-1];
 	l_dcw.upper_limit = 500;
 	l_dcw.lower_limit = 0;
@@ -551,19 +555,19 @@ void init_dcw_step(NODE_STEP * p)
 	l_dcw.delay_time = 0;
 	l_dcw.rise_time = 0;
 	l_dcw.stab_time = 0;
-	l_dcw.testing_time = 30;
+	l_dcw.test_time = 30;
 	l_dcw.fall_time = 0;
-	l_dcw.interval_time = 0;
-	l_dcw.steps_pass = 1;
-	l_dcw.steps_cont = 0;
+	l_dcw.inter_time = 0;
+	l_dcw.step_pass = 1;
+	l_dcw.step_con = 0;
 	
 	l_dcw.offset_cur = 0;
 	l_dcw.offset_result = 0;
 	
 	if(g_cur_file->work_mode == G_MODE)
 	{
-		l_dcw.steps_pass = 0;
-		l_dcw.steps_cont = 1;
+		l_dcw.step_pass = 0;
+		l_dcw.step_con = 1;
 	}
     
     l_dcw.port.num = type_spe.port_num;
@@ -582,16 +586,16 @@ void init_ir_step(NODE_STEP * p)
 	
 	l_ir.step = p->one_step.com.step;
 	l_ir.mode = IR;
-	l_ir.testing_voltage = IR_VOL_L;
-	l_ir.auto_shift_gears = 1;
+	l_ir.output_vol = IR_VOL_L;
+	l_ir.auto_shift = 1;
 	l_ir.upper_limit = 0;
 	l_ir.lower_limit = IR_RES_L;
 	l_ir.rise_time = 0;
-	l_ir.testing_time = 30;
+	l_ir.test_time = 30;
 	l_ir.delay_time = 0;
-	l_ir.interval_time = 0;
-	l_ir.steps_pass = 1;
-	l_ir.steps_cont = 0;
+	l_ir.inter_time = 0;
+	l_ir.step_pass = 1;
+	l_ir.step_con = 0;
 	
     l_ir.port.num = type_spe.port_num;
 	p->one_step.ir = l_ir;
@@ -614,13 +618,13 @@ void init_gr_step(NODE_STEP * p)
 	l_gr.step = p->one_step.com.step;
 	l_gr.mode = GR;
 	l_gr.voltage_gear = l_flag[0];
-	l_gr.testing_cur = GR_CUR_L;
+	l_gr.output_cur = GR_CUR_L;
 	l_gr.upper_limit = 1000;
 	l_gr.lower_limit = 0;
-	l_gr.testing_time = 30;
-	l_gr.interval_time = 0;
-	l_gr.steps_pass = 1;
-	l_gr.steps_cont = 0;
+	l_gr.test_time = 30;
+	l_gr.inter_time = 0;
+	l_gr.step_pass = 1;
+	l_gr.step_con = 0;
     
 	if(type_spe.gr_hz_type == HZ_TYPE_GRADE)
 	{
@@ -652,14 +656,14 @@ void init_bbd_step(NODE_STEP * p)
 	
 	l_bbd.step = p->one_step.com.step;
 	l_bbd.mode = BBD;
-	l_bbd.testing_voltage = 100;
+	l_bbd.output_vol = 100;
 	l_bbd.open_ratio = 50;
 	l_bbd.short_ratio = 120;
 	l_bbd.cap_value = 0;
-	l_bbd.testing_time = 30;
-	l_bbd.interval_time = 0;
-	l_bbd.steps_pass = 1;
-	l_bbd.steps_cont = 0;
+	l_bbd.test_time = 30;
+	l_bbd.inter_time = 0;
+	l_bbd.step_pass = 1;
+	l_bbd.step_con = 0;
 	l_bbd.output_freq = 0;
     
 	if(type_spe.hz_type == HZ_TYPE_GRADE)
@@ -1006,6 +1010,123 @@ void load_steps_to_list(const int16_t step, uint8_t step_num)
             test_step_buf.test_steps[i].one_step.com.step = step + i;
         }
     }
+}
+
+/**
+  * @brief  将test_port结构数据转换为字符串
+  * @param  [in] port 测试端口结构数据
+  * @param  [out] buf 字符串缓冲区
+  * @retval 无
+  */
+void transform_test_port_to_str(TEST_PORT *port, uint8_t *buf)
+{
+    int32_t i = 0;
+    uint16_t *p = NULL;
+    uint8_t temp = 0;
+    uint8_t *str[3] = {"X","L","H"};
+    
+    p = (void*)port->ports;
+    buf[0] = 0;
+    
+    for(i = 0; i < port->num; i++)
+    {
+        temp = ((p[i / 8] >> (2 * (i % 8))) & 3) % 3;
+        
+        strcat((char*)buf, (const char*)str[temp]);
+    }
+}
+/**
+  * @brief  将字符串转换为test_port结构数据
+  * @param  [out] port 测试端口结构数据
+  * @param  [in] buf 字符串缓冲区
+  * @retval 无
+  */
+void transform_str_to_test_port(TEST_PORT *port, uint8_t *buf)
+{
+    int32_t i = 0;
+    uint16_t *p = NULL;
+    uint8_t temp = 0;
+    
+    p = (void*)port->ports;
+    memset(port->ports, 0, sizeof(port->ports));
+    
+    for(i = 0; i < port->num; i++)
+    {
+        switch(buf[i])
+        {
+            case 'X':
+                temp = 0;
+                break;
+            case 'L':
+                temp = 1;
+                break;
+            case 'H':
+                temp = 2;
+                break;
+        }
+        
+        p[i / 8] |= (temp << (2 * (i % 8)));
+    }
+}
+
+/**
+  * @brief  将电弧侦测的电流转换为对应的电弧档位
+  * @param  [out] arc_cur_val 电弧侦测的电流设置值
+  * @retval 电弧档位值
+  */
+uint16_t transform_arc_cur_to_grade(uint16_t arc_cur_val)
+{
+    if(arc_cur_val == 0)
+    {
+        return 0;
+    }
+    if(arc_cur_val <= 280)
+    {
+        return 9;
+    }
+    else if(arc_cur_val <= 550)
+    {
+        return 8;
+    }
+    else if(arc_cur_val <= 770)
+    {
+        return 7;
+    }
+    else if(arc_cur_val <= 1000)
+    {
+        return 6;
+    }
+    else if(arc_cur_val <= 1200)
+    {
+        return 5;
+    }
+    else if(arc_cur_val <= 1400)
+    {
+        return 4;
+    }
+    else if(arc_cur_val <= 1600)
+    {
+        return 3;
+    }
+    else if(arc_cur_val <= 1800)
+    {
+        return 2;
+    }
+    else
+    {
+        return 1;
+    }
+}
+/**
+  * @brief  将电电弧档位转换为对应的弧侦测的电流
+  * @param  [out] gear 电弧侦测的档位设置值
+  * @retval 电弧电流值
+  */
+uint16_t transform_arc_grade_to_cur(uint16_t gear)
+{
+    uint16_t buf[]={0, 280, 550, 770, 1000, 1200, 1400, 1600, 1800, 2000};
+    
+	return buf[gear % 10];
 }
 
 /************************ (C) COPYRIGHT Nanjing Changsheng 2017 *****END OF FILE****/

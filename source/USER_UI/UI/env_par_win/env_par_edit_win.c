@@ -173,7 +173,12 @@ static MYUSER_WINDOW_T env_par_window=
   */
 static void set_env_language_chinese(WM_HMEM hWin)
 {
-    DROPDOWN_SetSel(g_cur_edit_ele->dis.edit.handle, CHINESE);
+    uint8_t size = g_cur_edit_ele->data.bytes;
+    uint32_t value = CHINESE;
+    WM_HMEM handle = g_cur_edit_ele->dis.edit.handle;
+    
+    DROPDOWN_SetSel(handle, value);
+    DROPDOWN_SetUserData(handle, &value, size);
     upload_par_to_ram(g_cur_edit_ele);//数据更新到内存
     update_all_windows_text();
     init_dialog(g_cur_win);//为了更新对话框名字
@@ -186,7 +191,12 @@ static void set_env_language_chinese(WM_HMEM hWin)
   */
 static void set_env_language_english(WM_HMEM hWin)
 {
-    DROPDOWN_SetSel(g_cur_edit_ele->dis.edit.handle, ENGLISH);
+    uint8_t size = g_cur_edit_ele->data.bytes;
+    uint32_t value = ENGLISH;
+    WM_HMEM handle = g_cur_edit_ele->dis.edit.handle;
+    
+    DROPDOWN_SetSel(handle, value);
+    DROPDOWN_SetUserData(handle, &value, size);
     upload_par_to_ram(g_cur_edit_ele);//数据更新到内存
     update_all_windows_text();
     init_dialog(g_cur_win);//为了更新对话框名字

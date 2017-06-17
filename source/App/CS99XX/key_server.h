@@ -19,6 +19,11 @@ extern void set_shift_status(uint8_t st);
 extern uint8_t get_shift_status(void);
 extern void set_key_lock_flag(uint8_t flag);
 extern uint8_t get_key_lock_flag(void);
+extern void set_scan_key_custom_fun(void (*fun)());
+extern void keyboard_fun_str(uint32_t key_value);
+extern void keyboard_fun_num(uint32_t key_value);
+extern void keyboard_fun_pwd(uint32_t key_value);
+extern void keyboard_test_port(uint32_t key);
 
 #endif //__KEY_SERVER_H__
 

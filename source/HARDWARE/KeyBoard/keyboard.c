@@ -277,9 +277,8 @@ static void DetectKey(KEY_STRUCT *p)
                 else
                 {
 					/* 键值放入按键FIFO */
-                    
 					++p->LongCount;
-                    if(p->LongCount % 50 == 0)
+                    if(p->LongCount % 30 == 0)
                     {
                         OSQPost(&KeyboardQSem, &p->KeyCodeLong, sizeof(p->KeyCodeLong),
                                     OS_OPT_POST_FIFO, &err);

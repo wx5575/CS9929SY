@@ -18,6 +18,7 @@ extern const uint8_t *unit_pool[];
 /******************************/
 extern const uint8_t *work_mode_pool[2];
 extern const uint8_t *language_pool[2];
+extern const uint8_t *sw_pool[2][2];
 
 #define ACW_STR     "ACW"
 #define DCW_STR     "DCW"

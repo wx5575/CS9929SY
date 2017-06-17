@@ -579,18 +579,18 @@ static uint32_t init_step_dis_inf(uint8_t buf[5][20], NODE_STEP *node)
     switch(mode)
     {
         case ACW:
-            mysprintf(buf[i++], unit_pool[VOL_U_kV] , 53, un->acw.testing_voltage);
-            mysprintf(buf[i++], unit_pool[TIM_U_s]  , 51, un->acw.testing_time);
+            mysprintf(buf[i++], unit_pool[VOL_U_kV] , 53, un->acw.output_vol);
+            mysprintf(buf[i++], unit_pool[TIM_U_s]  , 51, un->acw.test_time);
             
             break;
         case DCW:
-            mysprintf(buf[i++], unit_pool[VOL_U_kV] , 53, un->dcw.testing_voltage);
-            mysprintf(buf[i++], unit_pool[TIM_U_s]  , 51, un->dcw.testing_time);
+            mysprintf(buf[i++], unit_pool[VOL_U_kV] , 53, un->dcw.output_vol);
+            mysprintf(buf[i++], unit_pool[TIM_U_s]  , 51, un->dcw.test_time);
             
             break;
         case IR:
-            mysprintf(buf[i++], unit_pool[VOL_U_kV] , 53, un->ir.testing_voltage);
-            mysprintf(buf[i++], unit_pool[TIM_U_s]  , 51, un->ir.testing_time);
+            mysprintf(buf[i++], unit_pool[VOL_U_kV] , 53, un->ir.output_vol);
+            mysprintf(buf[i++], unit_pool[TIM_U_s]  , 51, un->ir.test_time);
             
             break;
     }

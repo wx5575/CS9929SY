@@ -262,6 +262,31 @@ void keyboard_num(uint32_t key)
 	GUI_StoreKeyMsg(ASCII_NUM[key_index], 1);
 }
 /**
+  * @brief  专门设置测试端口的按键服务函数
+  * @param  [in] key 键值
+  * @retval 无
+  */
+void keyboard_test_port(uint32_t key)
+{
+	#define ASCII_NUM 	"0123456789."
+	uint8_t key_index = 0xff;
+    uint8_t buf[] = "XLH";
+    
+	key_index = get_key_value_index(key, 1);//包含小数点因此传入1
+    
+    if(key_index == 0xff)
+    {
+        return;
+    }
+    
+    if(key_index > 2)
+    {
+        return;
+    }
+    
+	GUI_StoreKeyMsg(buf[key_index], 1);
+}
+/**
   * @brief  设置按键服务函数
   * @param  [in] fun 按键服务函数
   * @retval 无

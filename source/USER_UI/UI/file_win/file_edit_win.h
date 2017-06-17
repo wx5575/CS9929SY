@@ -15,6 +15,7 @@ typedef enum{
     FSAVE_UI_WMODE,///<工作模式
     FSAVE_UI_BEEPT,///<蜂鸣时间
     FSAVE_UI_PASST,///<PASS时间
+    FSAVE_UI_ARC_MODE,///<电弧侦测
 }FSAVE_UI_ENUM;
 
 

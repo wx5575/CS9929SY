@@ -21,15 +21,17 @@
 #include "fonts.h"
 #include "ui_com/com_ui_base.h"
 #include "tools.h"
+#include "key_server.h"
 
 #pragma  diag_suppress 870 //消除870号编译警告
 
 #define SYS_LANGUAGE		sys_par.language //CHINESE //ENGLISH //
-
+#define SCREEM_SIZE         sys_par.screem_size
 /* 选择字体 如果当前系统字体为空就使用系统字体 不为空就正常使用 */
 #define SEL_FONT(font)      font[SYS_LANGUAGE]==NULL?font[CHINESE]:font[SYS_LANGUAGE]
 #define SELE_STR(S1, S2)	(SYS_LANGUAGE==CHINESE?S1:S2) ///< 根据系统语言选择不同的字符串
-
+/* 选择要使用的字符串，如果对应语言的字符串不存在，就用中文字符串 */
+#define SEL_USER_STR(str)      str[SYS_LANGUAGE]==NULL?str[CHINESE]:str[SYS_LANGUAGE]
 #define WINDOWS_BAK_COLOR	GUI_BLUE	//GUI_GRAY ///< 窗口背景色
 
 /** 
@@ -90,7 +92,46 @@ typedef struct{
     void (*init_create_fun)(MYUSER_WINDOW_T* win);///< 初始化并创建控件对象池中被索引的控件函数
 	CS_LIST list_head;///< 控件链表头
 }ELE_POOL_INF;
-
+/** 
+  * @brief 界面文本对象自动布局结构
+  */
+typedef struct{
+    uint16_t base_x;///<x基坐标
+    uint16_t base_y;///<y基坐标
+    uint16_t width;///<文本控件的宽度
+    uint16_t height;///<文本控件的高度
+    uint8_t rows;///<最大行数
+    uint8_t columns;///<最大列数
+    uint8_t row_spacing;///<行距
+    uint8_t column_spacing;///<列距
+    const GUI_FONT * font[LANGUAGE_NUM];//不同语言可以使用不同的字体
+    GUI_COLOR font_color;///<字体颜色
+    GUI_COLOR back_color;///<背景颜色
+    int align;///对齐方式
+    uint32_t max_len;///最大长度
+}TEXT_ELE_AUTO_LAYOUT_T;
+/** 
+  * @brief 界面编辑对象自动布局结构
+  */
+typedef struct{
+    uint16_t base_x;///<x基坐标
+    uint16_t base_y;///<y基坐标
+    uint16_t name_w;///<名称文本控件的宽度
+    uint16_t edit_w;///<编辑控件的宽度
+    uint16_t uint_w;///<单位文本控件的宽度
+    uint16_t height;///<控件的高度
+    uint8_t rows;///<最大行数
+    uint8_t columns;///<最大列数
+    uint16_t row_spacing;///<行距
+    uint16_t column_spacing;///<列距
+    const GUI_FONT *font;///<字体
+    GUI_COLOR font_color;///<字体颜色
+    GUI_COLOR back_color;///<背景颜色
+    int name_align;///<对齐方式
+    int edit_align;///<对齐方式
+    int unit_align;///<对齐方式
+    uint32_t max_len;///<最大长度
+}EDIT_ELE_AUTO_LAYOUT_T;
 /** 
   * @brief 用户窗口结构
   */
@@ -101,6 +142,8 @@ struct MYUSER_WINDOW{
     ELE_POOL_INF text;///<文本控件索引池
     ELE_POOL_INF edit;///<编辑控件索引池
     ELE_POOL_INF com;///<公共文本控件索引池
+    TEXT_ELE_AUTO_LAYOUT_T **text_ele_auto_layout_pool;///<窗口中文本对象自动布局信息池
+    EDIT_ELE_AUTO_LAYOUT_T **edit_ele_auto_layout_pool;///<窗口中编辑对象自动布局信息池
     
     WIDGET_POS_SIZE_T pos_size;///<窗口的位置尺寸
 	WM_HMEM	handle;///< 窗口句柄
@@ -204,6 +247,7 @@ struct EDIT_ELE_T_{
         uint32_t low;///< 下限 
         uint8_t *notice[LANGUAGE_NUM];///< 提示信息包含中英文
         void (*check_value_validity)(EDIT_ELE_T*,uint32_t*);///<检查数据的正确性
+        void (*provided_dis_range_fun)(EDIT_ELE_T*);///<提供的显示range的函数
     }range;
     
     /* 按键信息 包含系统键 菜单键 键盘服务函数 */
@@ -226,44 +270,7 @@ typedef struct{
     WIDGET_POS_SIZE_T win_pos_size;///<窗口位置尺寸
     uint32_t dly_auto_close;///<延时自动关闭,计时为0表示不关闭，非0时间到自动关闭,单位ms
 }WARNING_INF;
-/** 
-  * @brief 界面文本对象自动布局结构
-  */
-typedef struct{
-    uint16_t base_x;///<x基坐标
-    uint16_t base_y;///<y基坐标
-    uint16_t width;///<文本控件的宽度
-    uint16_t height;///<文本控件的高度
-    uint8_t rows;///<最大行数
-    uint8_t columns;///<最大列数
-    uint8_t row_spacing;///<行距
-    uint8_t column_spacing;///<列距
-    const GUI_FONT * font[LANGUAGE_NUM];//不同语言可以使用不同的字体
-    GUI_COLOR font_color;///<字体颜色
-    GUI_COLOR back_color;///<背景颜色
-    int align;///对齐方式
-    uint32_t max_len;///最大长度
-}TEXT_ELE_AUTO_LAYOUT_T;
-/** 
-  * @brief 界面编辑对象自动布局结构
-  */
-typedef struct{
-    uint16_t base_x;///<x基坐标
-    uint16_t base_y;///<y基坐标
-    uint16_t name_w;///<名称文本控件的宽度
-    uint16_t edit_w;///<编辑控件的宽度
-    uint16_t uint_w;///<单位文本控件的宽度
-    uint16_t height;///<控件的高度
-    uint8_t rows;///<最大行数
-    uint8_t columns;///<最大列数
-    uint16_t row_spacing;///<行距
-    uint16_t column_spacing;///<列距
-    const GUI_FONT *font;///<字体
-    GUI_COLOR font_color;///<字体颜色
-    GUI_COLOR back_color;///<背景颜色
-    int align;///<对齐方式
-    uint32_t max_len;///<最大长度
-}EDIT_ELE_AUTO_LAYOUT_T;
+
 /*********************************************************************/
 /** 
   * @brief 范围信息是很多界面者会用到的公共文本控件
@@ -346,7 +353,7 @@ extern void set_user_window_handle(WM_HWIN hWin);
 extern void set_cur_window(MYUSER_WINDOW_T* win_info);
 extern void set_cur_edit_ele(EDIT_ELE_T *node);
 extern void show_user_window(MYUSER_WINDOW_T* win_info);
-extern void back_win(int id);
+extern void back_win(WM_HWIN id);
 extern MYUSER_WINDOW_T * get_user_window_info(WM_HWIN hWin);
 extern TEXT_ELE_T* get_text_ele_node(CS_INDEX index, CS_LIST* list, CS_ERR *err);
 extern void set_com_text_ele_dis_inf(UI_ELE_DISPLAY_INFO_T *inf, CS_INDEX index);

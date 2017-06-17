@@ -510,7 +510,7 @@ typedef struct{
 #define ONE_DCGR_MAX_CUR        (type_spe.one_dc_module_max_cur) ///<单个直流模块的最大输出电流
 #define GR_CUR_H		        (type_spe.gr_cur_h) ///<GR电流上限值
 #define GR_CUR_L		        (type_spe.gr_cur_l) ///<GR电流下限值
-#define GR_RES_H(temp_cur)		((float)(type_spe.gr_cur_h / 100.0) / (temp_cur) * 1000.0 * type_spe.gr_max_cur_res_rang + 0.5)///<计算电阻上限值
+#define GR_RES_H(temp_cur)		((type_spe.gr_cur_h / 100.0) / (temp_cur) * 1000.0 * type_spe.gr_max_cur_res_rang + 0.5)///<计算电阻上限值
 #define GR_RES_L		        (type_spe.gr_res_l) ///<GR电阻下限值
 #define GR_VOL_DROP_EN	        (type_spe.gr_vol_drop_mode) ///<GR的压降测试模式
 #define GR_VOL_DIV_SEGMENT_EN   (type_spe.gr_cur_divide_gear_en) ///<GR电流分档使能开关

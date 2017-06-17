@@ -52,10 +52,13 @@ void mysprintf(uint8_t *buf, const uint8_t* unit, uint8_t format, uint32_t value
         return;
     }
     
-    if(lon - decs_n < 2)
+    if(decs_n > 0 && lon - decs_n < 2)
     {
         strcpy((char*)buf, "0.000");
-        strcat((char*)buf, (const char*)unit);
+        if(unit != NULL)
+        {
+            strcat((char*)buf, (const char*)unit);
+        }
         return;
     }
     

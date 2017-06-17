@@ -126,6 +126,9 @@ static const STAND_MENU_KEY_INFO_T all_menu_key_info_[]=
 	{{"插入", "Inster"	}, F_KEY_INSTER   	},
 	{{"前移", "Forward"	}, F_KEY_FORWARD   	},
 	{{"后移", "Backward"}, F_KEY_BACKWARD   },
+	{{"开启", "ON"      }, F_KEY_ON   	    },
+	{{"关闭", "OFF"     }, F_KEY_OFF        },
+	{{"等级", "Grade"   }, F_KEY_GRADE        },
 };
 
 /**

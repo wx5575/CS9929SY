@@ -16,7 +16,7 @@
   */
 const uint8_t *unit_pool[]=
 {
-	"","s","mV","V","kV","uA","mA","A","mΩ","Ω","MΩ","GΩ","pF","nF","uF",
+	"","s","mV","V","kV","uA","mA","A","mΩ","Ω","MΩ","GΩ","pF","nF","uF","Hz",
 };
 /**
   * @brief  工作模式
@@ -26,6 +26,14 @@ const uint8_t *work_mode_pool[2]={"N","G"};
   * @brief  语言
   */
 const uint8_t *language_pool[2]={"中文","English"};
+
+/**
+  * @brief  开关
+  */
+const uint8_t *sw_pool[2][2]={
+    {"关闭","开启"},
+    {"OFF","ON"},
+};
 /**
   * @brief  测试模式
   */

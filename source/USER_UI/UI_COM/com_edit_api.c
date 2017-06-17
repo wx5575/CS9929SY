@@ -55,6 +55,21 @@ CS_INDEX get_edit_ele_index(EDIT_ELE_T *edit_pool, uint32_t pool_size, CS_INDEX 
     return (CS_INDEX)0;
 }
 
+EDIT_ELE_T* get_edit_ele_inf(EDIT_ELE_T *edit_pool, uint32_t pool_size, CS_INDEX index, CS_ERR*err)
+{
+    EDIT_ELE_T *ele = NULL;
+    CS_INDEX tmp_index;
+    
+    tmp_index = get_edit_ele_index(edit_pool, pool_size, index, err);
+    
+    if(*err == CS_ERR_NONE)
+    {
+        ele = &edit_pool[tmp_index];
+    }
+    
+    return ele;
+}
+
 /**
   * @brief  初始化窗口中文本对象的链表
   * @param  [in] win 用户窗口信息
@@ -219,6 +234,7 @@ void set_edit_num_value(EDIT_ELE_T* ele, uint32_t value)
     uint8_t lon = ele->format.lon;
     
     mysprintf(buf, NULL, decs + lon * 10 + 1 * 100, value);
+    EDIT_SetMaxLen(handle, lon);
     EDIT_SetText(handle, (const void*)buf);
     update_unit_dis(ele);
 }
@@ -285,9 +301,15 @@ void upload_par_to_ram(EDIT_ELE_T* ele)
         case ELE_EDIT_STR:
         {
 			EDIT_GetText(handle, (char*)buf, max_len);
+            
             if(strlen((const char*)buf) > 0)
             {
                 memcpy(data, (const void*)buf, max_len);
+                
+                if(ele->range.check_value_validity != NULL)
+                {
+                    ele->range.check_value_validity(ele, (uint32_t*)buf);
+                }
             }
             else
             {
@@ -297,7 +319,6 @@ void upload_par_to_ram(EDIT_ELE_T* ele)
         }
         case ELE_DROPDOWN:
         {
-			value = DROPDOWN_GetSel(handle);
             DROPDOWN_GetUserData(handle, &value, size);
             
             /* 对数据进行检查 */
@@ -623,18 +644,29 @@ void update_ele_range_text(EDIT_ELE_T *ele)
     
     str[CHINESE] = ele->range.notice[CHINESE];
     str[ENGLISH] = ele->range.notice[ENGLISH];
-
+    
     switch(ele->type.type)
     {
         case ELE_TEXT:
             break;
         case ELE_EDIT_NUM:
-            mysprintf(buf1, unit_pool[ele->format.unit], ele->format.decs + ele->format.lon * 10 + 1 * 100, ele->range.low);
-            mysprintf(buf2, unit_pool[ele->format.unit], ele->format.decs + ele->format.lon * 10 + 1 * 100, ele->range.high);
-            sprintf((char*)buf, "%s - %s", buf1, buf2);
-            str[CHINESE] = buf;
-            str[ENGLISH] = buf;
+        {
+            if(ele->range.provided_dis_range_fun != NULL)
+            {
+                ele->range.provided_dis_range_fun(ele);
+            }
+            else
+            {
+                mysprintf(buf1, unit_pool[ele->format.unit], ele->format.decs + ele->format.lon * 10 + 1 * 100, ele->range.low);
+                mysprintf(buf2, unit_pool[ele->format.unit], ele->format.decs + ele->format.lon * 10 + 1 * 100, ele->range.high);
+                sprintf((char*)buf, "%s - %s", buf1, buf2);
+                sprintf((char*)buf1, "%s %s", buf, str[CHINESE]);
+                sprintf((char*)buf2, "%s %s", buf, str[ENGLISH]);
+                str[CHINESE] = buf1;
+                str[ENGLISH] = buf2;
+            }
             break;
+        }
         case ELE_EDIT_STR:
             break;
         case ELE_DROPDOWN:
@@ -903,4 +935,127 @@ void init_menu_key_custom_inf(CUSTOM_MENU_KEY_INF *cus_inf,
     }
 }
 
+/**
+  * @brief  设置下拉框的开关变量为打开状态
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+void set_sw_status_on(WM_HMEM hWin)
+{
+    uint8_t size = g_cur_edit_ele->data.bytes;
+    uint32_t value = SW_ON;
+    WM_HMEM handle = g_cur_edit_ele->dis.edit.handle;
+    
+    DROPDOWN_SetSel(handle, value);
+    DROPDOWN_SetUserData(handle, &value, size);
+    upload_par_to_ram(g_cur_edit_ele);//数据更新到内存
+}
+
+/**
+  * @brief  设置下拉框的开关变量为关闭状态
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+void set_sw_status_off(WM_HMEM hWin)
+{
+    uint8_t size = g_cur_edit_ele->data.bytes;
+    uint32_t value = SW_OFF;
+    WM_HMEM handle = g_cur_edit_ele->dis.edit.handle;
+    
+    DROPDOWN_SetSel(handle, value);
+    DROPDOWN_SetUserData(handle, &value, size);
+    upload_par_to_ram(g_cur_edit_ele);//数据更新到内存
+}
+
+/**
+  * @brief  公用向上键的回调函数
+  * @param  [in] key_msg 回调函数携带的按键消息
+  * @retval 无
+  */
+void com_edit_win_direct_key_up_cb(KEY_MESSAGE *key_msg)
+{
+    dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
+    
+    if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.prev)
+    {
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev, EDIT_ELE_T, e_list);
+    }
+    else
+    {
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.prev->prev, EDIT_ELE_T, e_list);
+    }
+    
+    select_edit_ele(g_cur_edit_ele);
+}
+/**
+  * @brief  公用的编辑窗口向下键的回调函数
+  * @param  [in] key_msg 回调函数携带的按键消息
+  * @retval 无
+  */
+void com_edit_win_direct_key_down_cb(KEY_MESSAGE *key_msg)
+{
+    dis_select_edit_ele(g_cur_edit_ele, LOAD_TO_RAM);
+    
+    if(&g_cur_win->edit.list_head != g_cur_edit_ele->e_list.next)
+    {
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next, EDIT_ELE_T, e_list);
+    }
+    else
+    {
+        g_cur_edit_ele = list_entry(g_cur_edit_ele->e_list.next->next, EDIT_ELE_T, e_list);
+    }
+    
+    select_edit_ele(g_cur_edit_ele);
+}
+
+/**
+  * @brief  初始化开关类型编辑对象的资源信息
+  * @param  [in] step 步骤参数结构
+  * @retval 无
+  */
+void init_sw_type_edit_ele_resource_inf(EDIT_ELE_T* ele)
+{
+    ele->resource.table = sw_pool[SYS_LANGUAGE];
+    ele->resource.size = ARRAY_SIZE(sw_pool[SYS_LANGUAGE]);
+}
+
+/**
+  * @brief  设置当前窗口编辑控件的索引表信息
+  * @param  [in] step 步骤参数结构
+  * @retval 无
+  */
+void set_g_cur_win_edit_index_inf(CS_INDEX *index_pool, uint32_t size)
+{
+    g_cur_win->edit.index_pool = index_pool;
+    g_cur_win->edit.index_size = size;
+}
+
+/**
+  * @brief  注册步骤编辑对象的数据
+  * @param  [in] index 编辑对象在编辑对象池中的索引
+  * @param  [in] data 数据的地址
+  * @retval 无
+  */
+void reg_step_ele_data(CS_INDEX index, void *data, uint8_t bytes)
+{
+    CS_INDEX tmp_index;
+    CS_ERR err;
+    EDIT_ELE_T *pool;
+    EDIT_ELE_T* ele;
+    uint32_t size;
+    
+    pool = g_cur_win->edit.pool;
+    size = g_cur_win->edit.pool_size;
+    tmp_index = get_edit_ele_index(pool, size, index, &err);
+    
+    if(err != CS_ERR_NONE)
+    {
+        return;
+    }
+    
+    ele = &pool[tmp_index];
+    
+    ele->data.data = data;
+    ele->data.bytes = bytes;
+}
 /************************ (C) COPYRIGHT 2017 长盛仪器 *****END OF FILE****/

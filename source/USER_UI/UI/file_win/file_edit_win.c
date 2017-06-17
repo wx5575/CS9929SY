@@ -18,7 +18,6 @@
 #include "fonts.h"
 #include "ff.h"
 #include "OS.H"
-#include "app.h"
 #include "cs99xx_struct.h"
 #include "FRAMEWIN.H"
 #include "EDIT.H"
@@ -66,6 +65,13 @@ static void edit_pass_time_f2_cb(KEY_MESSAGE *key_msg);
 static void edit_pass_time_f3_cb(KEY_MESSAGE *key_msg);
 static void edit_pass_time_f4_cb(KEY_MESSAGE *key_msg);
 
+static void edit_sw_f1_cb(KEY_MESSAGE *key_msg);
+static void edit_sw_f2_cb(KEY_MESSAGE *key_msg);
+static void edit_sw_f3_cb(KEY_MESSAGE *key_msg);
+static void edit_sw_f4_cb(KEY_MESSAGE *key_msg);
+static void edit_sw_f5_cb(KEY_MESSAGE *key_msg);
+static void edit_sw_f6_cb(KEY_MESSAGE *key_msg);
+
 static void init_create_file_edit_win_com_ele(MYUSER_WINDOW_T* win);
 static void init_create_file_edit_win_edit_ele(MYUSER_WINDOW_T* win);
 
@@ -80,6 +86,8 @@ static void fbeeptime_menu_key(WM_HWIN data);
 
 static void set_fwmode_n(WM_HWIN hWin);
 static void set_fwmode_g(WM_HWIN hWin);
+
+static void edit_sw_menu_key_init(WM_HMEM hWin);
 /* Private variables ---------------------------------------------------------*/
 
 /**
@@ -149,6 +157,18 @@ static FUNCTION_KEY_INFO_T file_edit_sys_key_pool[]=
 	{CODE_LEFT	, file_edit_direct_key_down_cb	 },
 };
 /**
+  * @brief  编辑开关变量时使用的菜单键初始化信息数组
+  */
+static MENU_KEY_INFO_T 	edit_sw_menu_key_init_info[] =
+{
+    {"", F_KEY_ON   , KEY_F1 & _KEY_UP, edit_sw_f1_cb },//f1
+    {"", F_KEY_OFF  , KEY_F2 & _KEY_UP, edit_sw_f2_cb },//f2
+    {"", F_KEY_NULL , KEY_F3 & _KEY_UP, edit_sw_f3_cb },//f3
+    {"", F_KEY_NULL , KEY_F4 & _KEY_UP, edit_sw_f4_cb },//f4
+    {"", F_KEY_NULL , KEY_F5 & _KEY_UP, edit_sw_f5_cb },//f5
+    {"", F_KEY_BACK , KEY_F6 & _KEY_UP, edit_sw_f6_cb },//f6
+};
+/**
   * @brief  文件编辑窗口的编辑对象初始化数组
   */
 static EDIT_ELE_T edit_file_ele_pool[]=
@@ -161,9 +181,12 @@ static EDIT_ELE_T edit_file_ele_pool[]=
         {NULL,0},/* 资源表 */
         {ELE_EDIT_STR, E_STRING_T},/*类型*/
         {0/*decs*/,20/*lon*/,NULL_U_NULL/*unit*/,},/*format*/
-        {0/*heigh*/,0/*low*/,{"1-12个字符 \n(A-Z a-z 0-9 空格 + / - .)","1-12 characters\n(A-Z a-z 0-9 space + / - .)"}/*notice*/},/*range*/
-        {fname_sys_key,fname_menu_key,keyboard_fun_str,},/*key_inf*/
-        0,/*dis*/
+        {
+            0/*heigh*/,0/*low*/,{"1-12个字符 \n(A-Z a-z 0-9 空格 + / - .)"
+            ,"1-12 characters\n(A-Z a-z 0-9 space + / - .)"}/*notice*/
+            
+        },/*range*/
+        {fname_sys_key, fname_menu_key, keyboard_fun_str,},/*key_inf*/
     },
     {
         {"工作模式:","WorkMode:"}, /* 名称 */
@@ -174,32 +197,40 @@ static EDIT_ELE_T edit_file_ele_pool[]=
         {ELE_DROPDOWN, E_INT_T},/*类型*/
         {0/*decs*/,20/*lon*/,NULL_U_NULL/*unit*/,},/*format*/
         {0/*heigh*/,0/*low*/,{"WorkMode","WorkMode"}/*notice*/},/*range*/
-        {fwmode_sys_key,fwmode_menu_key,keyboard_fun_num,},/*key_inf*/
-        0,/*dis*/
+        {fwmode_sys_key, fwmode_menu_key, keyboard_fun_num,},/*key_inf*/
     },
     {
         {"蜂鸣时间:","BeepTime:"}, /* 名称 */
         FSAVE_UI_BEEPT,/* 通过枚举索引 */
         {0},/* 默认值 */
         {NULL, 2/*数据字节数*/},/* 数据指针 */
-        {work_mode_pool, ARRAY_SIZE(work_mode_pool)},/* 资源表 */
+        {NULL, 0},/* 资源表 */
         {ELE_EDIT_NUM, E_INT_T},/*类型*/
         {1/*decs*/,5/*lon*/,TIM_U_s/*unit*/,},/*format*/
         {9999/*heigh*/,0/*low*/,{"BeepTime","BeepTime"}/*notice*/},/*range*/
-        {fbeeptime_sys_key,fbeeptime_menu_key,keyboard_fun_num,},/*key_inf*/
-        0,/*dis*/
+        {fbeeptime_sys_key, fbeeptime_menu_key, keyboard_fun_num,},/*key_inf*/
     },
     {
         {"PASS时间:","PassTime:"}, /* 名称 */
         FSAVE_UI_PASST,/* 通过枚举索引 */
         {0},/* 默认值 */
         {NULL, 2/*数据字节数*/},/* 数据指针 */
-        {work_mode_pool, ARRAY_SIZE(work_mode_pool)},/* 资源表 */
+        {NULL, 0},/* 资源表 */
         {ELE_EDIT_NUM, E_FLOAT_T},/*类型*/
         {1/*decs*/,5/*lon*/,TIM_U_s/*unit*/,},/*format*/
         {9999/*heigh*/,0/*low*/,{"PassTime","PassTime"}/*notice*/},/*range*/
-        {fpasstime_sys_key,fpasstime_menu_key,keyboard_fun_num,},/*key_inf*/
-        0,/*dis*/
+        {fpasstime_sys_key, fpasstime_menu_key, keyboard_fun_num,},/*key_inf*/
+    },
+    {
+        {"电弧侦测:","ARC Mode:"}, /* 名称 */
+        FSAVE_UI_ARC_MODE,/* 通过枚举索引 */
+        {0},/* 默认值 */
+        {NULL, 2/*数据字节数*/},/* 数据指针 */
+        {NULL, 0},/* 资源表 */
+        {ELE_DROPDOWN, E_INT_T},/*类型*/
+        {1/*decs*/,5/*lon*/,TIM_U_s/*unit*/,},/*format*/
+        {9999/*heigh*/,0/*low*/,{"PassTime","PassTime"}/*notice*/},/*range*/
+        {fpasstime_sys_key, edit_sw_menu_key_init, keyboard_fun_num,},/*key_inf*/
     },
 };
 /**
@@ -211,6 +242,7 @@ static CS_INDEX fsave_ui_ele_table[]=
     FSAVE_UI_WMODE,
     FSAVE_UI_BEEPT,
     FSAVE_UI_PASST,
+    FSAVE_UI_ARC_MODE,
 };
 /**
   * @brief  文件新建窗口的编辑对象索引数组
@@ -221,6 +253,7 @@ static CS_INDEX fnew_ui_ele_table[]=
     FSAVE_UI_WMODE,
     FSAVE_UI_BEEPT,
     FSAVE_UI_PASST,
+    FSAVE_UI_ARC_MODE,
 };
 /**
   * @brief  文件编辑窗口的编辑对象索引数组
@@ -231,6 +264,7 @@ static CS_INDEX fedit_ui_ele_table[]=
     FSAVE_UI_WMODE,
     FSAVE_UI_BEEPT,
     FSAVE_UI_PASST,
+    FSAVE_UI_ARC_MODE,
 };
 /**
   * @brief  文件保存窗口的数据结构定义
@@ -458,6 +492,71 @@ static void edit_pass_time_f4_cb(KEY_MESSAGE *key_msg)
 
 
 /**
+  * @brief  编辑开关变量使用的功能键F1回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_sw_f1_cb(KEY_MESSAGE *key_msg)
+{
+    set_sw_status_on(key_msg->user_data);
+}
+/**
+  * @brief  编辑开关变量使用的功能键F2回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_sw_f2_cb(KEY_MESSAGE *key_msg)
+{
+    set_sw_status_off(key_msg->user_data);
+}
+/**
+  * @brief  编辑开关变量使用的功能键F3回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_sw_f3_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  编辑开关变量使用的功能键F4回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_sw_f4_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  编辑开关变量使用的功能键F5回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_sw_f5_cb(KEY_MESSAGE *key_msg)
+{
+}
+/**
+  * @brief  编辑开关变量使用的功能键F6回调函数
+  * @param  [in] key_msg 按键消息
+  * @retval 无
+  */
+static void edit_sw_f6_cb(KEY_MESSAGE *key_msg)
+{
+    back_win(key_msg->user_data);
+}
+/**
+  * @brief  编辑开关变量使用的菜单键初始化
+  * @param  [in] hWin 窗口句柄
+  * @retval 无
+  */
+static void edit_sw_menu_key_init(WM_HMEM hWin)
+{
+    MENU_KEY_INFO_T * info = edit_sw_menu_key_init_info;
+    uint32_t size = ARRAY_SIZE(edit_sw_menu_key_init_info);
+    int32_t data = g_cur_edit_ele->dis.edit.handle;
+    
+	init_menu_key_info(info, size, data);
+}
+
+/**
   * @brief  向上方向键回调函数
   * @param  [in] key_msg 按键消息
   * @retval 无
@@ -506,8 +605,6 @@ static void file_edit_direct_key_right_cb(KEY_MESSAGE *key_msg)
 {
 	GUI_SendKeyMsg(GUI_KEY_RIGHT, 1);
 }
-
-
 
 /**
   * @brief  注册文件名编辑系统键
@@ -573,7 +670,6 @@ static void fwmode_menu_key(WM_HWIN hWin)
     
 	init_menu_key_info(info, size, data);
 }
-
 
 /**
   * @brief  注册PASS时间编辑菜单键
@@ -651,10 +747,27 @@ static void menu_key_cancle(WM_HWIN hWin)
   */
 static void set_file_par_window_ele_data(TEST_FILE *f)
 {
-    set_edit_ele_data(&edit_file_ele_pool[FSAVE_UI_FNAME], f->name);
-    set_edit_ele_data(&edit_file_ele_pool[FSAVE_UI_WMODE], &f->work_mode);
-    set_edit_ele_data(&edit_file_ele_pool[FSAVE_UI_BEEPT], &f->buzzer_time);
-    set_edit_ele_data(&edit_file_ele_pool[FSAVE_UI_PASST], &f->pass_time);
+    EDIT_ELE_T* ele;
+    CS_ERR err;
+    EDIT_ELE_T *pool;
+    uint32_t size;
+    
+    
+    pool = g_cur_win->edit.pool;
+    size = g_cur_win->edit.pool_size;
+    
+    reg_step_ele_data(FSAVE_UI_FNAME, f->name,  sizeof(f->name));//文件名
+    reg_step_ele_data(FSAVE_UI_WMODE, &f->work_mode,  sizeof(f->work_mode));//工作模式
+    reg_step_ele_data(FSAVE_UI_BEEPT, &f->buzzer_time,  sizeof(f->buzzer_time));//蜂鸣时间
+    reg_step_ele_data(FSAVE_UI_PASST, &f->pass_time,  sizeof(f->pass_time));//PASS时间
+    
+    reg_step_ele_data(FSAVE_UI_ARC_MODE, &f->arc_mode,  sizeof(f->arc_mode));//电弧侦测
+    ele = get_edit_ele_inf(pool, size, FSAVE_UI_ARC_MODE, &err);
+    
+    if(err == CS_ERR_NONE)
+    {
+        init_sw_type_edit_ele_resource_inf(ele);
+    }
 }
 /**
   * @brief  初始化并创建窗口编辑对象
@@ -719,6 +832,7 @@ static void file_edit_win_cb(WM_MESSAGE * pMsg)
 		}
         default:
             WM_DefaultProc(pMsg);
+			break;
     }
 }
 /* Public functions ---------------------------------------------------------*/

@@ -53,6 +53,10 @@ typedef struct list_head CS_LIST;
     (_ent_) != (_list_);                 \
     (_ent_) = (_ent_)->next )
 
+#define list_for_each_reverse( _ent_, _list_ )   \
+    for ( (_ent_) = (_list_)->prev;      \
+    (_ent_) != (_list_);                 \
+    (_ent_) = (_ent_)->prev )
 /*
  * list_for_each_entry - this function can be use to iterate over all
  * items in a list* _list_ with it's head at _head_ and link _item_

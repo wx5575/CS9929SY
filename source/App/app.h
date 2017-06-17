@@ -64,10 +64,6 @@ extern void emwindemo_task(void *p_arg);
 extern void led0_task(void *p_arg);
 extern void touch_task(void *p_arg);
 
-extern void set_scan_key_custom_fun(void (*fun)());
-extern void keyboard_fun_str(uint32_t key_value);
-extern void keyboard_fun_num(uint32_t key_value);
-extern void keyboard_fun_pwd(uint32_t key_value);
 
 #endif // __APP_H__
 

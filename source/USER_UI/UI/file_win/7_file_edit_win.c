@@ -44,8 +44,10 @@ EDIT_ELE_AUTO_LAYOUT_T _7_file_edit_ele_auto_layout_inf=
 {
     10/*base_x*/,50/*base_y*/,
     120/*name_w*/,120/*edit_w*/,25/*uint_w*/,30/*height*/,
-    3/*rows*/,1/*column*/,50/*row_spacing*/,0/*column_spacing*/,
-    FONT, GUI_BLACK, GUI_INVALID_COLOR, GUI_TA_CENTER | GUI_TA_VCENTER,20/*max_len*/
+    5/*rows*/,1/*column*/,45/*row_spacing*/,0/*column_spacing*/,
+    FONT, GUI_BLACK, GUI_INVALID_COLOR,
+    GUI_TA_RIGHT | GUI_TA_VCENTER, GUI_TA_CENTER | GUI_TA_VCENTER, GUI_TA_LEFT | GUI_TA_VCENTER,
+    20/*max_len*/
 };
 
 

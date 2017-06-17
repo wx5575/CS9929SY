@@ -175,12 +175,12 @@ void init_window_edit_ele_dis_inf(MYUSER_WINDOW_T *win, EDIT_ELE_AUTO_LAYOUT_T* 
         dis->unit.back_color = inf->back_color;
         
         dis->name.max_len = inf->max_len;
-        dis->edit.max_len = inf->max_len;
+        dis->edit.max_len = node->format.lon;
         dis->unit.max_len = inf->max_len;
         
-        dis->name.align = inf->align;
-        dis->edit.align = inf->align;
-        dis->unit.align = inf->align;
+        dis->name.align = inf->name_align;
+        dis->edit.align = inf->edit_align;
+        dis->unit.align = inf->unit_align;
         
         ++row;
         
@@ -757,7 +757,7 @@ static void show_user_window(MYUSER_WINDOW_T* win_info)
   * @param  [in] hWin 窗口句柄
   * @retval 无
   */
-void back_win(int hWin)
+void back_win(WM_HWIN hWin)
 {
     del_cur_window();
     show_user_window(g_cur_win);
